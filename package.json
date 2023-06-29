@@ -1,7 +1,8 @@
 {
-  "name": "editor-variables",
-  "displayName": "Editor Variables",
-  "description": "Query editor information (selection, lines, etc.) in your tasks and keybindings.",
+  "name": "git-terminal-history",
+  "displayName": "Git Terminal History",
+  "description": "Trigger Git history commands for the active editor",
+  "publisher": "Jamin Thornsberry",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.79.0"
@@ -14,8 +15,24 @@
   "contributes": {
     "commands": [
       {
-        "command": "editor-variables.helloWorld",
-        "title": "Hello World"
+        "command": "git-terminal-history.fileHistory",
+        "title": "Git Terminal History: File History"
+      },
+      {
+        "command": "git-terminal-history.lineHistory",
+        "title": "Git Terminal History: Line History"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "git-terminal-history.fileHistory",
+        "key": "alt+h",
+        "when": "editorFocus"
+      },
+      {
+        "command": "git-terminal-history.lineHistory",
+        "key": "alt+l",
+        "when": "editorTextFocus"
       }
     ]
   },

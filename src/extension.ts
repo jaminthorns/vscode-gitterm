@@ -1,26 +1,64 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { basename } from "path";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+const USE_ACTIVE_TERMINAL = false;
+const OPEN_TERMINAL_MESSAGE =
+  "You must have a terminal open to use this command.";
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "editor-variables" is now active!');
+function getTerminal(name: string) {
+  const activeTerminal = vscode.window.activeTerminal;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('editor-variables.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Editor Variables!');
-	});
-
-	context.subscriptions.push(disposable);
+  if (USE_ACTIVE_TERMINAL && activeTerminal === undefined) {
+    vscode.window.showInformationMessage(OPEN_TERMINAL_MESSAGE);
+    return null;
+  } else if (USE_ACTIVE_TERMINAL && activeTerminal !== undefined) {
+    return activeTerminal;
+  } else {
+    const historyIcon = new vscode.ThemeIcon("history");
+    return vscode.window.createTerminal({ name, iconPath: historyIcon });
+  }
 }
 
-// This method is called when your extension is deactivated
+export function activate(context: vscode.ExtensionContext) {
+  const fileHistory = vscode.commands.registerTextEditorCommand(
+    "git-terminal-history.fileHistory",
+    (editor: vscode.TextEditor) => {
+      const path = vscode.workspace.asRelativePath(editor.document.uri);
+      const commandText = `git history -f ${path}`;
+
+      const fileName = basename(path);
+      const terminal = getTerminal(`File History: ${fileName}`);
+
+      if (terminal === null) {
+        return;
+      }
+
+      terminal.show();
+      terminal.sendText(commandText);
+    }
+  );
+
+  const lineHistory = vscode.commands.registerTextEditorCommand(
+    "git-terminal-history.lineHistory",
+    (editor: vscode.TextEditor) => {
+      const { start, end } = editor.selection;
+      const lineRange = `${start.line + 1},${end.line + 1}`;
+      const path = vscode.workspace.asRelativePath(editor.document.uri);
+      const commandText = `git log -L ${lineRange}:${path}`;
+
+      const fileName = basename(path);
+      const terminal = getTerminal(`Line History: ${fileName}:${lineRange}`);
+
+      if (terminal === null) {
+        return;
+      }
+
+      terminal.show();
+      terminal.sendText(commandText);
+    }
+  );
+
+  context.subscriptions.push(fileHistory, lineHistory);
+}
+
 export function deactivate() {}
