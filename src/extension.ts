@@ -2,13 +2,18 @@ import * as vscode from "vscode";
 import { basename } from "path";
 import { exec } from "child_process";
 
+interface Commit {
+  full: string;
+  abbreviated: string;
+}
+
 interface TerminalOptionsWithContext extends vscode.TerminalOptions {
   context: any;
 }
 
 interface CommitTerminalLink extends vscode.TerminalLink {
   context: {
-    commit: string;
+    commit: Commit;
     path: string | null;
   };
 }
@@ -48,8 +53,17 @@ async function isCommit(text: string): Promise<boolean> {
   }
 }
 
-async function abbreviateCommit(commit: string): Promise<string> {
-  return await runCommand(`git rev-parse --short ${commit}`);
+async function parseCommit(raw: string): Promise<Commit | null> {
+  try {
+    const [full, abbreviated] = await Promise.all([
+      runCommand(`git rev-parse ${raw}`),
+      runCommand(`git rev-parse --short ${raw}`),
+    ]);
+
+    return { full, abbreviated };
+  } catch (error) {
+    return null;
+  }
 }
 
 function runCommandInTerminal<Context>({
@@ -120,86 +134,94 @@ export function activate(context: vscode.ExtensionContext) {
       const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g));
 
       const possibleMatches = await Promise.all(
-        lineMatches.map(async ([match, commit]) => ({
-          match,
-          commit,
-          valid: await isCommit(commit),
-        }))
+        lineMatches.map(async ([match, rawCommit]) => {
+          const commit = await parseCommit(rawCommit);
+
+          if (commit === null) {
+            return null;
+          } else {
+            const matchStart = line.indexOf(match);
+            const startIndex = matchStart + match.indexOf(rawCommit);
+
+            return {
+              startIndex,
+              length: rawCommit.length,
+              tooltip: "Open commit in a new terminal",
+              context: { commit, path },
+            };
+          }
+        })
       );
 
-      return possibleMatches
-        .filter(({ valid }) => valid)
-        .map(({ match, commit }) => {
-          const matchStart = line.indexOf(match);
-          const startIndex = matchStart + match.indexOf(commit);
-
-          return {
-            startIndex,
-            length: commit.length,
-            tooltip: "Open commit in a new terminal",
-            context: { commit, path },
-          };
-        });
+      return possibleMatches.filter((l) => l !== null) as CommitTerminalLink[];
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
-      const { commit: rawCommit, path } = context;
-      const commit = await abbreviateCommit(rawCommit);
+      const { commit, path } = context;
+
+      const commitItems = [
+        {
+          label: "$(git-commit) Show Commit",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: `Commit: ${commit.abbreviated}`,
+              icon: "git-commit",
+              command: `git show ${commit.full}`,
+              context: { commit },
+            });
+          },
+        },
+        {
+          label: "$(files) Copy Commit to Clipboard",
+          onSelected: () => {
+            vscode.env.clipboard.writeText(commit.full);
+          },
+        },
+      ];
+
+      let selectedItem;
 
       if (path === null) {
-        runCommandInTerminal({
-          name: `Commit: ${commit}`,
-          icon: "git-commit",
-          command: `git show ${commit}`,
-          context: { commit },
+        selectedItem = await vscode.window.showQuickPick(commitItems, {
+          placeHolder: `Choose an action for ${commit.abbreviated}...`,
         });
       } else {
         const file = basename(path);
 
-        const item = await vscode.window.showQuickPick(
-          [
-            {
-              label: "Show Commit",
-              description: commit,
-              onSelected: () => {
-                runCommandInTerminal({
-                  name: `Commit: ${commit}`,
-                  icon: "git-commit",
-                  command: `git show ${commit}`,
-                  context: { commit },
-                });
-              },
+        const fileItems = [
+          {
+            label: "$(git-compare) Show File Diff",
+            description: file,
+            onSelected: () => {
+              runCommandInTerminal({
+                name: `Diff: ${file} (${commit.abbreviated})`,
+                icon: "git-compare",
+                command: `git show ${commit.full} -- ${path}`,
+                context: { commit, path },
+              });
             },
-            {
-              label: "Show File Diff",
-              description: `${file} (${commit})`,
-              onSelected: () => {
-                runCommandInTerminal({
-                  name: `Diff: ${file} (${commit})`,
-                  icon: "git-compare",
-                  command: `git show ${commit} -- ${path}`,
-                  context: { commit, path },
-                });
-              },
+          },
+          {
+            label: "$(file) Show File at Commit",
+            description: file,
+            onSelected: () => {
+              runCommandInTerminal({
+                name: `File: ${file} (${commit.abbreviated})`,
+                icon: "file",
+                command: `git show ${commit.full}:${path}`,
+                context: { commit, path },
+              });
             },
-            {
-              label: "Show File at Commit",
-              description: `${file} (${commit})`,
-              onSelected: () => {
-                runCommandInTerminal({
-                  name: `File: ${file} (${commit})`,
-                  icon: "file",
-                  command: `git show ${commit}:${path}`,
-                  context: { commit, path },
-                });
-              },
-            },
-          ],
-          { placeHolder: "Choose a commit action..." }
-        );
+          },
+        ];
 
-        item?.onSelected();
+        selectedItem = await vscode.window.showQuickPick(
+          [...commitItems, ...fileItems],
+          { placeHolder: `Choose an action for ${commit.abbreviated}...` }
+        );
       }
+
+      selectedItem?.onSelected();
     },
   });
 
