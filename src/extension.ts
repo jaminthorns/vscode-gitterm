@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
       const file = basename(path);
 
       runCommandInTerminal({
-        name: `File History: ${file}`,
+        name: `History: ${file}`,
         icon: "history",
         command: `git history -f ${path}`,
         context: { path },
@@ -113,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
       const file = basename(path);
 
       runCommandInTerminal({
-        name: `Line History: ${file}:${lineSuffix}`,
+        name: `History: ${file}:${lineSuffix}`,
         icon: "history",
         command: `git log -L ${lineRange}:${path}`,
         context: { path },
@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
             return {
               startIndex,
               length: rawCommit.length,
-              tooltip: "Open commit in a new terminal",
+              tooltip: "Pick a commit action",
               context: { commit, path },
             };
           }
@@ -158,6 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { commit, path } = context;
+      const placeHolder = `Select an action for commit ${commit.abbreviated}`;
 
       const commitItems = [
         {
@@ -166,7 +167,7 @@ export function activate(context: vscode.ExtensionContext) {
             runCommandInTerminal({
               name: `Commit: ${commit.abbreviated}`,
               icon: "git-commit",
-              command: `git show ${commit.full}`,
+              command: `git view ${commit.full}`,
               context: { commit },
             });
           },
@@ -183,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (path === null) {
         selectedItem = await vscode.window.showQuickPick(commitItems, {
-          placeHolder: `Choose an action for ${commit.abbreviated}...`,
+          placeHolder,
         });
       } else {
         const file = basename(path);
@@ -196,7 +197,7 @@ export function activate(context: vscode.ExtensionContext) {
               runCommandInTerminal({
                 name: `Diff: ${file} (${commit.abbreviated})`,
                 icon: "git-compare",
-                command: `git show ${commit.full} -- ${path}`,
+                command: `git show --format="" ${commit.full} -- ${path}`,
                 context: { commit, path },
               });
             },
@@ -217,7 +218,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         selectedItem = await vscode.window.showQuickPick(
           [...commitItems, ...fileItems],
-          { placeHolder: `Choose an action for ${commit.abbreviated}...` }
+          { placeHolder }
         );
       }
 

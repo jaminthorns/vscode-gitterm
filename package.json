@@ -2,7 +2,10 @@
   "name": "git-terminal-history",
   "displayName": "Git Terminal History",
   "description": "Trigger Git history commands for the active editor",
-  "publisher": "Jamin Thornsberry",
+  "publisher": "jamin.thorns",
+  "author": {
+    "name": "Jamin Thornsberry"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.79.0"
