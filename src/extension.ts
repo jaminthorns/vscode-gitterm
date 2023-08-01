@@ -44,15 +44,6 @@ async function runCommand(command: string): Promise<string> {
   });
 }
 
-async function isCommit(text: string): Promise<boolean> {
-  try {
-    await runCommand(`git rev-parse --verify ${text}`);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 async function parseCommit(raw: string): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
