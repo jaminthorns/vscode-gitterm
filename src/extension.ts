@@ -76,6 +76,21 @@ function runCommandInTerminal<Context>({
   terminal.sendText(command);
 }
 
+const CONFIG_VARIABLE_PATTERN = /\${(\w+)}/g;
+
+function gitCommand(commandKey: string, context: Record<string, any>): string {
+  let command = vscode.workspace
+    .getConfiguration("git-terminal-integration.gitCommands")
+    .get(commandKey) as string;
+
+  for (const match of command.matchAll(CONFIG_VARIABLE_PATTERN)) {
+    const [substitution, contextKey] = match;
+    command = command.replace(substitution, context[contextKey]);
+  }
+
+  return command;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const fileHistory = vscode.commands.registerTextEditorCommand(
     "git-terminal-integration.fileHistory",
@@ -86,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
       runCommandInTerminal({
         name: `History: ${file}`,
         icon: "history",
-        command: `git history -f ${path}`,
+        command: gitCommand("fileHistory", { path }),
         context: { path },
       });
     }
@@ -106,7 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
       runCommandInTerminal({
         name: `History: ${file}:${lineSuffix}`,
         icon: "history",
-        command: `git log -L ${lineRange}:${path}`,
+        command: gitCommand("lineHistory", { path, startLine, endLine }),
         context: { path },
       });
     }
@@ -158,7 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
             runCommandInTerminal({
               name: `Commit: ${commit.abbreviated}`,
               icon: "git-commit",
-              command: `git view ${commit.full}`,
+              command: gitCommand("showCommit", { commit: commit.full }),
               context: { commit },
             });
           },
@@ -188,7 +203,10 @@ export function activate(context: vscode.ExtensionContext) {
               runCommandInTerminal({
                 name: `Diff: ${file} (${commit.abbreviated})`,
                 icon: "git-compare",
-                command: `git show --format="" ${commit.full} -- ${path}`,
+                command: gitCommand("showFileDiffAtCommit", {
+                  commit: commit.full,
+                  path,
+                }),
                 context: { commit, path },
               });
             },
@@ -200,7 +218,10 @@ export function activate(context: vscode.ExtensionContext) {
               runCommandInTerminal({
                 name: `File: ${file} (${commit.abbreviated})`,
                 icon: "file",
-                command: `git show ${commit.full}:${path}`,
+                command: gitCommand("showFileContentsAtCommit", {
+                  commit: commit.full,
+                  path,
+                }),
                 context: { commit, path },
               });
             },
