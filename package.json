@@ -1,7 +1,7 @@
 {
-  "name": "git-terminal-history",
-  "displayName": "Git Terminal History",
-  "description": "Trigger Git history commands for the active editor",
+  "name": "git-terminal-integration",
+  "displayName": "Git Terminal Integration",
+  "description": "Integrations for using Git in the terminal",
   "publisher": "jamin.thorns",
   "author": {
     "name": "Jamin Thornsberry"
@@ -20,22 +20,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "git-terminal-history.fileHistory",
-        "title": "Git Terminal History: File History"
+        "command": "git-terminal-integration.fileHistory",
+        "title": "Git Terminal Integration: File History"
       },
       {
-        "command": "git-terminal-history.lineHistory",
-        "title": "Git Terminal History: Line History"
+        "command": "git-terminal-integration.lineHistory",
+        "title": "Git Terminal Integration: Line History"
       }
     ],
     "keybindings": [
       {
-        "command": "git-terminal-history.fileHistory",
+        "command": "git-terminal-integration.fileHistory",
         "key": "alt+h",
         "when": "editorFocus"
       },
       {
-        "command": "git-terminal-history.lineHistory",
+        "command": "git-terminal-integration.lineHistory",
         "key": "alt+l",
         "when": "editorTextFocus"
       }

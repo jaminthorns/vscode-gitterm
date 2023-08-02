@@ -1,3 +1,17 @@
-# Git Terminal History
+# Git Terminal Integration
 
-Trigger terminal commands for Git history that integrate with the active editor. It's neat!
+Some helpful integrations between Git and VS Code's integrated terminal.
+
+- Open file history (default keybinding `Alt-H`)
+
+- Open line history (default keybinding `Alt-L`)
+
+- Click on a commit ID in the terminal to:
+
+  - Show the commit
+
+  - Copy the commit ID to the clipboard
+
+  - Show a file diff at a commit (when viewing file/line history)
+
+  - Show a file at a commit (when viewing file/line history)

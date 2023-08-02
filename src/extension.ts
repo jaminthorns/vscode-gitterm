@@ -78,7 +78,7 @@ function runCommandInTerminal<Context>({
 
 export function activate(context: vscode.ExtensionContext) {
   const fileHistory = vscode.commands.registerTextEditorCommand(
-    "git-terminal-history.fileHistory",
+    "git-terminal-integration.fileHistory",
     ({ document }: vscode.TextEditor) => {
       const path = vscode.workspace.asRelativePath(document.uri);
       const file = basename(path);
@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const lineHistory = vscode.commands.registerTextEditorCommand(
-    "git-terminal-history.lineHistory",
+    "git-terminal-integration.lineHistory",
     ({ selection, document }: vscode.TextEditor) => {
       const startLine = selection.start.line + 1;
       const endLine = selection.end.line + 1;
