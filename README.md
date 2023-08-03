@@ -1,4 +1,4 @@
-# Git Terminal Integration
+# GitTerm
 
 Some helpful integrations between Git and VS Code's integrated terminal.
 

@@ -80,7 +80,7 @@ const CONFIG_VARIABLE_PATTERN = /\${(\w+)}/g;
 
 function gitCommand(commandKey: string, context: Record<string, any>): string {
   let command = vscode.workspace
-    .getConfiguration("git-terminal-integration.gitCommands")
+    .getConfiguration("gitterm.gitCommands")
     .get(commandKey) as string;
 
   for (const match of command.matchAll(CONFIG_VARIABLE_PATTERN)) {
@@ -93,7 +93,7 @@ function gitCommand(commandKey: string, context: Record<string, any>): string {
 
 export function activate(context: vscode.ExtensionContext) {
   const fileHistory = vscode.commands.registerTextEditorCommand(
-    "git-terminal-integration.fileHistory",
+    "gitterm.fileHistory",
     ({ document }: vscode.TextEditor) => {
       const path = vscode.workspace.asRelativePath(document.uri);
       const file = basename(path);
@@ -108,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const lineHistory = vscode.commands.registerTextEditorCommand(
-    "git-terminal-integration.lineHistory",
+    "gitterm.lineHistory",
     ({ selection, document }: vscode.TextEditor) => {
       const startLine = selection.start.line + 1;
       const endLine = selection.end.line + 1;
