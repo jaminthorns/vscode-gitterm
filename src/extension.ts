@@ -47,11 +47,44 @@ async function runCommand(command: string): Promise<string> {
 async function parseCommit(raw: string): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      runCommand(`git rev-parse ${raw}`),
-      runCommand(`git rev-parse --short ${raw}`),
+      runCommand(`git rev-parse '${raw}'`),
+      runCommand(`git rev-parse --short '${raw}'`),
     ]);
 
     return { full, abbreviated };
+  } catch (error) {
+    return null;
+  }
+}
+
+function chunk<T>(array: T[], count: number): T[][] {
+  return array.reduce((chunks: T[][], value, index) => {
+    const chunkIndex = Math.floor(index / count);
+
+    if (chunks[chunkIndex] === undefined) {
+      chunks[chunkIndex] = [];
+    }
+
+    chunks[chunkIndex].push(value);
+    return chunks;
+  }, []);
+}
+
+async function pathAtCommit(
+  currentPath: string,
+  targetCommit: Commit
+): Promise<string | null> {
+  try {
+    const commitPaths = await runCommand(
+      `git log --follow --name-only --format="%H" -- '${currentPath}'`
+    );
+
+    const { path } =
+      chunk(commitPaths.split(/\n+/), 2)
+        .map(([commit, path]) => ({ commit, path }))
+        .find(({ commit }) => commit === targetCommit.full) ?? {};
+
+    return path ?? null;
   } catch (error) {
     return null;
   }
@@ -83,12 +116,11 @@ function gitCommand(commandKey: string, context: Record<string, any>): string {
     .getConfiguration("gitterm.gitCommands")
     .get(commandKey) as string;
 
-  for (const match of command.matchAll(CONFIG_VARIABLE_PATTERN)) {
-    const [substitution, contextKey] = match;
-    command = command.replace(substitution, context[contextKey]);
-  }
+  const matches = Array.from(command.matchAll(CONFIG_VARIABLE_PATTERN));
 
-  return command;
+  return matches.reduce((command, [substitution, contextKey]) => {
+    return command.replace(substitution, context[contextKey]);
+  }, command);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -163,8 +195,12 @@ export function activate(context: vscode.ExtensionContext) {
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
+      let selectedItem;
       const { commit, path } = context;
       const placeHolder = `Select an action for commit ${commit.abbreviated}`;
+
+      const commitPath =
+        path === null ? null : await pathAtCommit(path, commit);
 
       const commitItems = [
         {
@@ -186,43 +222,37 @@ export function activate(context: vscode.ExtensionContext) {
         },
       ];
 
-      let selectedItem;
-
-      if (path === null) {
+      if (commitPath === null) {
         selectedItem = await vscode.window.showQuickPick(commitItems, {
           placeHolder,
         });
       } else {
-        const file = basename(path);
+        const file = basename(commitPath);
+        const context = { commit, path: commitPath };
+        const commandContext = { commit: commit.full, path: commitPath };
 
         const fileItems = [
           {
             label: "$(git-compare) Show File Diff",
-            description: file,
+            description: commitPath,
             onSelected: () => {
               runCommandInTerminal({
                 name: `Diff: ${file} (${commit.abbreviated})`,
                 icon: "git-compare",
-                command: gitCommand("showFileDiffAtCommit", {
-                  commit: commit.full,
-                  path,
-                }),
-                context: { commit, path },
+                context,
+                command: gitCommand("showFileDiffAtCommit", commandContext),
               });
             },
           },
           {
             label: "$(file) Show File at Commit",
-            description: file,
+            description: commitPath,
             onSelected: () => {
               runCommandInTerminal({
                 name: `File: ${file} (${commit.abbreviated})`,
                 icon: "file",
-                command: gitCommand("showFileContentsAtCommit", {
-                  commit: commit.full,
-                  path,
-                }),
-                context: { commit, path },
+                context,
+                command: gitCommand("showFileContentsAtCommit", commandContext),
               });
             },
           },

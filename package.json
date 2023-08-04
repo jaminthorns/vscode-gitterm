@@ -49,12 +49,12 @@
       "properties": {
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log --oneline --graph --date-order -- ${path}",
+          "default": "git log --oneline --graph --date-order -- '${path}'",
           "description": "Git command to use for file history command"
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log -L ${startLine},${endLine}:${path}",
+          "default": "git log -L ${startLine},${endLine}:'${path}'",
           "description": "Git command to use for line history command"
         },
         "gitterm.gitCommands.showCommit": {
@@ -64,12 +64,12 @@
         },
         "gitterm.gitCommands.showFileDiffAtCommit": {
           "type": "string",
-          "default": "git show --format=\"\" ${commit} -- ${path}",
+          "default": "git show --format=\"\" ${commit} -- '${path}'",
           "description": "Git command to use for showing a file's diff at a commit"
         },
         "gitterm.gitCommands.showFileContentsAtCommit": {
           "type": "string",
-          "default": "git show ${commit}:${path}",
+          "default": "git show ${commit}:'${path}'",
           "description": "Git command to use for showing a file's contents at a commit"
         }
       }
