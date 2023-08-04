@@ -7,21 +7,17 @@ interface Commit {
   abbreviated: string;
 }
 
-interface TerminalOptionsWithContext extends vscode.TerminalOptions {
-  context: any;
+interface CommitContext {
+  commit: Commit;
+}
+
+interface PathContext {
+  path: string;
+  commitPaths: ReturnType<typeof commitPaths>;
 }
 
 interface CommitTerminalLink extends vscode.TerminalLink {
-  context: {
-    commit: Commit;
-    path: string | null;
-  };
-}
-
-function isCustomTerminalOptions(
-  options: vscode.TerminalOptions
-): options is TerminalOptionsWithContext {
-  return "context" in options;
+  context: CommitContext & Partial<PathContext>;
 }
 
 async function runCommand(command: string): Promise<string> {
@@ -70,21 +66,15 @@ function chunk<T>(array: T[], count: number): T[][] {
   }, []);
 }
 
-async function pathAtCommit(
-  currentPath: string,
-  targetCommit: Commit
-): Promise<string | null> {
+async function commitPaths(
+  path: string
+): Promise<Record<string, string> | null> {
   try {
     const commitPaths = await runCommand(
-      `git log --follow --name-only --format="%H" -- '${currentPath}'`
+      `git log --follow --name-only --format="%H" -- '${path}'`
     );
 
-    const { path } =
-      chunk(commitPaths.split(/\n+/), 2)
-        .map(([commit, path]) => ({ commit, path }))
-        .find(({ commit }) => commit === targetCommit.full) ?? {};
-
-    return path ?? null;
+    return Object.fromEntries(chunk(commitPaths.split(/\n+/), 2));
   } catch (error) {
     return null;
   }
@@ -102,7 +92,7 @@ function runCommandInTerminal<Context>({
   command: string;
 }) {
   const iconPath = new vscode.ThemeIcon(icon);
-  const options: TerminalOptionsWithContext = { name, iconPath, context };
+  const options = { name, iconPath, context };
   const terminal = vscode.window.createTerminal(options);
 
   terminal.show();
@@ -129,12 +119,13 @@ export function activate(context: vscode.ExtensionContext) {
     ({ document }: vscode.TextEditor) => {
       const path = vscode.workspace.asRelativePath(document.uri);
       const file = basename(path);
+      const context: PathContext = { path, commitPaths: commitPaths(path) };
 
       runCommandInTerminal({
         name: `History: ${file}`,
         icon: "history",
         command: gitCommand("fileHistory", { path }),
-        context: { path },
+        context,
       });
     }
   );
@@ -149,12 +140,13 @@ export function activate(context: vscode.ExtensionContext) {
 
       const path = vscode.workspace.asRelativePath(document.uri);
       const file = basename(path);
+      const context: PathContext = { path, commitPaths: commitPaths(path) };
 
       runCommandInTerminal({
         name: `History: ${file}:${lineSuffix}`,
         icon: "history",
         command: gitCommand("lineHistory", { path, startLine, endLine }),
-        context: { path },
+        context,
       });
     }
   );
@@ -165,10 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
       terminal,
     }): Promise<CommitTerminalLink[]> {
       const options = terminal.creationOptions;
-      const path = isCustomTerminalOptions(options)
-        ? options.context.path ?? null
-        : null;
-
+      const context = "context" in options ? (options.context as object) : {};
       const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g));
 
       const possibleMatches = await Promise.all(
@@ -185,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
               startIndex,
               length: rawCommit.length,
               tooltip: "Pick a commit action",
-              context: { commit, path },
+              context: { ...context, commit },
             };
           }
         })
@@ -195,12 +184,13 @@ export function activate(context: vscode.ExtensionContext) {
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
-      let selectedItem;
-      const { commit, path } = context;
+      const { commit, path, commitPaths } = context;
       const placeHolder = `Select an action for commit ${commit.abbreviated}`;
 
       const commitPath =
-        path === null ? null : await pathAtCommit(path, commit);
+        path !== undefined && commitPaths !== undefined
+          ? (await commitPaths)?.[commit.full] ?? null
+          : null;
 
       const commitItems = [
         {
@@ -221,6 +211,8 @@ export function activate(context: vscode.ExtensionContext) {
           },
         },
       ];
+
+      let selectedItem;
 
       if (commitPath === null) {
         selectedItem = await vscode.window.showQuickPick(commitItems, {
