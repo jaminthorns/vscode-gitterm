@@ -3,6 +3,7 @@
   "displayName": "GitTerm",
   "description": "Integrations for using Git in the terminal",
   "publisher": "jaminthorns",
+  "icon": "assets/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/jaminthorns/vscode-gitterm.git"
