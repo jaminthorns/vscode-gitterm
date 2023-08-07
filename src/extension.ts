@@ -66,15 +66,13 @@ function chunk<T>(array: T[], count: number): T[][] {
   }, [])
 }
 
-async function commitPaths(
-  path: string,
-): Promise<Record<string, string> | null> {
+async function commitPaths(path: string): Promise<Map<string, string> | null> {
   try {
     const commitPaths = await runCommand(
       `git log --follow --name-only --format="%H" -- '${path}'`,
     )
 
-    return Object.fromEntries(chunk(commitPaths.split(/\n+/), 2))
+    return new Map(chunk(commitPaths.split(/\n+/), 2) as [string, string][])
   } catch (error) {
     return null
   }
@@ -189,7 +187,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const commitPath =
         path !== undefined && commitPaths !== undefined
-          ? (await commitPaths)?.[commit.full] ?? null
+          ? (await commitPaths)?.get(commit.full) ?? null
           : null
 
       const commitItems = [
