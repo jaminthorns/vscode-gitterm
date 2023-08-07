@@ -1,43 +1,43 @@
-import * as vscode from "vscode";
-import { basename } from "path";
-import { exec } from "child_process";
+import * as vscode from "vscode"
+import { basename } from "path"
+import { exec } from "child_process"
 
 interface Commit {
-  full: string;
-  abbreviated: string;
+  full: string
+  abbreviated: string
 }
 
 interface CommitContext {
-  commit: Commit;
+  commit: Commit
 }
 
 interface PathContext {
-  path: string;
-  commitPaths: ReturnType<typeof commitPaths>;
+  path: string
+  commitPaths: ReturnType<typeof commitPaths>
 }
 
 interface CommitTerminalLink extends vscode.TerminalLink {
-  context: CommitContext & Partial<PathContext>;
+  context: CommitContext & Partial<PathContext>
 }
 
 async function runCommand(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const folders = vscode.workspace.workspaceFolders;
+    const folders = vscode.workspace.workspaceFolders
 
     if (folders !== undefined && folders[0]) {
-      const folder = folders[0];
+      const folder = folders[0]
 
       exec(`cd ${folder.uri.fsPath} && ${command}`, (error, stdout, stderr) => {
         if (error === null) {
-          resolve(stdout.trim());
+          resolve(stdout.trim())
         } else {
-          reject(stderr.trim());
+          reject(stderr.trim())
         }
-      });
+      })
     } else {
-      reject("No folders are opened in this workspace");
+      reject("No folders are opened in this workspace")
     }
-  });
+  })
 }
 
 async function parseCommit(raw: string): Promise<Commit | null> {
@@ -45,38 +45,38 @@ async function parseCommit(raw: string): Promise<Commit | null> {
     const [full, abbreviated] = await Promise.all([
       runCommand(`git rev-parse '${raw}'`),
       runCommand(`git rev-parse --short '${raw}'`),
-    ]);
+    ])
 
-    return { full, abbreviated };
+    return { full, abbreviated }
   } catch (error) {
-    return null;
+    return null
   }
 }
 
 function chunk<T>(array: T[], count: number): T[][] {
   return array.reduce((chunks: T[][], value, index) => {
-    const chunkIndex = Math.floor(index / count);
+    const chunkIndex = Math.floor(index / count)
 
     if (chunks[chunkIndex] === undefined) {
-      chunks[chunkIndex] = [];
+      chunks[chunkIndex] = []
     }
 
-    chunks[chunkIndex].push(value);
-    return chunks;
-  }, []);
+    chunks[chunkIndex].push(value)
+    return chunks
+  }, [])
 }
 
 async function commitPaths(
-  path: string
+  path: string,
 ): Promise<Record<string, string> | null> {
   try {
     const commitPaths = await runCommand(
-      `git log --follow --name-only --format="%H" -- '${path}'`
-    );
+      `git log --follow --name-only --format="%H" -- '${path}'`,
+    )
 
-    return Object.fromEntries(chunk(commitPaths.split(/\n+/), 2));
+    return Object.fromEntries(chunk(commitPaths.split(/\n+/), 2))
   } catch (error) {
-    return null;
+    return null
   }
 }
 
@@ -86,111 +86,111 @@ function runCommandInTerminal<Context>({
   context,
   command,
 }: {
-  name: string;
-  icon: string;
-  context: Context;
-  command: string;
+  name: string
+  icon: string
+  context: Context
+  command: string
 }) {
-  const iconPath = new vscode.ThemeIcon(icon);
-  const options = { name, iconPath, context };
-  const terminal = vscode.window.createTerminal(options);
+  const iconPath = new vscode.ThemeIcon(icon)
+  const options = { name, iconPath, context }
+  const terminal = vscode.window.createTerminal(options)
 
-  terminal.show();
-  terminal.sendText(command);
+  terminal.show()
+  terminal.sendText(command)
 }
 
-const CONFIG_VARIABLE_PATTERN = /\${(\w+)}/g;
+const CONFIG_VARIABLE_PATTERN = /\${(\w+)}/g
 
 function gitCommand(commandKey: string, context: Record<string, any>): string {
   let command = vscode.workspace
     .getConfiguration("gitterm.gitCommands")
-    .get(commandKey) as string;
+    .get(commandKey) as string
 
-  const matches = Array.from(command.matchAll(CONFIG_VARIABLE_PATTERN));
+  const matches = Array.from(command.matchAll(CONFIG_VARIABLE_PATTERN))
 
   return matches.reduce((command, [substitution, contextKey]) => {
-    return command.replace(substitution, context[contextKey]);
-  }, command);
+    return command.replace(substitution, context[contextKey])
+  }, command)
 }
 
 export function activate(context: vscode.ExtensionContext) {
   const fileHistory = vscode.commands.registerTextEditorCommand(
     "gitterm.fileHistory",
     ({ document }: vscode.TextEditor) => {
-      const path = vscode.workspace.asRelativePath(document.uri);
-      const file = basename(path);
-      const context: PathContext = { path, commitPaths: commitPaths(path) };
+      const path = vscode.workspace.asRelativePath(document.uri)
+      const file = basename(path)
+      const context: PathContext = { path, commitPaths: commitPaths(path) }
 
       runCommandInTerminal({
         name: `History: ${file}`,
         icon: "history",
         command: gitCommand("fileHistory", { path }),
         context,
-      });
-    }
-  );
+      })
+    },
+  )
 
   const lineHistory = vscode.commands.registerTextEditorCommand(
     "gitterm.lineHistory",
     ({ selection, document }: vscode.TextEditor) => {
-      const startLine = selection.start.line + 1;
-      const endLine = selection.end.line + 1;
-      const lineRange = `${startLine},${endLine}`;
-      const lineSuffix = startLine === endLine ? startLine : lineRange;
+      const startLine = selection.start.line + 1
+      const endLine = selection.end.line + 1
+      const lineRange = `${startLine},${endLine}`
+      const lineSuffix = startLine === endLine ? startLine : lineRange
 
-      const path = vscode.workspace.asRelativePath(document.uri);
-      const file = basename(path);
-      const context: PathContext = { path, commitPaths: commitPaths(path) };
+      const path = vscode.workspace.asRelativePath(document.uri)
+      const file = basename(path)
+      const context: PathContext = { path, commitPaths: commitPaths(path) }
 
       runCommandInTerminal({
         name: `History: ${file}:${lineSuffix}`,
         icon: "history",
         command: gitCommand("lineHistory", { path, startLine, endLine }),
         context,
-      });
-    }
-  );
+      })
+    },
+  )
 
   const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,
       terminal,
     }): Promise<CommitTerminalLink[]> {
-      const options = terminal.creationOptions;
-      const context = "context" in options ? (options.context as object) : {};
-      const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g));
+      const options = terminal.creationOptions
+      const context = "context" in options ? (options.context as object) : {}
+      const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g))
 
       const possibleMatches = await Promise.all(
         lineMatches.map(async ([match, rawCommit]) => {
-          const commit = await parseCommit(rawCommit);
+          const commit = await parseCommit(rawCommit)
 
           if (commit === null) {
-            return null;
+            return null
           } else {
-            const matchStart = line.indexOf(match);
-            const startIndex = matchStart + match.indexOf(rawCommit);
+            const matchStart = line.indexOf(match)
+            const startIndex = matchStart + match.indexOf(rawCommit)
 
             return {
               startIndex,
               length: rawCommit.length,
               tooltip: "Pick a commit action",
               context: { ...context, commit },
-            };
+            }
           }
-        })
-      );
+        }),
+      )
 
-      return possibleMatches.filter((l) => l !== null) as CommitTerminalLink[];
+      return possibleMatches.filter((l) => l !== null) as CommitTerminalLink[]
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
-      const { commit, path, commitPaths } = context;
-      const placeHolder = `Select an action for commit ${commit.abbreviated}`;
+      const { commit, path, commitPaths } = context
+      const placeHolder = `Select an action for commit ${commit.abbreviated}`
 
       const commitPath =
         path !== undefined && commitPaths !== undefined
           ? (await commitPaths)?.[commit.full] ?? null
-          : null;
+          : null
 
       const commitItems = [
         {
@@ -201,27 +201,27 @@ export function activate(context: vscode.ExtensionContext) {
               icon: "git-commit",
               command: gitCommand("showCommit", { commit: commit.full }),
               context: { commit },
-            });
+            })
           },
         },
         {
           label: "$(files) Copy Commit to Clipboard",
           onSelected: () => {
-            vscode.env.clipboard.writeText(commit.full);
+            vscode.env.clipboard.writeText(commit.full)
           },
         },
-      ];
+      ]
 
-      let selectedItem;
+      let selectedItem
 
       if (commitPath === null) {
         selectedItem = await vscode.window.showQuickPick(commitItems, {
           placeHolder,
-        });
+        })
       } else {
-        const file = basename(commitPath);
-        const context = { commit, path: commitPath };
-        const commandContext = { commit: commit.full, path: commitPath };
+        const file = basename(commitPath)
+        const context = { commit, path: commitPath }
+        const commandContext = { commit: commit.full, path: commitPath }
 
         const fileItems = [
           {
@@ -233,7 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
                 icon: "git-compare",
                 context,
                 command: gitCommand("showFileDiffAtCommit", commandContext),
-              });
+              })
             },
           },
           {
@@ -245,22 +245,22 @@ export function activate(context: vscode.ExtensionContext) {
                 icon: "file",
                 context,
                 command: gitCommand("showFileContentsAtCommit", commandContext),
-              });
+              })
             },
           },
-        ];
+        ]
 
         selectedItem = await vscode.window.showQuickPick(
           [...commitItems, ...fileItems],
-          { placeHolder }
-        );
+          { placeHolder },
+        )
       }
 
-      selectedItem?.onSelected();
+      selectedItem?.onSelected()
     },
-  });
+  })
 
-  context.subscriptions.push(fileHistory, lineHistory, commitLinkProvider);
+  context.subscriptions.push(fileHistory, lineHistory, commitLinkProvider)
 }
 
 export function deactivate() {}
