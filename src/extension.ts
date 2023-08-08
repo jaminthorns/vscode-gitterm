@@ -66,6 +66,7 @@ function chunk<T>(array: T[], count: number): T[][] {
   }, [])
 }
 
+// Get a mapping that provides historical paths by commit for a given path.
 async function commitPaths(path: string): Promise<Map<string, string> | null> {
   try {
     const commitPaths = await runCommand(
