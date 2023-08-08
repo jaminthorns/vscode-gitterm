@@ -149,6 +149,22 @@ export function activate(context: vscode.ExtensionContext) {
     },
   )
 
+  const fileBlame = vscode.commands.registerTextEditorCommand(
+    "gitterm.fileBlame",
+    ({ document }: vscode.TextEditor) => {
+      const path = vscode.workspace.asRelativePath(document.uri)
+      const file = basename(path)
+      const context: PathContext = { path, commitPaths: commitPaths(path) }
+
+      runCommandInTerminal({
+        name: `Blame: ${file}`,
+        icon: "person",
+        command: gitCommand("fileBlame", { path }),
+        context,
+      })
+    },
+  )
+
   const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,
@@ -258,7 +274,12 @@ export function activate(context: vscode.ExtensionContext) {
     },
   })
 
-  context.subscriptions.push(fileHistory, lineHistory, commitLinkProvider)
+  context.subscriptions.push(
+    fileHistory,
+    lineHistory,
+    fileBlame,
+    commitLinkProvider,
+  )
 }
 
 export function deactivate() {}

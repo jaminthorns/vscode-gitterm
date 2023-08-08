@@ -31,6 +31,10 @@
       {
         "command": "gitterm.lineHistory",
         "title": "GitTerm: Line History"
+      },
+      {
+        "command": "gitterm.fileBlame",
+        "title": "GitTerm: File Blame"
       }
     ],
     "keybindings": [
@@ -43,6 +47,11 @@
         "command": "gitterm.lineHistory",
         "key": "alt+l",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "gitterm.fileBlame",
+        "key": "alt+b",
+        "when": "editorFocus"
       }
     ],
     "configuration": {
@@ -58,6 +67,11 @@
           "default": "git log -L ${startLine},${endLine}:'${path}'",
           "description": "Git command to use for line history command"
         },
+        "gitterm.gitCommands.fileBlame": {
+          "type": "string",
+          "default": "git blame '${path}'",
+          "description": "Git command to use for file blame command"
+        },
         "gitterm.gitCommands.showCommit": {
           "type": "string",
           "default": "git show ${commit}",
@@ -65,7 +79,7 @@
         },
         "gitterm.gitCommands.showFileDiffAtCommit": {
           "type": "string",
-          "default": "git show --format=\"\" ${commit} -- '${path}'",
+          "default": "git show ${commit} -- '${path}'",
           "description": "Git command to use for showing a file's diff at a commit"
         },
         "gitterm.gitCommands.showFileContentsAtCommit": {

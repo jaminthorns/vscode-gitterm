@@ -6,6 +6,8 @@ Some helpful integrations between Git and VS Code's integrated terminal.
 
 - Open line history (default keybinding `Alt-L`)
 
+- Open file blame (default keybinding `Alt-B`)
+
 - Click on a commit ID in the terminal to:
 
   - Show the commit
