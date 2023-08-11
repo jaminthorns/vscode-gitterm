@@ -9,7 +9,7 @@ export async function runCommand(command: string): Promise<string> {
     if (folders !== undefined && folders[0]) {
       const folder = folders[0]
 
-      exec(`cd ${folder.uri.fsPath} && ${command}`, (error, stdout, stderr) => {
+      exec(command, { cwd: folder.uri.fsPath }, (error, stdout, stderr) => {
         if (error === null) {
           resolve(stdout.trim())
         } else {
