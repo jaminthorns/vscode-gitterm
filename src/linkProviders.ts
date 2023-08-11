@@ -1,8 +1,8 @@
-import * as vscode from "vscode"
 import { basename } from "path"
+import * as vscode from "vscode"
+import StringTrie from "./StringTrie"
 import { CommitTerminalLink, FileTerminalLink } from "./types"
 import { gitCommand, parseCommit, runCommandInTerminal } from "./util"
-import StringTrie from "./StringTrie"
 
 export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
   async provideTerminalLinks({

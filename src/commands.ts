@@ -1,5 +1,5 @@
-import * as vscode from "vscode"
 import { basename } from "path"
+import * as vscode from "vscode"
 import { TerminalFileContext } from "./types"
 import { commitFilenames, gitCommand, runCommandInTerminal } from "./util"
 

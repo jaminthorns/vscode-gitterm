@@ -1,5 +1,5 @@
-import * as vscode from "vscode"
 import { exec, spawn } from "child_process"
+import * as vscode from "vscode"
 import { Commit, CommitFilenames } from "./types"
 
 function currentFolder(): string | undefined {

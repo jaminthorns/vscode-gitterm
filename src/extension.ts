@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
-import { streamCommand } from "./util"
 import StringTrie from "./StringTrie"
+import { streamCommand } from "./util"
 
 export function activate(context: vscode.ExtensionContext) {
   const filenames = new StringTrie()
