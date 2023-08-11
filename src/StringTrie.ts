@@ -15,14 +15,6 @@ export default class StringTrie {
     this.root = { terminal: false, children: new Map() }
   }
 
-  print(level: number = 0, current: StringTrieData = this.root) {
-    for (const [character, child] of current.children) {
-      const terminalIndicator = child.terminal ? " *" : ""
-      console.log(" ".repeat(level) + character + terminalIndicator)
-      this.print(level + 1, child)
-    }
-  }
-
   addStrings(strings: string[]) {
     for (const string of strings) {
       this.addString(string)

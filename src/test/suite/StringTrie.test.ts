@@ -4,7 +4,6 @@ import StringTrie from "../../StringTrie"
 suite("StringTrie", () => {
   const trie = new StringTrie()
 
-  trie.print()
   trie.addStrings(["abc", "a", "bc", "ade", "xyz"])
 
   test("no matching members, no match", () => {
