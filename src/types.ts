@@ -1,28 +1,38 @@
 import * as vscode from "vscode"
-import { commitPaths } from "./util"
+
+export type CommitString = string
+export type Filename = string
 
 export interface Commit {
-  full: string
-  abbreviated: string
+  full: CommitString
+  abbreviated: CommitString
 }
+
+// Files can be renamed, so it becomes necessary to know a file's historical
+// names when doing operations across its history.
+export type CommitFilenames = Map<CommitString, Filename>
 
 export interface CommitContext {
   commit: Commit
 }
 
-export interface PathContext {
-  path: string
-  commitPaths: ReturnType<typeof commitPaths>
+export interface FileContext {
+  filename: Filename
+}
+
+export interface LineContext extends FileContext {
+  startLine: number
+  endLine: number
+}
+
+export interface TerminalFileContext extends FileContext {
+  commitFilenames: Promise<CommitFilenames | null>
 }
 
 export interface CommitTerminalLink extends vscode.TerminalLink {
-  context: CommitContext & Partial<PathContext>
-}
-
-export interface FileContext {
-  file: string
+  context: CommitContext & Partial<TerminalFileContext>
 }
 
 export interface FileTerminalLink extends vscode.TerminalLink {
-  context: FileContext
+  context: FileContext & Partial<CommitContext>
 }

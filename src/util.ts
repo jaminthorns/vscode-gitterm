@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { exec, spawn } from "child_process"
-import { Commit } from "./types"
+import { Commit, CommitFilenames } from "./types"
 
 function currentFolder(): string | undefined {
   return vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
@@ -54,15 +54,15 @@ function chunk<T>(array: T[], count: number): T[][] {
 }
 
 // Get a mapping that provides historical paths by commit for a given path.
-export async function commitPaths(
+export async function commitFilenames(
   path: string,
-): Promise<Map<string, string> | null> {
+): Promise<CommitFilenames | null> {
   try {
-    const commitPaths = await runCommand(
+    const output = await runCommand(
       `git log --follow --name-only --format='%H' -- '${path}'`,
     )
 
-    return new Map(chunk(commitPaths.split(/\n+/), 2) as [string, string][])
+    return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {
     return null
   }

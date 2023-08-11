@@ -1,9 +1,8 @@
 import * as vscode from "vscode"
-import { spawn } from "child_process"
-import StringTrie from "./StringTrie"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import { streamCommand } from "./util"
+import StringTrie from "./StringTrie"
 
 export function activate(context: vscode.ExtensionContext) {
   const filenames = new StringTrie()

@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { basename } from "path"
 import { CommitTerminalLink, FileTerminalLink } from "./types"
-import StringTrie from "./StringTrie"
 import { gitCommand, parseCommit, runCommandInTerminal } from "./util"
+import StringTrie from "./StringTrie"
 
 export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
   async provideTerminalLinks({
@@ -37,12 +37,12 @@ export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
   },
 
   async handleTerminalLink({ context }: CommitTerminalLink) {
-    const { commit, path, commitPaths } = context
+    const { commit, filename, commitFilenames } = context
     const placeHolder = `Select an action for commit ${commit.abbreviated}`
 
-    const commitPath =
-      path !== undefined && commitPaths !== undefined
-        ? (await commitPaths)?.get(commit.full) ?? null
+    const commitFilename =
+      filename !== undefined && commitFilenames !== undefined
+        ? (await commitFilenames)?.get(commit.full) ?? null
         : null
 
     const commitItems = [
@@ -67,19 +67,19 @@ export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
 
     let selectedItem
 
-    if (commitPath === null) {
+    if (commitFilename === null) {
       selectedItem = await vscode.window.showQuickPick(commitItems, {
         placeHolder,
       })
     } else {
-      const file = basename(commitPath)
-      const context = { commit, path: commitPath }
-      const commandContext = { commit: commit.full, path: commitPath }
+      const file = basename(commitFilename)
+      const context = { commit, filename: commitFilename }
+      const commandContext = { commit: commit.full, filename: commitFilename }
 
       const fileItems = [
         {
           label: "$(git-compare) Show File Diff",
-          description: commitPath,
+          description: commitFilename,
           onSelected: () => {
             runCommandInTerminal({
               name: `Diff: ${file} (${commit.abbreviated})`,
@@ -91,7 +91,7 @@ export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
         },
         {
           label: "$(file) Show File at Commit",
-          description: commitPath,
+          description: commitFilename,
           onSelected: () => {
             runCommandInTerminal({
               name: `File: ${file} (${commit.abbreviated})`,
@@ -116,17 +116,17 @@ export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
 export const fileLinkProvider = (filenames: StringTrie) =>
   vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({ line }): Promise<FileTerminalLink[]> {
-      return filenames.findMatches(line).map(({ index, text: file }) => ({
+      return filenames.findMatches(line).map(({ index, text: filename }) => ({
         startIndex: index,
-        length: file.length,
+        length: filename.length,
         tooltip: "Pick a file action",
-        context: { file },
+        context: { filename },
       }))
     },
 
     async handleTerminalLink({ context }: FileTerminalLink) {
       vscode.window.showInformationMessage(
-        `You clicked a file! ${context.file}`,
+        `You clicked a file! ${context.filename}`,
       )
     },
   })

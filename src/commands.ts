@@ -1,19 +1,21 @@
 import * as vscode from "vscode"
 import { basename } from "path"
-import { PathContext } from "./types"
-import { commitPaths, gitCommand, runCommandInTerminal } from "./util"
+import { TerminalFileContext } from "./types"
+import { commitFilenames, gitCommand, runCommandInTerminal } from "./util"
 
 export const fileHistory = vscode.commands.registerTextEditorCommand(
   "gitterm.fileHistory",
   ({ document }: vscode.TextEditor) => {
-    const path = vscode.workspace.asRelativePath(document.uri)
-    const file = basename(path)
-    const context: PathContext = { path, commitPaths: commitPaths(path) }
+    const filename = vscode.workspace.asRelativePath(document.uri)
+    const context: TerminalFileContext = {
+      filename,
+      commitFilenames: commitFilenames(filename),
+    }
 
     runCommandInTerminal({
-      name: `History: ${file}`,
+      name: `History: ${basename(filename)}`,
       icon: "history",
-      command: gitCommand("fileHistory", { path }),
+      command: gitCommand("fileHistory", { filename }),
       context,
     })
   },
@@ -27,14 +29,16 @@ export const lineHistory = vscode.commands.registerTextEditorCommand(
     const lineRange = `${startLine},${endLine}`
     const lineSuffix = startLine === endLine ? startLine : lineRange
 
-    const path = vscode.workspace.asRelativePath(document.uri)
-    const file = basename(path)
-    const context: PathContext = { path, commitPaths: commitPaths(path) }
+    const filename = vscode.workspace.asRelativePath(document.uri)
+    const context: TerminalFileContext = {
+      filename,
+      commitFilenames: commitFilenames(filename),
+    }
 
     runCommandInTerminal({
-      name: `History: ${file}:${lineSuffix}`,
+      name: `History: ${basename(filename)}:${lineSuffix}`,
       icon: "history",
-      command: gitCommand("lineHistory", { path, startLine, endLine }),
+      command: gitCommand("lineHistory", { filename, startLine, endLine }),
       context,
     })
   },
@@ -43,14 +47,16 @@ export const lineHistory = vscode.commands.registerTextEditorCommand(
 export const fileBlame = vscode.commands.registerTextEditorCommand(
   "gitterm.fileBlame",
   ({ document }: vscode.TextEditor) => {
-    const path = vscode.workspace.asRelativePath(document.uri)
-    const file = basename(path)
-    const context: PathContext = { path, commitPaths: commitPaths(path) }
+    const filename = vscode.workspace.asRelativePath(document.uri)
+    const context: TerminalFileContext = {
+      filename,
+      commitFilenames: commitFilenames(filename),
+    }
 
     runCommandInTerminal({
-      name: `Blame: ${file}`,
+      name: `Blame: ${basename(filename)}`,
       icon: "person",
-      command: gitCommand("fileBlame", { path }),
+      command: gitCommand("fileBlame", { filename }),
       context,
     })
   },
