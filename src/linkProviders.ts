@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import { basename } from "path"
-import { CommitTerminalLink } from "./types"
+import { CommitTerminalLink, FileTerminalLink } from "./types"
+import StringTrie from "./StringTrie"
 import { gitCommand, parseCommit, runCommandInTerminal } from "./util"
 
 export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
@@ -111,3 +112,21 @@ export const commitLinkProvider = vscode.window.registerTerminalLinkProvider({
     selectedItem?.onSelected()
   },
 })
+
+export const fileLinkProvider = (filenames: StringTrie) =>
+  vscode.window.registerTerminalLinkProvider({
+    async provideTerminalLinks({ line }): Promise<FileTerminalLink[]> {
+      return filenames.findMatches(line).map(({ index, text: file }) => ({
+        startIndex: index,
+        length: file.length,
+        tooltip: "Pick a file action",
+        context: { file },
+      }))
+    },
+
+    async handleTerminalLink({ context }: FileTerminalLink) {
+      vscode.window.showInformationMessage(
+        `You clicked a file! ${context.file}`,
+      )
+    },
+  })

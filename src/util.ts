@@ -1,25 +1,30 @@
 import * as vscode from "vscode"
-import { exec } from "child_process"
+import { exec, spawn } from "child_process"
 import { Commit } from "./types"
+
+function currentFolder(): string | undefined {
+  return vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
+}
 
 export async function runCommand(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const folders = vscode.workspace.workspaceFolders
-
-    if (folders !== undefined && folders[0]) {
-      const folder = folders[0]
-
-      exec(command, { cwd: folder.uri.fsPath }, (error, stdout, stderr) => {
-        if (error === null) {
-          resolve(stdout.trim())
-        } else {
-          reject(stderr.trim())
-        }
-      })
-    } else {
-      reject("No folders are opened in this workspace")
-    }
+    exec(command, { cwd: currentFolder() }, (error, stdout, stderr) => {
+      if (error === null) {
+        resolve(stdout.trim())
+      } else {
+        reject(stderr.trim())
+      }
+    })
   })
+}
+
+export function streamCommand(
+  command: string,
+  args: string[],
+  onOutput: (output: string) => unknown,
+) {
+  const process = spawn(command, args, { cwd: currentFolder() })
+  process.stdout.on("data", (data) => onOutput(data.toString()))
 }
 
 export async function parseCommit(raw: string): Promise<Commit | null> {
@@ -54,7 +59,7 @@ export async function commitPaths(
 ): Promise<Map<string, string> | null> {
   try {
     const commitPaths = await runCommand(
-      `git log --follow --name-only --format="%H" -- '${path}'`,
+      `git log --follow --name-only --format='%H' -- '${path}'`,
     )
 
     return new Map(chunk(commitPaths.split(/\n+/), 2) as [string, string][])

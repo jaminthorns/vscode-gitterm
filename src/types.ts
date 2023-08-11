@@ -18,3 +18,11 @@ export interface PathContext {
 export interface CommitTerminalLink extends vscode.TerminalLink {
   context: CommitContext & Partial<PathContext>
 }
+
+export interface FileContext {
+  file: string
+}
+
+export interface FileTerminalLink extends vscode.TerminalLink {
+  context: FileContext
+}
