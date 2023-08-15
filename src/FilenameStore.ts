@@ -7,13 +7,13 @@ export default class FilenameStore {
   filenames: StringTrie
   initialCommit: string | null
 
-  constructor(workspaceFolder: vscode.WorkspaceFolder) {
+  constructor(gitDir: vscode.Uri) {
     this.filenames = new StringTrie()
     this.initialCommit = null
 
     this.#setInitialCommit()
     this.#loadInitialFilenames()
-    this.#setupRefWatcher(workspaceFolder)
+    this.#setupRefWatcher(gitDir)
   }
 
   async #setInitialCommit() {
@@ -24,8 +24,8 @@ export default class FilenameStore {
     this.#loadFilenames()
   }
 
-  #setupRefWatcher(workspaceFolder: vscode.WorkspaceFolder) {
-    const headFile = vscode.Uri.joinPath(workspaceFolder.uri, ".git", "refs")
+  #setupRefWatcher(gitDir: vscode.Uri) {
+    const headFile = vscode.Uri.joinPath(gitDir, "refs")
     const headPattern = new vscode.RelativePattern(headFile, "**/*")
     const headWatcher = vscode.workspace.createFileSystemWatcher(headPattern)
 

@@ -2,21 +2,21 @@ import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
 import FilenameStore from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
+import { runCommand } from "./util"
 
+// TODO: Figure out how to handle multiple workspaces
 export async function activate(context: vscode.ExtensionContext) {
-  if (vscode.workspace.workspaceFolders !== undefined) {
-    // TODO: Figure out how to handle multiple workspaces
-    const workspaceFolder = vscode.workspace.workspaceFolders[0]
-    const filenameStore = new FilenameStore(workspaceFolder)
+  const gitDirRaw = await runCommand("git rev-parse --git-common-dir")
+  const gitDir = vscode.Uri.parse(gitDirRaw)
+  const filenameStore = new FilenameStore(gitDir)
 
-    context.subscriptions.push(
-      fileHistory(),
-      lineHistory(),
-      fileBlame(),
-      commitLinkProvider(),
-      fileLinkProvider(filenameStore),
-    )
-  }
+  context.subscriptions.push(
+    fileHistory(),
+    lineHistory(),
+    fileBlame(),
+    commitLinkProvider(),
+    fileLinkProvider(filenameStore),
+  )
 }
 
 export function deactivate() {}
