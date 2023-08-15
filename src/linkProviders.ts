@@ -1,10 +1,16 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
+import { RemoteProvider } from "./remoteProviders"
 import { CommitTerminalLink, FileTerminalLink } from "./types"
-import { gitCommand, parseCommit, runCommandInTerminal } from "./util"
+import {
+  excludeNulls,
+  gitCommand,
+  parseCommit,
+  runCommandInTerminal,
+} from "./util"
 
-export function commitLinkProvider() {
+export function commitLinkProvider(remotes: RemoteProvider[]) {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,
@@ -14,27 +20,27 @@ export function commitLinkProvider() {
       const context = "context" in options ? (options.context as object) : {}
       const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g))
 
-      const possibleMatches = await Promise.all(
-        lineMatches.map(async ([match, rawCommit]) => {
-          const commit = await parseCommit(rawCommit)
+      return excludeNulls(
+        await Promise.all(
+          lineMatches.map(async ([match, rawCommit]) => {
+            const commit = await parseCommit(rawCommit)
 
-          if (commit === null) {
-            return null
-          } else {
-            const matchStart = line.indexOf(match)
-            const startIndex = matchStart + match.indexOf(rawCommit)
+            if (commit === null) {
+              return null
+            } else {
+              const matchStart = line.indexOf(match)
+              const startIndex = matchStart + match.indexOf(rawCommit)
 
-            return {
-              startIndex,
-              length: rawCommit.length,
-              tooltip: "Pick a commit action",
-              context: { ...context, commit },
+              return {
+                startIndex,
+                length: rawCommit.length,
+                tooltip: "Pick a commit action",
+                context: { ...context, commit },
+              }
             }
-          }
-        }),
+          }),
+        ),
       )
-
-      return possibleMatches.filter((l) => l !== null) as CommitTerminalLink[]
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
@@ -47,6 +53,10 @@ export function commitLinkProvider() {
           : null
 
       const commitItems = [
+        {
+          label: "Commit Actions",
+          kind: vscode.QuickPickItemKind.Separator,
+        },
         {
           label: "$(git-commit) Show Commit",
           onSelected: () => {
@@ -64,6 +74,15 @@ export function commitLinkProvider() {
             vscode.env.clipboard.writeText(commit.full)
           },
         },
+        // TODO: Turn this into a nested quick pick
+        ...remotes.map((remote) => ({
+          label: `$(link-external) Open Commit on ${remote.label}`,
+          onSelected: () => {
+            // TODO: Handle when a remote doesn't contain a commit
+            const url = remote.commitUrl(commit)
+            vscode.env.openExternal(url)
+          },
+        })),
       ]
 
       let selectedItem
@@ -78,6 +97,10 @@ export function commitLinkProvider() {
         const commandContext = { commit: commit.full, filename: commitFilename }
 
         const fileItems = [
+          {
+            label: "File Actions",
+            kind: vscode.QuickPickItemKind.Separator,
+          },
           {
             label: "$(git-compare) Show File Diff",
             description: commitFilename,
@@ -102,6 +125,14 @@ export function commitLinkProvider() {
               })
             },
           },
+          ...remotes.map((remote) => ({
+            label: `$(link-external) Open File at Commit on ${remote.label}`,
+            description: commitFilename,
+            onSelected: () => {
+              const url = remote.fileAtCommitUrl(commit, commitFilename)
+              vscode.env.openExternal(url)
+            },
+          })),
         ]
 
         selectedItem = await vscode.window.showQuickPick(
@@ -110,7 +141,7 @@ export function commitLinkProvider() {
         )
       }
 
-      selectedItem?.onSelected()
+      selectedItem?.onSelected?.()
     },
   })
 }

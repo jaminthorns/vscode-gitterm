@@ -2,6 +2,10 @@ import { spawn } from "child_process"
 import * as vscode from "vscode"
 import { Commit, CommitFilenames } from "./types"
 
+export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
+  return items.filter((item) => item !== null) as Exclude<T, null>[]
+}
+
 // TODO: Figure out how to handle multiple workspaces
 function currentFolder(): string | undefined {
   return vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath

@@ -2,10 +2,15 @@ import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
 import FilenameStore from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
+import { getRemotes } from "./remoteProviders"
 import { runCommand } from "./util"
 
 export async function activate(context: vscode.ExtensionContext) {
-  const gitDirRaw = await runCommand("git", ["rev-parse", "--git-common-dir"])
+  const [remotes, gitDirRaw] = await Promise.all([
+    await getRemotes(),
+    await runCommand("git", ["rev-parse", "--git-common-dir"]),
+  ])
+
   const gitDir = vscode.Uri.parse(gitDirRaw)
   const filenameStore = new FilenameStore(gitDir)
 
@@ -13,7 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
     fileHistory(),
     lineHistory(),
     fileBlame(),
-    commitLinkProvider(),
+    commitLinkProvider(remotes),
     fileLinkProvider(filenameStore),
   )
 }
