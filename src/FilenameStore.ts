@@ -25,11 +25,11 @@ export default class FilenameStore {
   }
 
   #setupRefWatcher(gitDir: vscode.Uri) {
-    const headFile = vscode.Uri.joinPath(gitDir, "refs")
-    const headPattern = new vscode.RelativePattern(headFile, "**/*")
-    const headWatcher = vscode.workspace.createFileSystemWatcher(headPattern)
+    const refsDir = vscode.Uri.joinPath(gitDir, "refs")
+    const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
+    const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
 
-    headWatcher.onDidCreate(async (uri) => {
+    refsWatcher.onDidCreate(async (uri) => {
       if (basename(uri.fsPath) !== "HEAD") {
         const content = await vscode.workspace.fs.readFile(uri)
         const commit = content.toString().trim()
