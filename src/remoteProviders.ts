@@ -24,7 +24,7 @@ export interface RemoteProvider {
 // TODO: Handle unsupported providers better (currently just ignoring)
 export async function getRemotes(): Promise<RemoteProvider[]> {
   const output = await runCommand("git", ["remote"])
-  const names = output.split("\n")
+  const names = output === "" ? [] : output.split("\n")
   const remotes = excludeNulls(await Promise.all(names.map(getRemote)))
   const providers = excludeNulls(remotes.map(matchProvider))
 

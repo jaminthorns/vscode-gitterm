@@ -57,7 +57,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
           ? (await commitFilenames)?.get(commit.full) ?? null
           : null
 
-      const commitItems: QuickPickItem[] = [
+      const commitItems: QuickPickItem[] = excludeNulls([
         {
           label: "Commit Actions",
           kind: vscode.QuickPickItemKind.Separator,
@@ -88,7 +88,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
             vscode.env.openExternal(url)
           },
         ),
-      ]
+      ])
 
       let selectedItem
 
@@ -99,7 +99,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
         const context = { commit, filename: commitFilename }
         const commandContext = { commit: commit.full, filename: commitFilename }
 
-        const fileItems: QuickPickItem[] = [
+        const fileItems: QuickPickItem[] = excludeNulls([
           {
             label: "File Actions",
             kind: vscode.QuickPickItemKind.Separator,
@@ -140,7 +140,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
               vscode.env.openExternal(url)
             },
           ),
-        ]
+        ])
 
         const items = [...commitItems, ...fileItems]
         selectedItem = await vscode.window.showQuickPick(items, options)
@@ -155,24 +155,28 @@ function pickRemote(
   remotes: RemoteProvider[],
   item: vscode.QuickPickItem,
   onRemoteSelected: (remote: RemoteProvider) => void,
-): QuickPickItem {
+): QuickPickItem | null {
+  if (remotes.length === 0) {
+    return null
+  }
+
   const multipleRemotes = remotes.length > 1
   const label = `${item.label}${multipleRemotes ? "..." : ""}`
 
   const onSelected = async () => {
-    if (multipleRemotes) {
-      const items: QuickPickItem[] = remotes.map((remote) => ({
-        label: `$(globe) ${remote.label}`,
-        onSelected: () => onRemoteSelected(remote),
-      }))
-
-      const options = { placeHolder: "Select a remote" }
-      const selectedItem = await vscode.window.showQuickPick(items, options)
-
-      selectedItem?.onSelected?.()
-    } else {
-      onRemoteSelected(remotes[0])
+    if (!multipleRemotes) {
+      return onRemoteSelected(remotes[0])
     }
+
+    const items: QuickPickItem[] = remotes.map((remote) => ({
+      label: `$(globe) ${remote.label}`,
+      onSelected: () => onRemoteSelected(remote),
+    }))
+
+    const options = { placeHolder: "Select a remote" }
+    const selectedItem = await vscode.window.showQuickPick(items, options)
+
+    selectedItem?.onSelected?.()
   }
 
   return { ...item, label, onSelected }
