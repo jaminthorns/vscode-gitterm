@@ -31,13 +31,13 @@ export async function runCommand(
   })
 }
 
-// TODO: Look into turning this into a generator
 export function streamCommand(
   command: string,
   args: string[],
   onOutput: (output: string) => unknown,
 ) {
   const process = spawn(command, args, { cwd: currentFolder() })
+
   process.stdout.on("data", (data) => onOutput(data.toString()))
 }
 
