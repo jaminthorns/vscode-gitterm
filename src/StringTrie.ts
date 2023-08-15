@@ -4,7 +4,7 @@ type StringTrieData = {
 }
 
 type Match = {
-  index: number
+  startIndex: number
   text: string
 }
 
@@ -52,7 +52,7 @@ export default class StringTrie {
       if (match === null) {
         index = index + 1
       } else {
-        matches.push({ index, text: match })
+        matches.push({ startIndex: index, text: match })
         index = index + match.length
       }
     }

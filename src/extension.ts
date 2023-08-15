@@ -1,24 +1,22 @@
 import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
+import FilenameStore from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
-import StringTrie from "./StringTrie"
-import { streamCommand } from "./util"
 
-export function activate(context: vscode.ExtensionContext) {
-  const filenames = new StringTrie()
-  const args = ["log", "--all", "--format=", "--name-only", "--diff-filter=AR"]
+export async function activate(context: vscode.ExtensionContext) {
+  if (vscode.workspace.workspaceFolders !== undefined) {
+    // TODO: Figure out how to handle multiple workspaces
+    const workspaceFolder = vscode.workspace.workspaceFolders[0]
+    const filenameStore = new FilenameStore(workspaceFolder)
 
-  streamCommand("git", args, (output) => {
-    filenames.addStrings(output.split("\n"))
-  })
-
-  context.subscriptions.push(
-    fileHistory,
-    lineHistory,
-    fileBlame,
-    commitLinkProvider,
-    fileLinkProvider(filenames),
-  )
+    context.subscriptions.push(
+      fileHistory(),
+      lineHistory(),
+      fileBlame(),
+      commitLinkProvider(),
+      fileLinkProvider(filenameStore),
+    )
+  }
 }
 
 export function deactivate() {}
