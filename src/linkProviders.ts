@@ -10,6 +10,8 @@ import {
   runCommandInTerminal,
 } from "./util"
 
+type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
+
 export function commitLinkProvider(remotes: RemoteProvider[]) {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
@@ -45,14 +47,17 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { commit, filename, commitFilenames } = context
-      const placeHolder = `Select an action for commit ${commit.abbreviated}`
+
+      const options = {
+        placeHolder: `Select an action for commit ${commit.abbreviated}`,
+      }
 
       const commitFilename =
         filename !== undefined && commitFilenames !== undefined
           ? (await commitFilenames)?.get(commit.full) ?? null
           : null
 
-      const commitItems = [
+      const commitItems: QuickPickItem[] = [
         {
           label: "Commit Actions",
           kind: vscode.QuickPickItemKind.Separator,
@@ -74,29 +79,27 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
             vscode.env.clipboard.writeText(commit.full)
           },
         },
-        // TODO: Turn this into a nested quick pick
-        ...remotes.map((remote) => ({
-          label: `$(link-external) Open Commit on ${remote.label}`,
-          onSelected: () => {
+        pickRemote(
+          remotes,
+          { label: "$(link-external) Open Commit on Remote" },
+          (remote) => {
             // TODO: Handle when a remote doesn't contain a commit
             const url = remote.commitUrl(commit)
             vscode.env.openExternal(url)
           },
-        })),
+        ),
       ]
 
       let selectedItem
 
       if (commitFilename === null) {
-        selectedItem = await vscode.window.showQuickPick(commitItems, {
-          placeHolder,
-        })
+        selectedItem = await vscode.window.showQuickPick(commitItems, options)
       } else {
         const file = basename(commitFilename)
         const context = { commit, filename: commitFilename }
         const commandContext = { commit: commit.full, filename: commitFilename }
 
-        const fileItems = [
+        const fileItems: QuickPickItem[] = [
           {
             label: "File Actions",
             kind: vscode.QuickPickItemKind.Separator,
@@ -125,25 +128,54 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
               })
             },
           },
-          ...remotes.map((remote) => ({
-            label: `$(link-external) Open File at Commit on ${remote.label}`,
-            description: commitFilename,
-            onSelected: () => {
+          pickRemote(
+            remotes,
+            {
+              label: "$(link-external) Open File at Commit on Remote",
+              description: commitFilename,
+            },
+            (remote) => {
+              // TODO: Handle when a remote doesn't contain a commit
               const url = remote.fileAtCommitUrl(commit, commitFilename)
               vscode.env.openExternal(url)
             },
-          })),
+          ),
         ]
 
-        selectedItem = await vscode.window.showQuickPick(
-          [...commitItems, ...fileItems],
-          { placeHolder },
-        )
+        const items = [...commitItems, ...fileItems]
+        selectedItem = await vscode.window.showQuickPick(items, options)
       }
 
       selectedItem?.onSelected?.()
     },
   })
+}
+
+function pickRemote(
+  remotes: RemoteProvider[],
+  item: vscode.QuickPickItem,
+  onRemoteSelected: (remote: RemoteProvider) => void,
+): QuickPickItem {
+  const multipleRemotes = remotes.length > 1
+  const label = `${item.label}${multipleRemotes ? "..." : ""}`
+
+  const onSelected = async () => {
+    if (multipleRemotes) {
+      const items: QuickPickItem[] = remotes.map((remote) => ({
+        label: `$(globe) ${remote.label}`,
+        onSelected: () => onRemoteSelected(remote),
+      }))
+
+      const options = { placeHolder: "Select a remote" }
+      const selectedItem = await vscode.window.showQuickPick(items, options)
+
+      selectedItem?.onSelected?.()
+    } else {
+      onRemoteSelected(remotes[0])
+    }
+  }
+
+  return { ...item, label, onSelected }
 }
 
 export function fileLinkProvider(filenameStore: FilenameStore) {

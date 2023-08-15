@@ -95,7 +95,7 @@ class GitHubProvider implements RemoteProvider {
   }
 
   get label() {
-    return `GitHub (${this.remote.name})`
+    return `${this.remote.name} (GitHub)`
   }
 
   commitUrl(commit: Commit) {
