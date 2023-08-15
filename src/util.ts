@@ -1,23 +1,37 @@
-import { exec, spawn } from "child_process"
+import { spawn } from "child_process"
 import * as vscode from "vscode"
 import { Commit, CommitFilenames } from "./types"
 
+// TODO: Figure out how to handle multiple workspaces
 function currentFolder(): string | undefined {
   return vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
 }
 
-export async function runCommand(command: string): Promise<string> {
+export async function runCommand(
+  command: string,
+  args: string[],
+): Promise<string> {
   return new Promise((resolve, reject) => {
-    exec(command, { cwd: currentFolder() }, (error, stdout, stderr) => {
-      if (error === null) {
+    const stdoutData: Buffer[] = []
+    const stderrData: Buffer[] = []
+    const process = spawn(command, args, { cwd: currentFolder() })
+
+    process.stdout.on("data", (data) => stdoutData.push(data))
+    process.stderr.on("data", (data) => stderrData.push(data))
+
+    process.on("close", (code) => {
+      if (code === 0) {
+        const stdout = Buffer.concat(stdoutData).toString()
         resolve(stdout.trim())
       } else {
-        reject(stderr.trim())
+        const stderr = Buffer.concat(stderrData).toString()
+        reject(new Error(stderr.trim()))
       }
     })
   })
 }
 
+// TODO: Look into turning this into a generator
 export function streamCommand(
   command: string,
   args: string[],
@@ -30,8 +44,8 @@ export function streamCommand(
 export async function parseCommit(raw: string): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      runCommand(`git rev-parse '${raw}'`),
-      runCommand(`git rev-parse --short '${raw}'`),
+      runCommand("git", ["rev-parse", raw]),
+      runCommand("git", ["rev-parse", "--short", raw]),
     ])
 
     return { full, abbreviated }
@@ -58,9 +72,14 @@ export async function commitFilenames(
   path: string,
 ): Promise<CommitFilenames | null> {
   try {
-    const output = await runCommand(
-      `git log --follow --name-only --format='%H' -- '${path}'`,
-    )
+    const output = await runCommand("git", [
+      "log",
+      "--follow",
+      "--name-only",
+      "--format=%H",
+      "--",
+      path,
+    ])
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {

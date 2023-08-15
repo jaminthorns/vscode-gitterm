@@ -4,9 +4,8 @@ import FilenameStore from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import { runCommand } from "./util"
 
-// TODO: Figure out how to handle multiple workspaces
 export async function activate(context: vscode.ExtensionContext) {
-  const gitDirRaw = await runCommand("git rev-parse --git-common-dir")
+  const gitDirRaw = await runCommand("git", ["rev-parse", "--git-common-dir"])
   const gitDir = vscode.Uri.parse(gitDirRaw)
   const filenameStore = new FilenameStore(gitDir)
 

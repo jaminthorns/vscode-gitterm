@@ -17,7 +17,7 @@ export default class FilenameStore {
   }
 
   async #setInitialCommit() {
-    this.initialCommit = await runCommand("git rev-parse HEAD")
+    this.initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
   }
 
   async #loadInitialFilenames() {
