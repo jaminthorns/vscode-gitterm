@@ -45,12 +45,6 @@ extension.
     - Apply Stash
     - Drop Stash
 
-## File Link Cache
-
-- Update on:
-  - `.git/HEAD` change (`HEAD` change)
-  - `.git/refs` changes (new or updated heads/tags/remotes/remote heads)
-
 ## Link Matching Methods
 
 - Parsing
