@@ -76,6 +76,8 @@ export async function commitFilenames(
   path: string,
 ): Promise<CommitFilenames | null> {
   try {
+    // TODO: This only gets commits relevant to the file's history, which
+    // excludes things like merge commits
     const output = await runCommand("git", [
       "log",
       "--follow",
