@@ -5,47 +5,35 @@ extension.
 
 ## Link Types
 
-### Commit Links
-
-- Actions
-  - ...
-  - Open Commit on <REMOTE>
-  - Switch to Commit (Detached)
-
 ### File Links
 
 - Actions
-  - Open File
-  - Open File on <REMOTE>
-  - Show File at Commit
+  - Open File (when exists on disk)
   - Copy Filename
+  - Show File Diff (when commit context)
+  - Show File at Commit (when commit context)
+  - Open File on <REMOTE> (when commit context)
 
-### Branch Links
+### Branch/Tag Links
 
 - Actions
-  - Show Branch History
-  - Open Branch on <REMOTE>
-  - Switch to Branch
-  - Copy Branch Name
+  - Show History from Branch/Tag
+  - Copy Branch/Tag Name
+  - Open Branch/Tag on <REMOTE>
 
 ### Person Links
 
 - Actions
-  - Show Commits Authored By
-  - Show Commits Commit By
+  - Show Authored Commits
+  - Show Committed Commits
 
 ### Stash Links
 
 - Actions
   - Show Stash
   - Copy Stash Name
-  - Modification actions (these could be dangerous since stashes shift in the
-    stack)
-    - Pop Stash
-    - Apply Stash
-    - Drop Stash
 
-## Link Matching Methods
+## Link Detection Methods
 
 - Parsing
 
@@ -72,3 +60,9 @@ extension.
   that don't have a definite pattern. A downside is that the candidate
   collection must be kept up-to-date, which adds complexity. If parsing (with or
   without validation) is not an option, then this is the only remaining option.
+
+## Shell Integration
+
+Wrap the `git` command in the user's shell using a function. This wrapper would
+send the arguments of the executed command to GitTerm, which would allow GitTerm
+to contextualize a terminal so that better link actions can be provided.
