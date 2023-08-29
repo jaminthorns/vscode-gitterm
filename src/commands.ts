@@ -7,7 +7,7 @@ export function fileHistory() {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.fileHistory",
     ({ document }: vscode.TextEditor) => {
-      const filename = vscode.workspace.asRelativePath(document.uri)
+      const filename = vscode.workspace.asRelativePath(document.uri, false)
       const context: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename),
@@ -32,7 +32,7 @@ export function lineHistory() {
       const lineRange = `${startLine},${endLine}`
       const lineSuffix = startLine === endLine ? startLine : lineRange
 
-      const filename = vscode.workspace.asRelativePath(document.uri)
+      const filename = vscode.workspace.asRelativePath(document.uri, false)
       const context: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename),
@@ -52,7 +52,7 @@ export function fileBlame() {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.fileBlame",
     ({ document }: vscode.TextEditor) => {
-      const filename = vscode.workspace.asRelativePath(document.uri)
+      const filename = vscode.workspace.asRelativePath(document.uri, false)
       const context: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename),
