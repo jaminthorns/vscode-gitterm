@@ -1,7 +1,7 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
-import { RemoteProvider } from "./remoteProviders"
+import RemoteProvider from "./RemoteProvider"
 import { Commit, FileContext, TerminalFileContext } from "./types"
 import {
   excludeNulls,

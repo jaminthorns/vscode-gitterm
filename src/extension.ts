@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
-import FilenameStore from "./FilenameStore"
+import FilenameStore, { createFilenameStore } from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
-import { getRemotes } from "./remoteProviders"
+import { createRemoteProviders } from "./RemoteProvider"
 import TerminalWorkspaceFolderStore from "./TerminalWorkspaceFolderStore"
 import { runCommand } from "./util"
 
@@ -10,8 +10,8 @@ export async function activate(context: vscode.ExtensionContext) {
   const terminalWorkspaceFolderStore = setupTerminalWorkspaceFolderStore()
 
   const [remotes, filenameStore] = await Promise.all([
-    await getRemotes(),
-    await createFilenameStore(),
+    await createRemoteProviders(),
+    await setupFilenameStore(),
   ])
 
   context.subscriptions.push(
@@ -37,11 +37,11 @@ function setupTerminalWorkspaceFolderStore(): TerminalWorkspaceFolderStore {
   return terminalWorkspaceFolders
 }
 
-async function createFilenameStore(): Promise<FilenameStore> {
+async function setupFilenameStore(): Promise<FilenameStore> {
   const gitDirRaw = await runCommand("git", ["rev-parse", "--git-common-dir"])
   const gitDir = vscode.Uri.parse(gitDirRaw)
 
-  return new FilenameStore(gitDir)
+  return createFilenameStore(gitDir)
 }
 
 export function deactivate() {}

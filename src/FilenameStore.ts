@@ -1,55 +1,58 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import StringTrie, { Match } from "./StringTrie"
+import StringTrie from "./StringTrie"
 import { runCommand, streamCommand } from "./util"
 
-export default class FilenameStore {
-  #filenames: StringTrie
-  #initialCommit: string | null
-  #refsWatcher: vscode.FileSystemWatcher
+export default interface FilenameStore extends vscode.Disposable {
+  findMatches: StringTrie["findMatches"]
+}
 
-  constructor(gitDir: vscode.Uri) {
-    this.#filenames = new StringTrie()
-    this.#initialCommit = null
+export async function createFilenameStore(
+  gitDir: vscode.Uri,
+): Promise<FilenameStore> {
+  const filenames = new StringTrie()
+  const refsWatcher = await setupRefsWatcher(gitDir, filenames)
 
-    const refsDir = vscode.Uri.joinPath(gitDir, "refs")
-    const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
-    this.#refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
+  loadFilenames(filenames)
 
-    this.#setInitialCommit()
-    this.#loadFilenames()
-    this.#setupRefsWatcher()
+  return {
+    findMatches(...args) {
+      return filenames.findMatches(...args)
+    },
+
+    dispose() {
+      refsWatcher.dispose()
+    },
   }
+}
 
-  dispose() {
-    this.#refsWatcher.dispose()
-  }
+async function setupRefsWatcher(
+  gitDir: vscode.Uri,
+  filenames: StringTrie,
+): Promise<vscode.FileSystemWatcher> {
+  const initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
 
-  async #setInitialCommit() {
-    this.#initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
-  }
+  const refsDir = vscode.Uri.joinPath(gitDir, "refs")
+  const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
+  const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
 
-  #setupRefsWatcher() {
-    this.#refsWatcher.onDidCreate(async (uri) => {
-      if (basename(uri.fsPath) !== "HEAD") {
-        const content = await vscode.workspace.fs.readFile(uri)
-        const commit = content.toString().trim()
+  refsWatcher.onDidCreate(async (uri) => {
+    if (basename(uri.fsPath) !== "HEAD") {
+      const content = await vscode.workspace.fs.readFile(uri)
+      const commit = content.toString().trim()
 
-        this.#loadFilenames(`${this.#initialCommit}...${commit}`)
-      }
-    })
-  }
+      loadFilenames(filenames, `${initialCommit}...${commit}`)
+    }
+  })
 
-  #loadFilenames(range?: string) {
-    let args = ["--all", "--format=", "--name-only", "--diff-filter=AR"]
-    args = range === undefined ? args : [range, ...args]
+  return refsWatcher
+}
 
-    streamCommand("git", ["log", ...args], (output) => {
-      this.#filenames.addStrings(output.split("\n"))
-    })
-  }
+function loadFilenames(filenames: StringTrie, range?: string): void {
+  let args = ["--all", "--format=", "--name-only", "--diff-filter=AR"]
+  args = range === undefined ? args : [range, ...args]
 
-  findMatches(text: string): Match[] {
-    return this.#filenames.findMatches(text)
-  }
+  streamCommand("git", ["log", ...args], (output) => {
+    filenames.addStrings(output.split("\n"))
+  })
 }

@@ -13,7 +13,7 @@ interface Remote {
   path: string
 }
 
-export interface RemoteProvider {
+export default interface RemoteProvider {
   remote: Remote
   label: string
   commitUrl(commit: Commit): vscode.Uri
@@ -21,11 +21,11 @@ export interface RemoteProvider {
 }
 
 // TODO: Handle unsupported providers better (currently just ignoring)
-export async function getRemotes(): Promise<RemoteProvider[]> {
+export async function createRemoteProviders(): Promise<RemoteProvider[]> {
   const output = await runCommand("git", ["remote"])
   const names = output === "" ? [] : output.split("\n")
-  const remotes = excludeNulls(await Promise.all(names.map(getRemote)))
-  const providers = excludeNulls(remotes.map(matchProvider))
+  const remotes = excludeNulls(await Promise.all(names.map(createRemote)))
+  const providers = excludeNulls(remotes.map(createRemoteProvider))
 
   // Show "origin" remote at the top
   providers.sort((a, b) => {
@@ -42,7 +42,7 @@ export async function getRemotes(): Promise<RemoteProvider[]> {
   return providers
 }
 
-async function getRemote(name: string): Promise<Remote | null> {
+async function createRemote(name: string): Promise<Remote | null> {
   const urlRaw = await runCommand("git", ["remote", "get-url", name])
 
   const sshPattern =
@@ -63,7 +63,7 @@ async function getRemote(name: string): Promise<Remote | null> {
   }
 }
 
-function matchProvider(remote: Remote): RemoteProvider | null {
+function createRemoteProvider(remote: Remote): RemoteProvider | null {
   switch (remote.server.host) {
     case "github.com":
       return createGitHub(remote)
