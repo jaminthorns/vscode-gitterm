@@ -3,15 +3,17 @@ import { fileBlame, fileHistory, lineHistory } from "./commands"
 import FilenameStore, { createFilenameStore } from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import { createRemoteProviders } from "./RemoteProvider"
-import TerminalWorkspaceFolderStore from "./TerminalWorkspaceFolderStore"
+import TerminalWsFolderStore, {
+  createTerminalWsFolderStore,
+} from "./TerminalWsFolderStore"
 import { runCommand } from "./util"
 
 export async function activate(context: vscode.ExtensionContext) {
-  const terminalWorkspaceFolderStore = setupTerminalWorkspaceFolderStore()
+  const terminalWsFolders = setupTerminalWsFolders()
 
-  const [remotes, filenameStore] = await Promise.all([
+  const [remotes, filenames] = await Promise.all([
     await createRemoteProviders(),
-    await setupFilenameStore(),
+    await setupFilenames(),
   ])
 
   context.subscriptions.push(
@@ -19,25 +21,21 @@ export async function activate(context: vscode.ExtensionContext) {
     lineHistory(),
     fileBlame(),
     commitLinkProvider(remotes),
-    fileLinkProvider(filenameStore),
+    fileLinkProvider(filenames),
   )
 }
 
-function setupTerminalWorkspaceFolderStore(): TerminalWorkspaceFolderStore {
-  const terminalWorkspaceFolders = new TerminalWorkspaceFolderStore()
+function setupTerminalWsFolders(): TerminalWsFolderStore {
+  const terminalWsFolders = createTerminalWsFolderStore()
 
-  vscode.window.terminals.forEach((terminal) => {
-    terminalWorkspaceFolders.addTerminal(terminal)
-  })
+  vscode.window.terminals.forEach(terminalWsFolders.addTerminal)
+  vscode.window.onDidOpenTerminal(terminalWsFolders.addTerminal)
+  vscode.window.onDidCloseTerminal(terminalWsFolders.removeTerminal)
 
-  vscode.window.onDidOpenTerminal((terminal) => {
-    terminalWorkspaceFolders.addTerminal(terminal)
-  })
-
-  return terminalWorkspaceFolders
+  return terminalWsFolders
 }
 
-async function setupFilenameStore(): Promise<FilenameStore> {
+async function setupFilenames(): Promise<FilenameStore> {
   const gitDirRaw = await runCommand("git", ["rev-parse", "--git-common-dir"])
   const gitDir = vscode.Uri.parse(gitDirRaw)
 

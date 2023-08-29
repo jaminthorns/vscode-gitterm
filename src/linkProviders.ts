@@ -194,10 +194,10 @@ function pickRemote(
   return { ...item, label, onSelected }
 }
 
-export function fileLinkProvider(filenameStore: FilenameStore) {
+export function fileLinkProvider(filenames: FilenameStore) {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({ line }): Promise<FileTerminalLink[]> {
-      return filenameStore
+      return filenames
         .findMatches(line)
         .map(({ startIndex, text: filename }) => ({
           startIndex,
