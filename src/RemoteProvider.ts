@@ -24,7 +24,7 @@ export default interface RemoteProvider {
 export async function createRemoteProviders(): Promise<RemoteProvider[]> {
   const output = await runCommand("git", ["remote"])
   const names = output === "" ? [] : output.split("\n")
-  const remotes = excludeNulls(await Promise.all(names.map(createRemote)))
+  const remotes = excludeNulls(await Promise.all(names.map(parseRemote)))
   const providers = excludeNulls(remotes.map(createRemoteProvider))
 
   // Show "origin" remote at the top
@@ -42,7 +42,7 @@ export async function createRemoteProviders(): Promise<RemoteProvider[]> {
   return providers
 }
 
-async function createRemote(name: string): Promise<Remote | null> {
+async function parseRemote(name: string): Promise<Remote | null> {
   const urlRaw = await runCommand("git", ["remote", "get-url", name])
 
   const sshPattern =
@@ -66,13 +66,13 @@ async function createRemote(name: string): Promise<Remote | null> {
 function createRemoteProvider(remote: Remote): RemoteProvider | null {
   switch (remote.server.host) {
     case "github.com":
-      return createGitHub(remote)
+      return createGitHubProvider(remote)
     default:
       return null
   }
 }
 
-function createGitHub(remote: Remote): RemoteProvider | null {
+function createGitHubProvider(remote: Remote): RemoteProvider | null {
   const pathPattern = /^(?<user>.+)\/(?<repository>.+)\.git$/
   const pathMatch = pathPattern.exec(remote.path)
 

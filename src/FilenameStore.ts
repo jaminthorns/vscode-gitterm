@@ -7,10 +7,10 @@ export default interface FilenameStore extends vscode.Disposable {
   findMatches: StringTrie["findMatches"]
 }
 
-export async function createFilenameStore(
+export default async function FilenameStore(
   gitDir: vscode.Uri,
 ): Promise<FilenameStore> {
-  const filenames = new StringTrie()
+  const filenames = StringTrie()
   const refsWatcher = await setupRefsWatcher(gitDir, filenames)
 
   loadFilenames(filenames)

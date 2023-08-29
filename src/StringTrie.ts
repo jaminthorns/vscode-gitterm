@@ -8,75 +8,78 @@ type Match = {
   text: string
 }
 
-export default class StringTrie {
-  root: StringTrieData
+export default interface StringTrie {
+  addStrings(strings: string[]): void
+  findMatches(text: string): Match[]
+}
 
-  constructor() {
-    this.root = { terminal: false, children: new Map() }
-  }
+export default function StringTrie(): StringTrie {
+  const root: StringTrieData = { terminal: false, children: new Map() }
 
-  addStrings(strings: string[]) {
-    for (const string of strings) {
-      this.addString(string)
-    }
-  }
+  return {
+    addStrings(strings) {
+      for (const string of strings) {
+        addString(string, root)
+      }
+    },
 
-  addString(string: string, current: StringTrieData = this.root) {
-    const first = string.slice(0, 1)
-    const rest = string.slice(1)
-    const terminal = first === ""
+    findMatches(text) {
+      let index = 0
+      const characters = Array.from(text)
+      const matches = []
 
-    if (terminal) {
-      current.terminal = true
-    } else {
-      let nextChild = current.children.get(first)
+      while (index < characters.length) {
+        const string = text.slice(index)
+        const match = longestMatch(string, root)
 
-      if (nextChild === undefined) {
-        nextChild = { terminal, children: new Map() }
-        current.children.set(first, nextChild)
+        if (match === null) {
+          index = index + 1
+        } else {
+          matches.push({ startIndex: index, text: match })
+          index = index + match.length
+        }
       }
 
-      this.addString(rest, nextChild)
-    }
+      return matches
+    },
   }
+}
 
-  findMatches(text: string): Match[] {
-    let index = 0
-    const characters = Array.from(text)
-    const matches = []
+function addString(string: string, current: StringTrieData) {
+  const first = string.slice(0, 1)
+  const rest = string.slice(1)
+  const terminal = first === ""
 
-    while (index < characters.length) {
-      const string = text.slice(index)
-      const match = this.#longestMatch(string)
+  if (terminal) {
+    current.terminal = true
+  } else {
+    let nextChild = current.children.get(first)
 
-      if (match === null) {
-        index = index + 1
-      } else {
-        matches.push({ startIndex: index, text: match })
-        index = index + match.length
-      }
+    if (nextChild === undefined) {
+      nextChild = { terminal, children: new Map() }
+      current.children.set(first, nextChild)
     }
 
-    return matches
+    addString(rest, nextChild)
   }
+}
 
-  #longestMatch(
-    string: string,
-    processed: string = "",
-    matched: string | null = null,
-    current: StringTrieData = this.root,
-  ): string | null {
-    const first = string.slice(0, 1)
-    const rest = string.slice(1)
-    const nextChild = current.children.get(first)
+function longestMatch(
+  string: string,
+  current: StringTrieData,
+  processed: string = "",
+  matched: string | null = null,
+): string | null {
+  const first = string.slice(0, 1)
+  const rest = string.slice(1)
+  const nextChild = current.children.get(first)
 
-    if (nextChild === undefined || first === "") {
-      return matched
-    } else {
-      const nextProcessed = processed + first
-      const nextMatched = nextChild.terminal ? nextProcessed : matched
+  if (nextChild === undefined || first === "") {
+    return matched
+  } else {
+    const nextProcessed = processed + first
+    const nextMatched = nextChild.terminal ? nextProcessed : matched
 
-      return this.#longestMatch(rest, nextProcessed, nextMatched, nextChild)
-    }
+    return longestMatch(rest, nextChild, nextProcessed, nextMatched)
   }
 }

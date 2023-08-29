@@ -8,7 +8,10 @@
   "extends": ["plugin:prettier/recommended"],
   "plugins": ["@typescript-eslint", "import"],
   "rules": {
-    "@typescript-eslint/naming-convention": "warn",
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      { "selector": ["function"], "format": ["camelCase", "PascalCase"] }
+    ],
     "curly": "warn",
     "eqeqeq": "warn",
     "no-throw-literal": "warn",

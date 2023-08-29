@@ -8,7 +8,7 @@ export default interface TerminalWsFolderStore {
   ): Promise<vscode.WorkspaceFolder | undefined>
 }
 
-export function createTerminalWsFolderStore(): TerminalWsFolderStore {
+export default function TerminalWsFolderStore(): TerminalWsFolderStore {
   const workspaceFolders: Map<number, vscode.WorkspaceFolder> = new Map()
 
   return {

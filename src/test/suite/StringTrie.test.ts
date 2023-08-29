@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert"
 import StringTrie from "../../StringTrie"
 
 suite("StringTrie", () => {
-  const trie = new StringTrie()
+  const trie = StringTrie()
 
   trie.addStrings(["abc", "a", "bc", "ade", "xyz"])
 
