@@ -1,15 +1,15 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import StringTrie from "./StringTrie"
+import StringTrie, { Match } from "./StringTrie"
 import { runCommand, streamCommand } from "./util"
 
 export default class FilenameStore {
-  filenames: StringTrie
-  initialCommit: string | null
+  #filenames: StringTrie
+  #initialCommit: string | null
 
   constructor(gitDir: vscode.Uri) {
-    this.filenames = new StringTrie()
-    this.initialCommit = null
+    this.#filenames = new StringTrie()
+    this.#initialCommit = null
 
     this.#setInitialCommit()
     this.#loadInitialFilenames()
@@ -17,7 +17,7 @@ export default class FilenameStore {
   }
 
   async #setInitialCommit() {
-    this.initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
+    this.#initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
   }
 
   async #loadInitialFilenames() {
@@ -34,7 +34,7 @@ export default class FilenameStore {
         const content = await vscode.workspace.fs.readFile(uri)
         const commit = content.toString().trim()
 
-        this.#loadFilenames(`${this.initialCommit}...${commit}`)
+        this.#loadFilenames(`${this.#initialCommit}...${commit}`)
       }
     })
   }
@@ -44,7 +44,11 @@ export default class FilenameStore {
     args = range === undefined ? args : [range, ...args]
 
     streamCommand("git", ["log", ...args], (output) => {
-      this.filenames.addStrings(output.split("\n"))
+      this.#filenames.addStrings(output.split("\n"))
     })
+  }
+
+  findMatches(text: string): Match[] {
+    return this.#filenames.findMatches(text)
   }
 }

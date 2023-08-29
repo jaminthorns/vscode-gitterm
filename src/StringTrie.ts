@@ -3,7 +3,7 @@ type StringTrieData = {
   children: Map<string, StringTrieData>
 }
 
-type Match = {
+export type Match = {
   startIndex: number
   text: string
 }
