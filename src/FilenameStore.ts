@@ -6,30 +6,31 @@ import { runCommand, streamCommand } from "./util"
 export default class FilenameStore {
   #filenames: StringTrie
   #initialCommit: string | null
+  #refsWatcher: vscode.FileSystemWatcher
 
   constructor(gitDir: vscode.Uri) {
     this.#filenames = new StringTrie()
     this.#initialCommit = null
 
+    const refsDir = vscode.Uri.joinPath(gitDir, "refs")
+    const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
+    this.#refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
+
     this.#setInitialCommit()
-    this.#loadInitialFilenames()
-    this.#setupRefWatcher(gitDir)
+    this.#loadFilenames()
+    this.#setupRefsWatcher()
+  }
+
+  dispose() {
+    this.#refsWatcher.dispose()
   }
 
   async #setInitialCommit() {
     this.#initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
   }
 
-  async #loadInitialFilenames() {
-    this.#loadFilenames()
-  }
-
-  #setupRefWatcher(gitDir: vscode.Uri) {
-    const refsDir = vscode.Uri.joinPath(gitDir, "refs")
-    const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
-    const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
-
-    refsWatcher.onDidCreate(async (uri) => {
+  #setupRefsWatcher() {
+    this.#refsWatcher.onDidCreate(async (uri) => {
       if (basename(uri.fsPath) !== "HEAD") {
         const content = await vscode.workspace.fs.readFile(uri)
         const commit = content.toString().trim()
@@ -39,7 +40,7 @@ export default class FilenameStore {
     })
   }
 
-  async #loadFilenames(range?: string) {
+  #loadFilenames(range?: string) {
     let args = ["--all", "--format=", "--name-only", "--diff-filter=AR"]
     args = range === undefined ? args : [range, ...args]
 
