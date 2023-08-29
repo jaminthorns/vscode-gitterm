@@ -11,17 +11,17 @@ suite("StringTrie", () => {
   })
 
   test("single matching member, single match", () => {
-    deepStrictEqual(trie.findMatches("xyz"), [{ index: 0, text: "xyz" }])
+    deepStrictEqual(trie.findMatches("xyz"), [{ startIndex: 0, text: "xyz" }])
   })
 
   test("multiple matching members, single match", () => {
-    deepStrictEqual(trie.findMatches("abc"), [{ index: 0, text: "abc" }])
+    deepStrictEqual(trie.findMatches("abc"), [{ startIndex: 0, text: "abc" }])
   })
 
   test("multiple matching members, multiple matches", () => {
     deepStrictEqual(trie.findMatches("abc xyz"), [
-      { index: 0, text: "abc" },
-      { index: 4, text: "xyz" },
+      { startIndex: 0, text: "abc" },
+      { startIndex: 4, text: "xyz" },
     ])
   })
 })
