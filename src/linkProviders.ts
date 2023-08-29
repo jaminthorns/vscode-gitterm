@@ -2,7 +2,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
 import { RemoteProvider } from "./remoteProviders"
-import { CommitTerminalLink, FileTerminalLink } from "./types"
+import { Commit, FileContext, TerminalFileContext } from "./types"
 import {
   excludeNulls,
   gitCommand,
@@ -11,6 +11,18 @@ import {
 } from "./util"
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
+
+interface CommitContext {
+  commit: Commit
+}
+
+interface CommitTerminalLink extends vscode.TerminalLink {
+  context: CommitContext & Partial<TerminalFileContext>
+}
+
+interface FileTerminalLink extends vscode.TerminalLink {
+  context: FileContext & Partial<CommitContext>
+}
 
 export function commitLinkProvider(remotes: RemoteProvider[]) {
   return vscode.window.registerTerminalLinkProvider({

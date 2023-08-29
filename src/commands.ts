@@ -1,6 +1,6 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import { TerminalFileContext } from "./types"
+import { FileContext, LineContext, TerminalFileContext } from "./types"
 import { commitFilenames, gitCommand, runCommandInTerminal } from "./util"
 
 export function fileHistory() {
@@ -8,7 +8,8 @@ export function fileHistory() {
     "gitterm.fileHistory",
     ({ document }: vscode.TextEditor) => {
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const context: TerminalFileContext = {
+      const commandContext: FileContext = { filename }
+      const terminalContext: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename),
       }
@@ -16,8 +17,8 @@ export function fileHistory() {
       runCommandInTerminal({
         name: `History: ${basename(filename)}`,
         icon: "history",
-        command: gitCommand("fileHistory", { filename }),
-        context,
+        command: gitCommand("fileHistory", commandContext),
+        context: terminalContext,
       })
     },
   )
@@ -33,7 +34,8 @@ export function lineHistory() {
       const lineSuffix = startLine === endLine ? startLine : lineRange
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const context: TerminalFileContext = {
+      const commandContext: LineContext = { filename, startLine, endLine }
+      const terminalContext: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename),
       }
@@ -41,8 +43,8 @@ export function lineHistory() {
       runCommandInTerminal({
         name: `History: ${basename(filename)}:${lineSuffix}`,
         icon: "history",
-        command: gitCommand("lineHistory", { filename, startLine, endLine }),
-        context,
+        command: gitCommand("lineHistory", commandContext),
+        context: terminalContext,
       })
     },
   )

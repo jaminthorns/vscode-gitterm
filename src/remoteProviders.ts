@@ -2,12 +2,12 @@ import * as vscode from "vscode"
 import { Commit } from "./types"
 import { excludeNulls, runCommand } from "./util"
 
-export type Server =
+type Server =
   | { protocol: "ssh"; host: string; user: string }
   | { protocol: "http"; host: string }
   | { protocol: "https"; host: string }
 
-export interface Remote {
+interface Remote {
   name: string
   server: Server
   path: string
@@ -15,8 +15,7 @@ export interface Remote {
 
 export interface RemoteProvider {
   remote: Remote
-
-  get label(): string
+  label: string
   commitUrl(commit: Commit): vscode.Uri
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri
 }
@@ -67,50 +66,40 @@ async function getRemote(name: string): Promise<Remote | null> {
 function matchProvider(remote: Remote): RemoteProvider | null {
   switch (remote.server.host) {
     case "github.com":
-      return new GitHubProvider(remote)
+      return createGitHub(remote)
     default:
       return null
   }
 }
 
-class GitHubProvider implements RemoteProvider {
-  remote: Remote
-  user: string
-  repository: string
+function createGitHub(remote: Remote): RemoteProvider | null {
+  const pathPattern = /^(?<user>.+)\/(?<repository>.+)\.git$/
+  const pathMatch = pathPattern.exec(remote.path)
 
-  constructor(remote: Remote) {
-    this.remote = remote
-
-    const pathPattern = /^(?<user>.+)\/(?<repository>.+)\.git$/
-    const pathMatch = pathPattern.exec(remote.path)
-
-    if (pathMatch !== null) {
-      const groups = pathMatch.groups || {}
-
-      this.user = groups.user
-      this.repository = groups.repository
-    } else {
-      throw new Error("Could not parse user and repository from GitHub URL")
-    }
+  if (pathMatch === null) {
+    return null
   }
 
-  get label() {
-    return `${this.remote.name} (GitHub)`
-  }
+  const { user, repository } = pathMatch.groups || {}
 
-  commitUrl(commit: Commit) {
-    return this.#baseUrl(`/commit/${commit.full}`)
-  }
-
-  fileAtCommitUrl(commit: Commit, filename: string) {
-    return this.#baseUrl(`/blob/${commit.full}/${filename}`)
-  }
-
-  #baseUrl(path: string): vscode.Uri {
+  function baseUrl(path: string): vscode.Uri {
     return vscode.Uri.from({
       scheme: "https",
-      authority: this.remote.server.host,
-      path: `${this.user}/${this.repository}${path}`,
+      authority: remote.server.host,
+      path: `${user}/${repository}${path}`,
     })
+  }
+
+  return {
+    remote,
+    label: `${remote.name} (GitHub)`,
+
+    commitUrl(commit) {
+      return baseUrl(`/commit/${commit.full}`)
+    },
+
+    fileAtCommitUrl(commit, filename) {
+      return baseUrl(`/blob/${commit.full}/${filename}`)
+    },
   }
 }
