@@ -112,8 +112,6 @@ export function runCommandInTerminal<Context>({
   terminal.sendText(command)
 }
 
-const CONFIG_VARIABLE_PATTERN = /\${(\w+)}/g
-
 export function gitCommand(
   commandKey: string,
   context: Record<string, any>,
@@ -122,7 +120,7 @@ export function gitCommand(
     .getConfiguration("gitterm.gitCommands")
     .get(commandKey) as string
 
-  const matches = Array.from(command.matchAll(CONFIG_VARIABLE_PATTERN))
+  const matches = Array.from(command.matchAll(/\${(\w+)}/g))
 
   return matches.reduce((command, [substitution, contextKey]) => {
     return command.replace(substitution, context[contextKey])
