@@ -59,7 +59,7 @@
       "properties": {
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log --oneline --graph --date-order -- '${filename}'",
+          "default": "git log -- '${filename}'",
           "description": "Git command to use for file history command"
         },
         "gitterm.gitCommands.lineHistory": {
