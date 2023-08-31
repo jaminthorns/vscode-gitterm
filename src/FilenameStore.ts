@@ -8,12 +8,12 @@ export default interface FilenameStore extends vscode.Disposable {
 }
 
 export default async function FilenameStore(
-  gitDir: vscode.Uri,
+  directory: vscode.Uri,
 ): Promise<FilenameStore> {
   const filenames = StringTrie()
-  const refsWatcher = await setupRefsWatcher(gitDir, filenames)
+  const refsWatcher = await setupRefsWatcher(directory, filenames)
 
-  loadFilenames(filenames)
+  loadFilenames(directory, filenames)
 
   return {
     findMatches(...args) {
@@ -27,11 +27,15 @@ export default async function FilenameStore(
 }
 
 async function setupRefsWatcher(
-  gitDir: vscode.Uri,
+  directory: vscode.Uri,
   filenames: StringTrie,
 ): Promise<vscode.FileSystemWatcher> {
-  const initialCommit = await runCommand("git", ["rev-parse", "HEAD"])
+  const [gitDirRaw, initialCommit] = [
+    await runCommand("git", ["rev-parse", "--git-common-dir"], directory),
+    await runCommand("git", ["rev-parse", "HEAD"], directory),
+  ]
 
+  const gitDir = vscode.Uri.parse(gitDirRaw)
   const refsDir = vscode.Uri.joinPath(gitDir, "refs")
   const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
   const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
@@ -41,18 +45,22 @@ async function setupRefsWatcher(
       const content = await vscode.workspace.fs.readFile(uri)
       const commit = content.toString().trim()
 
-      loadFilenames(filenames, `${initialCommit}...${commit}`)
+      loadFilenames(uri, filenames, `${initialCommit}...${commit}`)
     }
   })
 
   return refsWatcher
 }
 
-function loadFilenames(filenames: StringTrie, range?: string): void {
+function loadFilenames(
+  directory: vscode.Uri,
+  filenames: StringTrie,
+  range?: string,
+): void {
   let args = ["--all", "--format=", "--name-only", "--diff-filter=AR"]
   args = range === undefined ? args : [range, ...args]
 
-  streamCommand("git", ["log", ...args], (output) => {
+  streamCommand("git", ["log", ...args], directory, (output) => {
     filenames.addStrings(output.split("\n"))
   })
 }

@@ -21,10 +21,14 @@ export default interface RemoteProvider {
 }
 
 // TODO: Handle unsupported providers better (currently just ignoring)
-export async function createRemoteProviders(): Promise<RemoteProvider[]> {
-  const output = await runCommand("git", ["remote"])
+export async function createRemoteProviders(
+  directory: vscode.Uri,
+): Promise<RemoteProvider[]> {
+  const output = await runCommand("git", ["remote"], directory)
   const names = output === "" ? [] : output.split("\n")
-  const remotes = excludeNulls(await Promise.all(names.map(parseRemote)))
+  const remotes = excludeNulls(
+    await Promise.all(names.map((name) => parseRemote(name, directory))),
+  )
   const providers = excludeNulls(remotes.map(createRemoteProvider))
 
   // Show "origin" remote at the top
@@ -42,8 +46,11 @@ export async function createRemoteProviders(): Promise<RemoteProvider[]> {
   return providers
 }
 
-async function parseRemote(name: string): Promise<Remote | null> {
-  const urlRaw = await runCommand("git", ["remote", "get-url", name])
+async function parseRemote(
+  name: string,
+  directory: vscode.Uri,
+): Promise<Remote | null> {
+  const urlRaw = await runCommand("git", ["remote", "get-url", name], directory)
 
   const sshPattern =
     /^(?!http)(?:ssh:\/\/)?(?:(?<user>.+)@)?(?<host>.+):(?<path>.*)$/

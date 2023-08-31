@@ -1,7 +1,9 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import FilenameStore from "./FilenameStore"
 import RemoteProvider from "./RemoteProvider"
+import Repository from "./Repository"
+import RepositoryStore from "./RepositoryStore"
+import TerminalFolderStore from "./TerminalFolderStore"
 import { Commit, FileContext, TerminalFileContext } from "./types"
 import {
   excludeNulls,
@@ -12,24 +14,38 @@ import {
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
 
+interface RepositoryContext {
+  repository: Repository
+}
+
 interface CommitContext {
   commit: Commit
 }
 
 interface CommitTerminalLink extends vscode.TerminalLink {
-  context: CommitContext & Partial<TerminalFileContext>
+  context: RepositoryContext & CommitContext & Partial<TerminalFileContext>
 }
 
 interface FileTerminalLink extends vscode.TerminalLink {
-  context: FileContext & Partial<CommitContext>
+  context: RepositoryContext & FileContext & Partial<CommitContext>
 }
 
-export function commitLinkProvider(remotes: RemoteProvider[]) {
+export function commitLinkProvider(
+  repositories: RepositoryStore,
+  terminalFolders: TerminalFolderStore,
+) {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,
       terminal,
     }): Promise<CommitTerminalLink[]> {
+      const folder = await terminalFolders.getFolder(terminal)
+      const repository = folder && repositories.getRepository(folder.uri)
+
+      if (repository === undefined) {
+        return []
+      }
+
       const options = terminal.creationOptions
       const context = "context" in options ? (options.context as object) : {}
       const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g))
@@ -37,7 +53,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
       return excludeNulls(
         await Promise.all(
           lineMatches.map(async ([match, rawCommit]) => {
-            const commit = await parseCommit(rawCommit)
+            const commit = await parseCommit(rawCommit, repository.directory)
 
             if (commit === null) {
               return null
@@ -49,7 +65,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
                 startIndex,
                 length: rawCommit.length,
                 tooltip: "Pick a commit action",
-                context: { ...context, commit },
+                context: { ...context, repository, commit },
               }
             }
           }),
@@ -58,7 +74,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
-      const { commit, filename, commitFilenames } = context
+      const { repository, commit, filename, commitFilenames } = context
 
       const options = {
         placeHolder: `Select an action for commit ${commit.abbreviated}`,
@@ -80,6 +96,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
             runCommandInTerminal({
               name: `Commit: ${commit.abbreviated}`,
               icon: "git-commit",
+              cwd: repository.directory,
               command: gitCommand("showCommit", { commit: commit.full }),
               context: { commit },
             })
@@ -92,7 +109,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
           },
         },
         pickRemote(
-          remotes,
+          repository.remotes,
           { label: "$(link-external) Open Commit on Remote" },
           (remote) => {
             // TODO: Handle when a remote doesn't contain a commit
@@ -123,6 +140,7 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
               runCommandInTerminal({
                 name: `Diff: ${file} (${commit.abbreviated})`,
                 icon: "git-compare",
+                cwd: repository.directory,
                 context,
                 command: gitCommand("showFileDiffAtCommit", commandContext),
               })
@@ -135,13 +153,14 @@ export function commitLinkProvider(remotes: RemoteProvider[]) {
               runCommandInTerminal({
                 name: `File: ${file} (${commit.abbreviated})`,
                 icon: "file",
+                cwd: repository.directory,
                 context,
                 command: gitCommand("showFileContentsAtCommit", commandContext),
               })
             },
           },
           pickRemote(
-            remotes,
+            repository.remotes,
             {
               label: "$(link-external) Open File at Commit on Remote",
               description: commitFilename,
@@ -194,16 +213,29 @@ function pickRemote(
   return { ...item, label, onSelected }
 }
 
-export function fileLinkProvider(filenames: FilenameStore) {
+export function fileLinkProvider(
+  repositories: RepositoryStore,
+  terminalFolders: TerminalFolderStore,
+) {
   return vscode.window.registerTerminalLinkProvider({
-    async provideTerminalLinks({ line }): Promise<FileTerminalLink[]> {
-      return filenames
+    async provideTerminalLinks({
+      line,
+      terminal,
+    }): Promise<FileTerminalLink[]> {
+      const folder = await terminalFolders.getFolder(terminal)
+      const repository = folder && repositories.getRepository(folder.uri)
+
+      if (repository === undefined) {
+        return []
+      }
+
+      return repository.filenames
         .findMatches(line)
         .map(({ startIndex, text: filename }) => ({
           startIndex,
           length: filename.length,
           tooltip: "Pick a file action",
-          context: { filename },
+          context: { repository, filename },
         }))
     },
 

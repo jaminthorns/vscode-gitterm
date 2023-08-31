@@ -6,19 +6,15 @@ export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
   return items.filter((item) => item !== null) as Exclude<T, null>[]
 }
 
-// TODO: Figure out how to handle multiple workspaces
-function currentFolder(): string | undefined {
-  return vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
-}
-
 export async function runCommand(
   command: string,
   args: string[],
+  directory: vscode.Uri,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const stdoutData: Buffer[] = []
     const stderrData: Buffer[] = []
-    const process = spawn(command, args, { cwd: currentFolder() })
+    const process = spawn(command, args, { cwd: directory.fsPath })
 
     process.stdout.on("data", (data) => stdoutData.push(data))
     process.stderr.on("data", (data) => stderrData.push(data))
@@ -38,18 +34,22 @@ export async function runCommand(
 export function streamCommand(
   command: string,
   args: string[],
+  directory: vscode.Uri,
   onOutput: (output: string) => unknown,
 ) {
-  const process = spawn(command, args, { cwd: currentFolder() })
+  const process = spawn(command, args, { cwd: directory.fsPath })
 
   process.stdout.on("data", (data) => onOutput(data.toString()))
 }
 
-export async function parseCommit(raw: string): Promise<Commit | null> {
+export async function parseCommit(
+  raw: string,
+  directory: vscode.Uri,
+): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      runCommand("git", ["rev-parse", raw]),
-      runCommand("git", ["rev-parse", "--short", raw]),
+      runCommand("git", ["rev-parse", raw], directory),
+      runCommand("git", ["rev-parse", "--short", raw], directory),
     ])
 
     return { full, abbreviated }
@@ -74,18 +74,16 @@ function chunk<T>(array: T[], count: number): T[][] {
 // Get a mapping that provides historical paths by commit for a given path.
 export async function commitFilenames(
   path: string,
+  directory: vscode.Uri,
 ): Promise<CommitFilenames | null> {
   try {
     // TODO: This only gets commits relevant to the file's history, which
     // excludes things like merge commits
-    const output = await runCommand("git", [
-      "log",
-      "--follow",
-      "--name-only",
-      "--format=%H",
-      "--",
-      path,
-    ])
+    const output = await runCommand(
+      "git",
+      ["log", "--follow", "--name-only", "--format=%H", "--", path],
+      directory,
+    )
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {
@@ -96,16 +94,18 @@ export async function commitFilenames(
 export function runCommandInTerminal<Context>({
   name,
   icon,
+  cwd,
   context,
   command,
 }: {
   name: string
   icon: string
+  cwd: vscode.Uri
   context: Context
   command: string
 }) {
   const iconPath = new vscode.ThemeIcon(icon)
-  const options = { name, iconPath, context }
+  const options = { name, iconPath, cwd, context }
   const terminal = vscode.window.createTerminal(options)
 
   terminal.show()

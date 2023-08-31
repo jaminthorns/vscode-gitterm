@@ -1,43 +1,51 @@
 import * as vscode from "vscode"
 import { fileBlame, fileHistory, lineHistory } from "./commands"
-import FilenameStore from "./FilenameStore"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
-import { createRemoteProviders } from "./RemoteProvider"
-import TerminalWsFolderStore from "./TerminalWsFolderStore"
-import { runCommand } from "./util"
+import RepositoryStore from "./RepositoryStore"
+import TerminalFolderStore from "./TerminalFolderStore"
 
 export async function activate(context: vscode.ExtensionContext) {
-  const terminalWsFolders = setupTerminalWsFolders()
+  const { workspaceFolders } = vscode.workspace
 
-  const [remotes, filenames] = await Promise.all([
-    await createRemoteProviders(),
-    await setupFilenames(),
-  ])
+  if (workspaceFolders === undefined) {
+    return
+  }
+
+  const repositories = setupRepositories(workspaceFolders)
+  const terminalFolders = setupTerminalFolders()
 
   context.subscriptions.push(
-    fileHistory(),
-    lineHistory(),
-    fileBlame(),
-    commitLinkProvider(remotes),
-    fileLinkProvider(filenames),
+    fileHistory(repositories),
+    lineHistory(repositories),
+    fileBlame(repositories),
+    commitLinkProvider(repositories, terminalFolders),
+    fileLinkProvider(repositories, terminalFolders),
   )
 }
 
-function setupTerminalWsFolders(): TerminalWsFolderStore {
-  const terminalWsFolders = TerminalWsFolderStore()
+function setupRepositories(
+  workspaceFolders: readonly vscode.WorkspaceFolder[],
+): RepositoryStore {
+  const repositories = RepositoryStore()
 
-  vscode.window.terminals.forEach(terminalWsFolders.addTerminal)
-  vscode.window.onDidOpenTerminal(terminalWsFolders.addTerminal)
-  vscode.window.onDidCloseTerminal(terminalWsFolders.removeTerminal)
+  workspaceFolders.forEach(repositories.addRepository)
 
-  return terminalWsFolders
+  vscode.workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
+    added.forEach(repositories.addRepository)
+    removed.forEach(repositories.removeRepository)
+  })
+
+  return repositories
 }
 
-async function setupFilenames(): Promise<FilenameStore> {
-  const gitDirRaw = await runCommand("git", ["rev-parse", "--git-common-dir"])
-  const gitDir = vscode.Uri.parse(gitDirRaw)
+function setupTerminalFolders(): TerminalFolderStore {
+  const terminalFolders = TerminalFolderStore()
 
-  return await FilenameStore(gitDir)
+  vscode.window.terminals.forEach(terminalFolders.addFolder)
+  vscode.window.onDidOpenTerminal(terminalFolders.addFolder)
+  vscode.window.onDidCloseTerminal(terminalFolders.removeFolder)
+
+  return terminalFolders
 }
 
 export function deactivate() {}

@@ -1,18 +1,18 @@
 import * as vscode from "vscode"
 
-export default interface TerminalWsFolderStore {
-  addTerminal(terminal: vscode.Terminal): Promise<void>
-  removeTerminal(terminal: vscode.Terminal): Promise<void>
-  getWorkspaceFolder(
+export default interface TerminalFolderStore {
+  addFolder(terminal: vscode.Terminal): Promise<void>
+  removeFolder(terminal: vscode.Terminal): Promise<void>
+  getFolder(
     terminal: vscode.Terminal,
   ): Promise<vscode.WorkspaceFolder | undefined>
 }
 
-export default function TerminalWsFolderStore(): TerminalWsFolderStore {
+export default function TerminalFolderStore(): TerminalFolderStore {
   const workspaceFolders: Map<number, vscode.WorkspaceFolder> = new Map()
 
   return {
-    async addTerminal(terminal) {
+    async addFolder(terminal) {
       const processId = await terminal.processId
 
       if (processId === undefined || "pty" in terminal.creationOptions) {
@@ -21,29 +21,29 @@ export default function TerminalWsFolderStore(): TerminalWsFolderStore {
 
       const { cwd } = terminal.creationOptions
       const { activeTextEditor } = vscode.window
-      const { workspaceFolders: wsFolders } = vscode.workspace
+      const { workspaceFolders: folders } = vscode.workspace
 
-      let wsFolder: vscode.WorkspaceFolder | undefined
+      let folder: vscode.WorkspaceFolder | undefined
 
       // It's not straightforward to get a terminal's workspace folder
       // directory, so we take a conservative guessing approach
       if (cwd !== undefined) {
         const uri = typeof cwd === "string" ? vscode.Uri.file(cwd) : cwd
-        wsFolder = vscode.workspace.getWorkspaceFolder(uri)
+        folder = vscode.workspace.getWorkspaceFolder(uri)
       } else if (activeTextEditor !== undefined) {
         const uri = activeTextEditor.document.uri
-        wsFolder = vscode.workspace.getWorkspaceFolder(uri)
-      } else if (wsFolders !== undefined && wsFolders.length === 1) {
-        wsFolder = wsFolders[0]
+        folder = vscode.workspace.getWorkspaceFolder(uri)
+      } else if (folders !== undefined && folders.length === 1) {
+        folder = folders[0]
       }
 
       // When we can't find a workspace folder for a terminal, we ignore it
-      if (wsFolder !== undefined) {
-        workspaceFolders.set(processId, wsFolder)
+      if (folder !== undefined) {
+        workspaceFolders.set(processId, folder)
       }
     },
 
-    async removeTerminal(terminal) {
+    async removeFolder(terminal) {
       const processId = await terminal.processId
 
       if (processId) {
@@ -51,7 +51,7 @@ export default function TerminalWsFolderStore(): TerminalWsFolderStore {
       }
     },
 
-    async getWorkspaceFolder(
+    async getFolder(
       terminal: vscode.Terminal,
     ): Promise<vscode.WorkspaceFolder | undefined> {
       const processId = await terminal.processId
