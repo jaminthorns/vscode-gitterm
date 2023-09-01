@@ -76,9 +76,7 @@ export function commitLinkProvider(
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { repository, commit, filename, commitFilenames } = context
 
-      const options = {
-        placeHolder: `Select an action for commit ${commit.abbreviated}`,
-      }
+      const options = { placeHolder: "Select an action" }
 
       const commitFilename =
         filename !== undefined && commitFilenames !== undefined
@@ -87,14 +85,14 @@ export function commitLinkProvider(
 
       const commitItems: QuickPickItem[] = excludeNulls([
         {
-          label: "Commit Actions",
+          label: commit.abbreviated,
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
           label: "$(git-commit) Show Commit",
           onSelected: () => {
             runCommandInTerminal({
-              name: `Commit: ${commit.abbreviated}`,
+              name: commit.abbreviated,
               icon: "git-commit",
               cwd: repository.directory,
               command: gitCommand("showCommit", { commit: commit.full }),
@@ -103,14 +101,14 @@ export function commitLinkProvider(
           },
         },
         {
-          label: "$(files) Copy Commit to Clipboard",
+          label: "$(files) Copy Commit ID",
           onSelected: () => {
             vscode.env.clipboard.writeText(commit.full)
           },
         },
         pickRemote(
           repository.remotes,
-          { label: "$(link-external) Open Commit on Remote" },
+          { label: "$(link-external) Open on Remote" },
           (remote) => {
             // TODO: Handle when a remote doesn't contain a commit
             const url = remote.commitUrl(commit)
@@ -124,34 +122,20 @@ export function commitLinkProvider(
       if (commitFilename === null) {
         selectedItem = await vscode.window.showQuickPick(commitItems, options)
       } else {
-        const file = basename(commitFilename)
+        const fileLabel = `${basename(commitFilename)} @ ${commit.abbreviated}`
         const context = { commit, filename: commitFilename }
         const commandContext = { commit: commit.full, filename: commitFilename }
 
         const fileItems: QuickPickItem[] = excludeNulls([
           {
-            label: "File Actions",
+            label: fileLabel,
             kind: vscode.QuickPickItemKind.Separator,
           },
           {
-            label: "$(git-compare) Show File Diff",
-            description: commitFilename,
+            label: "$(file) Show File",
             onSelected: () => {
               runCommandInTerminal({
-                name: `Diff: ${file} (${commit.abbreviated})`,
-                icon: "git-compare",
-                cwd: repository.directory,
-                context,
-                command: gitCommand("showFileDiffAtCommit", commandContext),
-              })
-            },
-          },
-          {
-            label: "$(file) Show File at Commit",
-            description: commitFilename,
-            onSelected: () => {
-              runCommandInTerminal({
-                name: `File: ${file} (${commit.abbreviated})`,
+                name: fileLabel,
                 icon: "file",
                 cwd: repository.directory,
                 context,
@@ -159,12 +143,21 @@ export function commitLinkProvider(
               })
             },
           },
+          {
+            label: "$(git-compare) Diff File",
+            onSelected: () => {
+              runCommandInTerminal({
+                name: fileLabel,
+                icon: "git-compare",
+                cwd: repository.directory,
+                context,
+                command: gitCommand("showFileDiffAtCommit", commandContext),
+              })
+            },
+          },
           pickRemote(
             repository.remotes,
-            {
-              label: "$(link-external) Open File at Commit on Remote",
-              description: commitFilename,
-            },
+            { label: "$(link-external) Open on Remote" },
             (remote) => {
               // TODO: Handle when a remote doesn't contain a commit
               const url = remote.fileAtCommitUrl(commit, commitFilename)

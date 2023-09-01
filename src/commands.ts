@@ -22,7 +22,7 @@ export function fileHistory(repositories: RepositoryStore) {
       }
 
       runCommandInTerminal({
-        name: `History: ${basename(filename)}`,
+        name: basename(filename),
         icon: "history",
         cwd: repository.directory,
         command: gitCommand("fileHistory", commandContext),
@@ -55,7 +55,7 @@ export function lineHistory(repositories: RepositoryStore) {
       }
 
       runCommandInTerminal({
-        name: `History: ${basename(filename)}:${lineSuffix}`,
+        name: `${basename(filename)}:${lineSuffix}`,
         icon: "history",
         cwd: repository.directory,
         command: gitCommand("lineHistory", commandContext),
@@ -82,7 +82,7 @@ export function fileBlame(repositories: RepositoryStore) {
       }
 
       runCommandInTerminal({
-        name: `Blame: ${basename(filename)}`,
+        name: basename(filename),
         icon: "person",
         cwd: repository.directory,
         command: gitCommand("fileBlame", { filename }),
