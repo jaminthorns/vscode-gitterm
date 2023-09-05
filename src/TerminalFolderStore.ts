@@ -1,4 +1,6 @@
+import { lookpath } from "lookpath"
 import * as vscode from "vscode"
+import { runCommand } from "./util"
 
 export default interface TerminalFolderStore {
   addFolder(terminal: vscode.Terminal): Promise<void>
@@ -25,19 +27,25 @@ export default function TerminalFolderStore(): TerminalFolderStore {
 
       let folder: vscode.WorkspaceFolder | undefined
 
-      // It's not straightforward to get a terminal's workspace folder
-      // directory, so we take a conservative guessing approach
       if (cwd !== undefined) {
+        // If the cwd is explicitly given, then use it
         const uri = typeof cwd === "string" ? vscode.Uri.file(cwd) : cwd
         folder = vscode.workspace.getWorkspaceFolder(uri)
+      } else if (folders !== undefined && folders.length === 1) {
+        // If there is only 1 folder, then it's the only reasonable choice
+        folder = folders[0]
+      } else if ((await lookpath("lsof")) !== undefined) {
+        // We can detect the cwd using the `lsof` command when available
+        const uri = vscode.Uri.file(await lsofCwd(processId))
+        folder = vscode.workspace.getWorkspaceFolder(uri)
       } else if (activeTextEditor !== undefined) {
+        // VS Code's behavior is to spawn new terminals in the active editor's
+        // folder, so this is a decent guess
         const uri = activeTextEditor.document.uri
         folder = vscode.workspace.getWorkspaceFolder(uri)
-      } else if (folders !== undefined && folders.length === 1) {
-        folder = folders[0]
       }
 
-      // When we can't find a workspace folder for a terminal, we ignore it
+      // When we can't find a folder for a terminal, we ignore it
       if (folder !== undefined) {
         workspaceFolders.set(processId, folder)
       }
@@ -61,4 +69,11 @@ export default function TerminalFolderStore(): TerminalFolderStore {
       }
     },
   }
+}
+
+async function lsofCwd(pid: number): Promise<string> {
+  const args = ["-a", "-d", "cwd", "-Fn", "-p", pid.toString()]
+  const output = await runCommand("lsof", args)
+
+  return output.split("\n")[2].slice(1)
 }

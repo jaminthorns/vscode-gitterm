@@ -9,12 +9,12 @@ export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
 export async function runCommand(
   command: string,
   args: string[],
-  directory: vscode.Uri,
+  directory?: vscode.Uri,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const stdoutData: Buffer[] = []
     const stderrData: Buffer[] = []
-    const process = spawn(command, args, { cwd: directory.fsPath })
+    const process = spawn(command, args, { cwd: directory?.fsPath })
 
     process.stdout.on("data", (data) => stdoutData.push(data))
     process.stderr.on("data", (data) => stderrData.push(data))
@@ -34,10 +34,10 @@ export async function runCommand(
 export function streamCommand(
   command: string,
   args: string[],
-  directory: vscode.Uri,
+  directory: vscode.Uri | undefined,
   onOutput: (output: string) => unknown,
 ) {
-  const process = spawn(command, args, { cwd: directory.fsPath })
+  const process = spawn(command, args, { cwd: directory?.fsPath })
 
   process.stdout.on("data", (data) => onOutput(data.toString()))
 }
