@@ -4,7 +4,7 @@ import RemoteProvider, { createRemoteProviders } from "./RemoteProvider"
 
 export default interface Repository extends vscode.Disposable {
   directory: vscode.Uri
-  remotes: RemoteProvider[]
+  remoteProviders: RemoteProvider[]
   filenames: FilenameStore
 }
 
@@ -13,7 +13,7 @@ export default async function Repository(
 ): Promise<Repository> {
   const directory = folder.uri
 
-  const [remotes, filenames] = await Promise.all([
+  const [remoteProviders, filenames] = await Promise.all([
     // TODO: Refresh on remote change
     await createRemoteProviders(directory),
     await FilenameStore(directory),
@@ -21,7 +21,7 @@ export default async function Repository(
 
   return {
     directory,
-    remotes,
+    remoteProviders,
     filenames,
 
     dispose() {

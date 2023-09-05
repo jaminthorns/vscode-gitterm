@@ -1,8 +1,15 @@
 import { basename } from "path"
 import * as vscode from "vscode"
+import { RawCommit } from "./Commit"
+import { FileContext, FileLineContext } from "./context"
 import RepositoryStore from "./RepositoryStore"
-import { FileContext, LineContext, TerminalFileContext } from "./types"
-import { commitFilenames, gitCommand, runCommandInTerminal } from "./util"
+import { chunk, gitCommand, runCommand, runCommandInTerminal } from "./util"
+
+export type CommitFilenames = Map<RawCommit, string>
+
+export interface TerminalFileContext extends FileContext {
+  commitFilenames: Promise<CommitFilenames | null>
+}
 
 export function fileHistory(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
@@ -15,7 +22,7 @@ export function fileHistory(repositories: RepositoryStore) {
       }
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const commandContext: FileContext = { filename }
+      const commandVars: FileContext = { filename }
       const terminalContext: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename, repository.directory),
@@ -25,7 +32,7 @@ export function fileHistory(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "history",
         cwd: repository.directory,
-        command: gitCommand("fileHistory", commandContext),
+        command: gitCommand("fileHistory", commandVars),
         context: terminalContext,
       })
     },
@@ -48,7 +55,7 @@ export function lineHistory(repositories: RepositoryStore) {
       const lineSuffix = startLine === endLine ? startLine : lineRange
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const commandContext: LineContext = { filename, startLine, endLine }
+      const commandVars: FileLineContext = { filename, startLine, endLine }
       const terminalContext: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename, repository.directory),
@@ -58,7 +65,7 @@ export function lineHistory(repositories: RepositoryStore) {
         name: `${basename(filename)}:${lineSuffix}`,
         icon: "history",
         cwd: repository.directory,
-        command: gitCommand("lineHistory", commandContext),
+        command: gitCommand("lineHistory", commandVars),
         context: terminalContext,
       })
     },
@@ -76,7 +83,8 @@ export function fileBlame(repositories: RepositoryStore) {
       }
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const context: TerminalFileContext = {
+      const commandsVars: FileContext = { filename }
+      const terminalContext: TerminalFileContext = {
         filename,
         commitFilenames: commitFilenames(filename, repository.directory),
       }
@@ -85,9 +93,26 @@ export function fileBlame(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "person",
         cwd: repository.directory,
-        command: gitCommand("fileBlame", { filename }),
-        context,
+        command: gitCommand("fileBlame", commandsVars),
+        context: terminalContext,
       })
     },
   )
+}
+
+// Get a mapping that provides historical paths by commit for a given path
+async function commitFilenames(
+  path: string,
+  directory: vscode.Uri,
+): Promise<CommitFilenames | null> {
+  try {
+    // TODO: This only gets commits relevant to the file's history, which
+    // excludes things like merge commits
+    const args = ["log", "--follow", "--name-only", "--format=%H", "--", path]
+    const output = await runCommand("git", args, directory)
+
+    return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
+  } catch (error) {
+    return null
+  }
 }

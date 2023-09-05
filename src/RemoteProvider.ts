@@ -1,17 +1,7 @@
 import * as vscode from "vscode"
-import { Commit } from "./types"
+import { Commit } from "./Commit"
+import Remote from "./Remote"
 import { excludeNulls, runCommand } from "./util"
-
-type Server =
-  | { protocol: "ssh"; host: string; user: string }
-  | { protocol: "http"; host: string }
-  | { protocol: "https"; host: string }
-
-interface Remote {
-  name: string
-  server: Server
-  path: string
-}
 
 export default interface RemoteProvider {
   remote: Remote
@@ -20,66 +10,16 @@ export default interface RemoteProvider {
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri
 }
 
-// TODO: Handle unsupported providers better (currently just ignoring)
-export async function createRemoteProviders(
-  directory: vscode.Uri,
-): Promise<RemoteProvider[]> {
-  const output = await runCommand("git", ["remote"], directory)
-  const names = output === "" ? [] : output.split("\n")
-  const remotes = excludeNulls(
-    await Promise.all(names.map((name) => parseRemote(name, directory))),
-  )
-  const providers = excludeNulls(remotes.map(createRemoteProvider))
-
-  // Show "origin" remote at the top
-  providers.sort((a, b) => {
-    switch (true) {
-      case a.remote.name === "origin":
-        return -1
-      case b.remote.name === "origin":
-        return 1
-      default:
-        return 0
-    }
-  })
-
-  return providers
-}
-
-async function parseRemote(
-  name: string,
-  directory: vscode.Uri,
-): Promise<Remote | null> {
-  const urlRaw = await runCommand("git", ["remote", "get-url", name], directory)
-
-  const sshPattern =
-    /^(?!http)(?:ssh:\/\/)?(?:(?<user>.+)@)?(?<host>.+):(?<path>.*)$/
-  const sshMatch = sshPattern.exec(urlRaw)
-
-  const httpPattern = /^(?<protocol>https?):\/\/(?<host>[^/]+)\/(?<path>.*)$/
-  const httpMatch = httpPattern.exec(urlRaw)
-
-  if (sshMatch !== null) {
-    const { user, host, path } = sshMatch.groups || {}
-    return { name, path, server: { protocol: "ssh", host, user } }
-  } else if (httpMatch !== null) {
-    const { protocol, host, path } = httpMatch.groups || {}
-    return { name, path, server: { protocol, host } } as Remote
-  } else {
-    return null
-  }
-}
-
-function createRemoteProvider(remote: Remote): RemoteProvider | null {
+function RemoteProvider(remote: Remote): RemoteProvider | null {
   switch (remote.server.host) {
     case "github.com":
-      return createGitHubProvider(remote)
+      return GitHubProvider(remote)
     default:
       return null
   }
 }
 
-function createGitHubProvider(remote: Remote): RemoteProvider | null {
+function GitHubProvider(remote: Remote): RemoteProvider | null {
   const pathPattern = /^(?<user>.+)\/(?<repository>.+)\.git$/
   const pathMatch = pathPattern.exec(remote.path)
 
@@ -109,4 +49,30 @@ function createGitHubProvider(remote: Remote): RemoteProvider | null {
       return baseUrl(`/blob/${commit.full}/${filename}`)
     },
   }
+}
+
+// TODO: Handle unsupported providers better (currently just ignoring)
+export async function createRemoteProviders(
+  directory: vscode.Uri,
+): Promise<RemoteProvider[]> {
+  const output = await runCommand("git", ["remote"], directory)
+  const names = output === "" ? [] : output.split("\n")
+  const remotes = excludeNulls(
+    await Promise.all(names.map((name) => Remote(name, directory))),
+  )
+  const providers = excludeNulls(remotes.map(RemoteProvider))
+
+  // Show "origin" remote at the top
+  providers.sort((a, b) => {
+    switch (true) {
+      case a.remote.name === "origin":
+        return -1
+      case b.remote.name === "origin":
+        return 1
+      default:
+        return 0
+    }
+  })
+
+  return providers
 }

@@ -1,26 +1,19 @@
 import { basename } from "path"
 import * as vscode from "vscode"
+import { TerminalFileContext } from "./commands"
+import { Commit } from "./Commit"
+import {
+  CommitContext,
+  FileContext,
+  RawCommitContext,
+  RepositoryContext,
+} from "./context"
 import RemoteProvider from "./RemoteProvider"
-import Repository from "./Repository"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
-import { Commit, FileContext, TerminalFileContext } from "./types"
-import {
-  excludeNulls,
-  gitCommand,
-  parseCommit,
-  runCommandInTerminal,
-} from "./util"
+import { excludeNulls, gitCommand, runCommandInTerminal } from "./util"
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
-
-interface RepositoryContext {
-  repository: Repository
-}
-
-interface CommitContext {
-  commit: Commit
-}
 
 interface CommitTerminalLink extends vscode.TerminalLink {
   context: RepositoryContext & CommitContext & Partial<TerminalFileContext>
@@ -53,7 +46,7 @@ export function commitLinkProvider(
       return excludeNulls(
         await Promise.all(
           lineMatches.map(async ([match, rawCommit]) => {
-            const commit = await parseCommit(rawCommit, repository.directory)
+            const commit = await Commit(rawCommit, repository.directory)
 
             if (commit === null) {
               return null
@@ -91,12 +84,15 @@ export function commitLinkProvider(
         {
           label: "$(git-commit) Show Commit",
           onSelected: () => {
+            const commandVars: RawCommitContext = { commit: commit.full }
+            const terminalContext: CommitContext = { commit }
+
             runCommandInTerminal({
               name: commit.abbreviated,
               icon: "git-commit",
               cwd: repository.directory,
-              command: gitCommand("showCommit", { commit: commit.full }),
-              context: { commit },
+              command: gitCommand("showCommit", commandVars),
+              context: terminalContext,
             })
           },
         },
@@ -107,7 +103,7 @@ export function commitLinkProvider(
           },
         },
         pickRemote(
-          repository.remotes,
+          repository.remoteProviders,
           { label: "$(link-external) Open on Remote" },
           (remote) => {
             // TODO: Handle when a remote doesn't contain a commit
@@ -123,8 +119,14 @@ export function commitLinkProvider(
         selectedItem = await vscode.window.showQuickPick(commitItems, options)
       } else {
         const fileLabel = `${basename(commitFilename)} @ ${commit.abbreviated}`
-        const context = { commit, filename: commitFilename }
-        const commandContext = { commit: commit.full, filename: commitFilename }
+        const commandVars: RawCommitContext & FileContext = {
+          commit: commit.full,
+          filename: commitFilename,
+        }
+        const terminalContext: CommitContext & FileContext = {
+          commit,
+          filename: commitFilename,
+        }
 
         const fileItems: QuickPickItem[] = excludeNulls([
           {
@@ -138,8 +140,8 @@ export function commitLinkProvider(
                 name: fileLabel,
                 icon: "file",
                 cwd: repository.directory,
-                context,
-                command: gitCommand("showFileContentsAtCommit", commandContext),
+                context: terminalContext,
+                command: gitCommand("showFileContentsAtCommit", commandVars),
               })
             },
           },
@@ -150,13 +152,13 @@ export function commitLinkProvider(
                 name: fileLabel,
                 icon: "git-compare",
                 cwd: repository.directory,
-                context,
-                command: gitCommand("showFileDiffAtCommit", commandContext),
+                context: terminalContext,
+                command: gitCommand("showFileDiffAtCommit", commandVars),
               })
             },
           },
           pickRemote(
-            repository.remotes,
+            repository.remoteProviders,
             { label: "$(link-external) Open on Remote" },
             (remote) => {
               // TODO: Handle when a remote doesn't contain a commit

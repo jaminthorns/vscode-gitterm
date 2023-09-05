@@ -1,9 +1,21 @@
 import { spawn } from "child_process"
 import * as vscode from "vscode"
-import { Commit, CommitFilenames } from "./types"
 
 export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
   return items.filter((item) => item !== null) as Exclude<T, null>[]
+}
+
+export function chunk<T>(array: T[], count: number): T[][] {
+  return array.reduce((chunks: T[][], value, index) => {
+    const chunkIndex = Math.floor(index / count)
+
+    if (chunks[chunkIndex] === undefined) {
+      chunks[chunkIndex] = []
+    }
+
+    chunks[chunkIndex].push(value)
+    return chunks
+  }, [])
 }
 
 export async function runCommand(
@@ -38,57 +50,7 @@ export function streamCommand(
   onOutput: (output: string) => unknown,
 ) {
   const process = spawn(command, args, { cwd: directory?.fsPath })
-
   process.stdout.on("data", (data) => onOutput(data.toString()))
-}
-
-export async function parseCommit(
-  raw: string,
-  directory: vscode.Uri,
-): Promise<Commit | null> {
-  try {
-    const [full, abbreviated] = await Promise.all([
-      runCommand("git", ["rev-parse", raw], directory),
-      runCommand("git", ["rev-parse", "--short", raw], directory),
-    ])
-
-    return { full, abbreviated }
-  } catch (error) {
-    return null
-  }
-}
-
-function chunk<T>(array: T[], count: number): T[][] {
-  return array.reduce((chunks: T[][], value, index) => {
-    const chunkIndex = Math.floor(index / count)
-
-    if (chunks[chunkIndex] === undefined) {
-      chunks[chunkIndex] = []
-    }
-
-    chunks[chunkIndex].push(value)
-    return chunks
-  }, [])
-}
-
-// Get a mapping that provides historical paths by commit for a given path.
-export async function commitFilenames(
-  path: string,
-  directory: vscode.Uri,
-): Promise<CommitFilenames | null> {
-  try {
-    // TODO: This only gets commits relevant to the file's history, which
-    // excludes things like merge commits
-    const output = await runCommand(
-      "git",
-      ["log", "--follow", "--name-only", "--format=%H", "--", path],
-      directory,
-    )
-
-    return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
-  } catch (error) {
-    return null
-  }
 }
 
 export function runCommandInTerminal<Context>({
@@ -114,7 +76,7 @@ export function runCommandInTerminal<Context>({
 
 export function gitCommand(
   commandKey: string,
-  context: Record<string, any>,
+  variables: Record<string, any>,
 ): string {
   let command = vscode.workspace
     .getConfiguration("gitterm.gitCommands")
@@ -122,7 +84,7 @@ export function gitCommand(
 
   const matches = Array.from(command.matchAll(/\${(\w+)}/g))
 
-  return matches.reduce((command, [substitution, contextKey]) => {
-    return command.replace(substitution, context[contextKey])
+  return matches.reduce((command, [substitution, variableName]) => {
+    return command.replace(substitution, variables[variableName])
   }, command)
 }
