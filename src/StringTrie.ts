@@ -24,23 +24,25 @@ export default function StringTrie(): StringTrie {
     },
 
     findMatches(text) {
-      let index = 0
       const characters = Array.from(text)
       const matches = []
 
-      while (index < characters.length) {
+      for (let index = 0; index < characters.length; index++) {
         const string = text.slice(index)
         const match = longestMatch(string, root)
 
-        if (match === null) {
-          index = index + 1
-        } else {
+        if (match !== null) {
           matches.push({ startIndex: index, text: match })
-          index = index + match.length
         }
       }
 
-      return matches
+      return matches.filter((match, index, all) => {
+        const overlapping = all
+          .filter((m) => overlaps(match, m))
+          .sort((a, b) => b.text.length - a.text.length)
+
+        return match === overlapping[0]
+      })
     },
   }
 }
@@ -82,4 +84,11 @@ function longestMatch(
 
     return longestMatch(rest, nextChild, nextProcessed, nextMatched)
   }
+}
+
+function overlaps(a: Match, b: Match) {
+  const aEndIndex = a.startIndex + a.text.length - 1
+  const bEndIndex = b.startIndex + b.text.length - 1
+
+  return aEndIndex >= b.startIndex && bEndIndex >= a.startIndex
 }
