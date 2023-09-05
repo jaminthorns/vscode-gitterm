@@ -106,9 +106,15 @@ async function commitFilenames(
   directory: vscode.Uri,
 ): Promise<CommitFilenames | null> {
   try {
-    // TODO: This only gets commits relevant to the file's history, which
-    // excludes things like merge commits
-    const args = ["log", "--follow", "--name-only", "--format=%H", "--", path]
+    const args = [
+      "log",
+      "-m",
+      "--follow",
+      "--name-only",
+      "--format=%H",
+      "--",
+      path,
+    ]
     const output = await runCommand("git", args, directory)
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
