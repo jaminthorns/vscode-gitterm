@@ -74,12 +74,12 @@
         },
         "gitterm.gitCommands.showCommit": {
           "type": "string",
-          "default": "git show ${commit}",
+          "default": "git show -m ${commit}",
           "description": "Git command to use for showing a commit"
         },
         "gitterm.gitCommands.showFileDiffAtCommit": {
           "type": "string",
-          "default": "git show ${commit} -- '${filename}'",
+          "default": "git show -m ${commit} -- '${filename}'",
           "description": "Git command to use for showing a file's diff at a commit"
         },
         "gitterm.gitCommands.showFileContentsAtCommit": {
