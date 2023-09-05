@@ -14,6 +14,7 @@ export default async function Repository(
   const directory = folder.uri
 
   const [remotes, filenames] = await Promise.all([
+    // TODO: Refresh on remote change
     await createRemoteProviders(directory),
     await FilenameStore(directory),
   ])
