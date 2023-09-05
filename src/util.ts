@@ -53,6 +53,14 @@ export function streamCommand(
   process.stdout.on("data", (data) => onOutput(data.toString()))
 }
 
+export async function runGitCommand(
+  subCommand: string,
+  directory: vscode.Uri,
+  args: string[],
+): Promise<string> {
+  return await runCommand("git", [subCommand, ...args], directory)
+}
+
 export function runCommandInTerminal<Context>({
   name,
   icon,
@@ -74,7 +82,7 @@ export function runCommandInTerminal<Context>({
   terminal.sendText(command)
 }
 
-export function gitCommand(
+export function userGitCommand(
   commandKey: string,
   variables: Record<string, any>,
 ): string {

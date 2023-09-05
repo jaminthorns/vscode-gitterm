@@ -14,9 +14,9 @@ import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
 import {
   excludeNulls,
-  gitCommand,
-  runCommand,
   runCommandInTerminal,
+  runGitCommand,
+  userGitCommand,
 } from "./util"
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
@@ -98,7 +98,7 @@ export function commitLinkProvider(
               name: commit.abbreviated,
               icon: "git-commit",
               cwd: repository.directory,
-              command: gitCommand("showCommit", commandVars),
+              command: userGitCommand("showCommit", commandVars),
               context: terminalContext,
             })
           },
@@ -147,7 +147,10 @@ export function commitLinkProvider(
                 icon: "file",
                 cwd: repository.directory,
                 context: terminalContext,
-                command: gitCommand("showFileContentsAtCommit", commandVars),
+                command: userGitCommand(
+                  "showFileContentsAtCommit",
+                  commandVars,
+                ),
               })
             },
           },
@@ -159,7 +162,7 @@ export function commitLinkProvider(
                 icon: "git-compare",
                 cwd: repository.directory,
                 context: terminalContext,
-                command: gitCommand("showFileDiffAtCommit", commandVars),
+                command: userGitCommand("showFileDiffAtCommit", commandVars),
               })
             },
           },
@@ -190,8 +193,8 @@ async function commitRemoteProviders(
     return []
   }
 
-  const args = ["branch", "-r", "--contains", commit.full]
-  const output = await runCommand("git", args, repository.directory)
+  const args = ["-r", "--contains", commit.full]
+  const output = await runGitCommand("branch", repository.directory, args)
   const branches = output.split("\n").map((b) => b.trim())
 
   return repository.remoteProviders.filter(({ remote }) => {

@@ -3,7 +3,12 @@ import * as vscode from "vscode"
 import { RawCommit } from "./Commit"
 import { FileContext, FileLineContext } from "./context"
 import RepositoryStore from "./RepositoryStore"
-import { chunk, gitCommand, runCommand, runCommandInTerminal } from "./util"
+import {
+  chunk,
+  runCommandInTerminal,
+  runGitCommand,
+  userGitCommand,
+} from "./util"
 
 export type CommitFilenames = Map<RawCommit, string>
 
@@ -32,7 +37,7 @@ export function fileHistory(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "history",
         cwd: repository.directory,
-        command: gitCommand("fileHistory", commandVars),
+        command: userGitCommand("fileHistory", commandVars),
         context: terminalContext,
       })
     },
@@ -65,7 +70,7 @@ export function lineHistory(repositories: RepositoryStore) {
         name: `${basename(filename)}:${lineSuffix}`,
         icon: "history",
         cwd: repository.directory,
-        command: gitCommand("lineHistory", commandVars),
+        command: userGitCommand("lineHistory", commandVars),
         context: terminalContext,
       })
     },
@@ -93,7 +98,7 @@ export function fileBlame(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "person",
         cwd: repository.directory,
-        command: gitCommand("fileBlame", commandsVars),
+        command: userGitCommand("fileBlame", commandsVars),
         context: terminalContext,
       })
     },
@@ -106,16 +111,8 @@ async function commitFilenames(
   directory: vscode.Uri,
 ): Promise<CommitFilenames | null> {
   try {
-    const args = [
-      "log",
-      "-m",
-      "--follow",
-      "--name-only",
-      "--format=%H",
-      "--",
-      path,
-    ]
-    const output = await runCommand("git", args, directory)
+    const args = ["-m", "--follow", "--name-only", "--format=%H", "--", path]
+    const output = await runGitCommand("log", directory, args)
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {

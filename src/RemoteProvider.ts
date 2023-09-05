@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
 import Remote from "./Remote"
-import { excludeNulls, runCommand } from "./util"
+import { excludeNulls, runGitCommand } from "./util"
 
 export default interface RemoteProvider {
   remote: Remote
@@ -55,7 +55,7 @@ function GitHubProvider(remote: Remote): RemoteProvider | null {
 export async function createRemoteProviders(
   directory: vscode.Uri,
 ): Promise<RemoteProvider[]> {
-  const output = await runCommand("git", ["remote"], directory)
+  const output = await runGitCommand("remote", directory, [])
   const names = output === "" ? [] : output.split("\n")
   const remotes = excludeNulls(
     await Promise.all(names.map((name) => Remote(name, directory))),
