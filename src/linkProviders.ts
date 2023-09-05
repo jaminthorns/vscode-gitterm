@@ -112,10 +112,7 @@ export function commitLinkProvider(
         pickRemote(
           remoteProviders,
           { label: "$(link-external) Open Commit on Remote" },
-          (remote) => {
-            const url = remote.commitUrl(commit)
-            vscode.env.openExternal(url)
-          },
+          (remote) => remote.openCommit(commit),
         ),
       ])
 
@@ -169,10 +166,7 @@ export function commitLinkProvider(
           pickRemote(
             remoteProviders,
             { label: "$(link-external) Open File on Remote" },
-            (remote) => {
-              const url = remote.fileAtCommitUrl(commit, commitFilename)
-              vscode.env.openExternal(url)
-            },
+            (remote) => remote.openFileAtCommit(commit, commitFilename),
           ),
         ])
 
