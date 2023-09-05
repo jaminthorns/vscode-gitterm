@@ -9,9 +9,15 @@ import {
   RepositoryContext,
 } from "./context"
 import RemoteProvider from "./RemoteProvider"
+import Repository from "./Repository"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
-import { excludeNulls, gitCommand, runCommandInTerminal } from "./util"
+import {
+  excludeNulls,
+  gitCommand,
+  runCommand,
+  runCommandInTerminal,
+} from "./util"
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
 
@@ -71,6 +77,7 @@ export function commitLinkProvider(
 
       const options = { placeHolder: "Select an action" }
 
+      const remoteProviders = await commitRemoteProviders(commit, repository)
       const commitFilename =
         filename !== undefined && commitFilenames !== undefined
           ? (await commitFilenames)?.get(commit.full) ?? null
@@ -103,10 +110,9 @@ export function commitLinkProvider(
           },
         },
         pickRemote(
-          repository.remoteProviders,
+          remoteProviders,
           { label: "$(link-external) Open on Remote" },
           (remote) => {
-            // TODO: Handle when a remote doesn't contain a commit
             const url = remote.commitUrl(commit)
             vscode.env.openExternal(url)
           },
@@ -158,10 +164,9 @@ export function commitLinkProvider(
             },
           },
           pickRemote(
-            repository.remoteProviders,
+            remoteProviders,
             { label: "$(link-external) Open on Remote" },
             (remote) => {
-              // TODO: Handle when a remote doesn't contain a commit
               const url = remote.fileAtCommitUrl(commit, commitFilename)
               vscode.env.openExternal(url)
             },
@@ -174,6 +179,24 @@ export function commitLinkProvider(
 
       selectedItem?.onSelected?.()
     },
+  })
+}
+
+async function commitRemoteProviders(
+  commit: Commit,
+  repository: Repository,
+): Promise<RemoteProvider[]> {
+  if (repository.remoteProviders.length === 0) {
+    return []
+  }
+
+  const args = ["branch", "-r", "--contains", commit.full]
+  const output = await runCommand("git", args, repository.directory)
+  const branches = output.split("\n").map((b) => b.trim())
+
+  return repository.remoteProviders.filter(({ remote }) => {
+    const match = branches.find((b) => b.startsWith(remote.name))
+    return match !== undefined
   })
 }
 
