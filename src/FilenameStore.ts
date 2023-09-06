@@ -1,4 +1,4 @@
-import { basename } from "path"
+import { basename, resolve } from "path"
 import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
 import { runGitCommand, streamCommand } from "./util"
@@ -30,12 +30,13 @@ async function setupRefsWatcher(
   directory: vscode.Uri,
   filenames: StringTrie,
 ): Promise<vscode.FileSystemWatcher> {
-  const [gitDirRaw, initialCommit] = await Promise.all([
+  const [gitDirRel, initialCommit] = await Promise.all([
     runGitCommand("rev-parse", directory, ["--git-common-dir"]),
     runGitCommand("rev-parse", directory, ["HEAD"]),
   ])
 
-  const gitDir = vscode.Uri.parse(gitDirRaw)
+  const gitDirAbs = resolve(directory.fsPath, gitDirRel)
+  const gitDir = vscode.Uri.parse(gitDirAbs)
   const refsDir = vscode.Uri.joinPath(gitDir, "refs")
   const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
   const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
