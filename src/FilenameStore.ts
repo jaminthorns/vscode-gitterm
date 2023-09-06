@@ -1,4 +1,4 @@
-import { basename, resolve } from "path"
+import { basename } from "path"
 import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
 import { runGitCommand, streamCommand } from "./util"
@@ -9,9 +9,10 @@ export default interface FilenameStore extends vscode.Disposable {
 
 export default async function FilenameStore(
   directory: vscode.Uri,
+  gitDirectory: vscode.Uri,
 ): Promise<FilenameStore> {
   const filenames = StringTrie()
-  const refsWatcher = await setupRefsWatcher(directory, filenames)
+  const refWatcher = await setupRefWatcher(directory, gitDirectory, filenames)
 
   loadFilenames(directory, filenames)
 
@@ -21,27 +22,23 @@ export default async function FilenameStore(
     },
 
     dispose() {
-      refsWatcher.dispose()
+      refWatcher.dispose()
     },
   }
 }
 
-async function setupRefsWatcher(
+async function setupRefWatcher(
   directory: vscode.Uri,
+  gitDirectory: vscode.Uri,
   filenames: StringTrie,
 ): Promise<vscode.FileSystemWatcher> {
-  const [gitDirRel, initialCommit] = await Promise.all([
-    runGitCommand("rev-parse", directory, ["--git-common-dir"]),
-    runGitCommand("rev-parse", directory, ["HEAD"]),
-  ])
+  const initialCommit = await runGitCommand("rev-parse", directory, ["HEAD"])
 
-  const gitDirAbs = resolve(directory.fsPath, gitDirRel)
-  const gitDir = vscode.Uri.parse(gitDirAbs)
-  const refsDir = vscode.Uri.joinPath(gitDir, "refs")
+  const refsDir = vscode.Uri.joinPath(gitDirectory, "refs")
   const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
-  const refsWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
+  const refWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
 
-  refsWatcher.onDidCreate(async (uri) => {
+  refWatcher.onDidCreate(async (uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
       const content = await vscode.workspace.fs.readFile(uri)
       const commit = content.toString().trim()
@@ -50,7 +47,7 @@ async function setupRefsWatcher(
     }
   })
 
-  return refsWatcher
+  return refWatcher
 }
 
 function loadFilenames(

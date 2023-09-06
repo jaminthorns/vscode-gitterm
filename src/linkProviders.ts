@@ -183,7 +183,9 @@ async function commitRemoteProviders(
   commit: Commit,
   repository: Repository,
 ): Promise<RemoteProvider[]> {
-  if (repository.remoteProviders.length === 0) {
+  const remoteProviders = repository.remoteProviders.sorted()
+
+  if (remoteProviders.length === 0) {
     return []
   }
 
@@ -191,7 +193,7 @@ async function commitRemoteProviders(
   const output = await runGitCommand("branch", repository.directory, args)
   const branches = output.split("\n").map((b) => b.trim())
 
-  return repository.remoteProviders.filter(({ remote }) => {
+  return remoteProviders.filter(({ remote }) => {
     const match = branches.find((b) => b.startsWith(remote.name))
     return match !== undefined
   })

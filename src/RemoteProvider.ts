@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
 import Remote from "./Remote"
-import { excludeNulls, runGitCommand } from "./util"
 
 export default interface RemoteProvider {
   remote: Remote
@@ -10,7 +9,7 @@ export default interface RemoteProvider {
   openFileAtCommit(commit: Commit, filename: string): void
 }
 
-function RemoteProvider(remote: Remote): RemoteProvider {
+export default function RemoteProvider(remote: Remote): RemoteProvider {
   switch (remote.server.host) {
     case "github.com":
       return GitHubProvider(remote)
@@ -72,27 +71,4 @@ function UnsupportedProvider(remote: Remote): RemoteProvider {
       showNotSupportedMessage()
     },
   }
-}
-
-export async function createRemoteProviders(
-  directory: vscode.Uri,
-): Promise<RemoteProvider[]> {
-  const output = await runGitCommand("remote", directory, [])
-  const names = output === "" ? [] : output.split("\n")
-  const remotes = await Promise.all(names.map((n) => Remote(n, directory)))
-  const providers = excludeNulls(remotes).map(RemoteProvider)
-
-  // Show "origin" remote at the top
-  providers.sort((a, b) => {
-    switch (true) {
-      case a.remote.name === "origin":
-        return -1
-      case b.remote.name === "origin":
-        return 1
-      default:
-        return 0
-    }
-  })
-
-  return providers
 }

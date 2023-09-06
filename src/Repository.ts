@@ -1,10 +1,12 @@
+import { resolve } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
-import RemoteProvider, { createRemoteProviders } from "./RemoteProvider"
+import RemoteProviderStore from "./RemoteProviderStore"
+import { runGitCommand } from "./util"
 
 export default interface Repository extends vscode.Disposable {
   directory: vscode.Uri
-  remoteProviders: RemoteProvider[]
+  remoteProviders: RemoteProviderStore
   filenames: FilenameStore
 }
 
@@ -13,11 +15,14 @@ export default async function Repository(
 ): Promise<Repository> {
   const directory = folder.uri
 
-  const [remoteProviders, filenames] = await Promise.all([
-    // TODO: Refresh on remote change
-    await createRemoteProviders(directory),
-    await FilenameStore(directory),
+  const gitDirRel = await runGitCommand("rev-parse", directory, [
+    "--git-common-dir",
   ])
+  const gitDirAbs = resolve(directory.fsPath, gitDirRel)
+  const gitDirectory = vscode.Uri.parse(gitDirAbs)
+
+  const remoteProviders = RemoteProviderStore(directory, gitDirectory)
+  const filenames = await FilenameStore(directory, gitDirectory)
 
   return {
     directory,
@@ -25,6 +30,7 @@ export default async function Repository(
     filenames,
 
     dispose() {
+      remoteProviders.dispose()
       filenames.dispose()
     },
   }
