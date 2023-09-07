@@ -1,3 +1,4 @@
+import { existsSync } from "fs"
 import { basename } from "path"
 import * as vscode from "vscode"
 import { TerminalFileContext } from "./commands"
@@ -75,9 +76,8 @@ export function commitLinkProvider(
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { repository, commit, filename, commitFilenames } = context
 
-      const options = { placeHolder: "Select an action" }
+      const remotes = await commitRemotes(commit, repository)
 
-      const remoteProviders = await commitRemoteProviders(commit, repository)
       const commitFilename =
         filename !== undefined && commitFilenames !== undefined
           ? (await commitFilenames)?.get(commit.full) ?? null
@@ -104,82 +104,115 @@ export function commitLinkProvider(
           },
         },
         {
-          label: "$(files) Copy Commit ID",
+          label: "$(clippy) Copy Commit ID",
           onSelected: () => {
             vscode.env.clipboard.writeText(commit.full)
           },
         },
         pickRemote(
-          remoteProviders,
+          remotes,
           { label: "$(link-external) Open Commit on Remote" },
           (remote) => remote.openCommit(commit),
         ),
       ])
 
-      let selectedItem
+      const fileCommitItems: QuickPickItem[] =
+        commitFilename !== null
+          ? fileAtCommitItems(repository, remotes, commit, commitFilename)
+          : []
 
-      if (commitFilename === null) {
-        selectedItem = await vscode.window.showQuickPick(commitItems, options)
-      } else {
-        const fileLabel = `${basename(commitFilename)} @ ${commit.abbreviated}`
-        const commandVars: RawCommitContext & FileContext = {
-          commit: commit.full,
-          filename: commitFilename,
-        }
-        const terminalContext: CommitContext & FileContext = {
-          commit,
-          filename: commitFilename,
-        }
-
-        const fileItems: QuickPickItem[] = excludeNulls([
-          {
-            label: fileLabel,
-            kind: vscode.QuickPickItemKind.Separator,
-          },
-          {
-            label: "$(file) Show File",
-            onSelected: () => {
-              runCommandInTerminal({
-                name: fileLabel,
-                icon: "file",
-                cwd: repository.directory,
-                context: terminalContext,
-                command: userGitCommand(
-                  "showFileContentsAtCommit",
-                  commandVars,
-                ),
-              })
-            },
-          },
-          {
-            label: "$(git-compare) Diff File",
-            onSelected: () => {
-              runCommandInTerminal({
-                name: fileLabel,
-                icon: "git-compare",
-                cwd: repository.directory,
-                context: terminalContext,
-                command: userGitCommand("showFileDiffAtCommit", commandVars),
-              })
-            },
-          },
-          pickRemote(
-            remoteProviders,
-            { label: "$(link-external) Open File on Remote" },
-            (remote) => remote.openFileAtCommit(commit, commitFilename),
-          ),
-        ])
-
-        const items = [...commitItems, ...fileItems]
-        selectedItem = await vscode.window.showQuickPick(items, options)
-      }
+      const selectedItem = await vscode.window.showQuickPick(
+        [...commitItems, ...fileCommitItems],
+        { placeHolder: "Select an action" },
+      )
 
       selectedItem?.onSelected?.()
     },
   })
 }
 
-async function commitRemoteProviders(
+export function fileLinkProvider(
+  repositories: RepositoryStore,
+  terminalFolders: TerminalFolderStore,
+) {
+  return vscode.window.registerTerminalLinkProvider({
+    async provideTerminalLinks({
+      line,
+      terminal,
+    }): Promise<FileTerminalLink[]> {
+      const folder = await terminalFolders.getFolder(terminal)
+      const repository = folder && repositories.getRepository(folder.uri)
+
+      if (repository === undefined) {
+        return []
+      }
+
+      const options = terminal.creationOptions
+      const context = "context" in options ? (options.context as object) : {}
+
+      return repository.filenames
+        .findMatches(line)
+        .map(({ startIndex, text: filename }) => ({
+          startIndex,
+          length: filename.length,
+          tooltip: "Pick a file action",
+          context: { ...context, repository, filename },
+        }))
+    },
+
+    async handleTerminalLink({ context }: FileTerminalLink) {
+      const { repository, filename, commit } = context
+
+      const uri = vscode.Uri.joinPath(repository.directory, filename)
+      const exists = existsSync(uri.fsPath)
+
+      const openItem: QuickPickItem | null = exists
+        ? {
+            label: "$(go-to-file) Open File",
+            onSelected: async () => {
+              await vscode.window.showTextDocument(uri)
+            },
+          }
+        : null
+
+      const fileItems: QuickPickItem[] = excludeNulls([
+        {
+          label: basename(filename),
+          kind: vscode.QuickPickItemKind.Separator,
+        },
+        openItem,
+        {
+          label: "$(clippy) Copy File Path",
+          onSelected: () => {
+            vscode.env.clipboard.writeText(filename)
+          },
+        },
+      ])
+
+      let fileCommitItems: QuickPickItem[] = []
+
+      if (commit !== undefined) {
+        const remotes = await commitRemotes(commit, repository)
+
+        fileCommitItems = fileAtCommitItems(
+          repository,
+          remotes,
+          commit,
+          filename,
+        )
+      }
+
+      const selectedItem = await vscode.window.showQuickPick(
+        [...fileItems, ...fileCommitItems],
+        { placeHolder: "Select an action" },
+      )
+
+      selectedItem?.onSelected?.()
+    },
+  })
+}
+
+async function commitRemotes(
   commit: Commit,
   repository: Repository,
 ): Promise<RemoteProvider[]> {
@@ -230,36 +263,52 @@ function pickRemote(
   return { ...item, label, onSelected }
 }
 
-export function fileLinkProvider(
-  repositories: RepositoryStore,
-  terminalFolders: TerminalFolderStore,
+function fileAtCommitItems(
+  repository: Repository,
+  remotes: RemoteProvider[],
+  commit: Commit,
+  filename: string,
 ) {
-  return vscode.window.registerTerminalLinkProvider({
-    async provideTerminalLinks({
-      line,
-      terminal,
-    }): Promise<FileTerminalLink[]> {
-      const folder = await terminalFolders.getFolder(terminal)
-      const repository = folder && repositories.getRepository(folder.uri)
+  const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
+  const terminalContext: CommitContext & FileContext = { commit, filename }
+  const commandVars: RawCommitContext & FileContext = {
+    commit: commit.full,
+    filename,
+  }
 
-      if (repository === undefined) {
-        return []
-      }
-
-      return repository.filenames
-        .findMatches(line)
-        .map(({ startIndex, text: filename }) => ({
-          startIndex,
-          length: filename.length,
-          tooltip: "Pick a file action",
-          context: { repository, filename },
-        }))
+  return excludeNulls([
+    {
+      label: fileLabel,
+      kind: vscode.QuickPickItemKind.Separator,
     },
-
-    async handleTerminalLink({ context }: FileTerminalLink) {
-      vscode.window.showInformationMessage(
-        `You clicked a file! ${context.filename}`,
-      )
+    {
+      label: "$(file) Show File",
+      onSelected: () => {
+        runCommandInTerminal({
+          name: fileLabel,
+          icon: "file",
+          cwd: repository.directory,
+          context: terminalContext,
+          command: userGitCommand("showFileContentsAtCommit", commandVars),
+        })
+      },
     },
-  })
+    {
+      label: "$(git-compare) Show Diff",
+      onSelected: () => {
+        runCommandInTerminal({
+          name: fileLabel,
+          icon: "git-compare",
+          cwd: repository.directory,
+          context: terminalContext,
+          command: userGitCommand("showFileDiffAtCommit", commandVars),
+        })
+      },
+    },
+    pickRemote(
+      remotes,
+      { label: "$(link-external) Open File on Remote" },
+      (remote) => remote.openFileAtCommit(commit, filename),
+    ),
+  ])
 }

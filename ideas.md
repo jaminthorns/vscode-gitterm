@@ -5,27 +5,29 @@ extension.
 
 ## Link Types
 
+### Commit Links
+
+- "Copy Remote URL" as button for remote items
+
 ### File Links
 
 - Actions
-  - Open File (when exists on disk)
-  - Copy Filename
-  - Show File Diff (when commit context)
-  - Show File at Commit (when commit context)
-  - Open File on <REMOTE> (when commit context)
+  - ...
+  - History of File
+  - History from Commit (when commit context)
 
 ### Branch/Tag Links
 
 - Actions
-  - Show History from Branch/Tag
+  - History from Branch/Tag
   - Copy Branch/Tag Name
   - Open Branch/Tag on <REMOTE>
 
 ### Person Links
 
 - Actions
-  - Show Authored Commits
-  - Show Committed Commits
+  - History of Authored Commits
+  - History of Committed Commits
 
 ### Stash Links
 
@@ -79,6 +81,7 @@ To get the workspace folder for a terminal, the best method would be to:
 This would provide the most consistent behavior because regardless of the
 directory that the terminal started in, you can navigate to one of the workspace
 folders (that have a Git repository) and get proper link detection.
+
 -
 
 For macOS and Linux, you can just use the `lsof` command:
@@ -108,3 +111,11 @@ Alternatively, we could use a less reliable but more "static" approach:
 
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
+
+## Opening Files at Commit in Editor
+
+Allow user to open files in editor when showing a file at a commit instead of a
+terminal. When running any of the editor (file history, line history, blame)
+commands, they would be executed from the corresponding commit. This allows
+powerful history investigation. This could be enabled/disabled with a config
+value.
