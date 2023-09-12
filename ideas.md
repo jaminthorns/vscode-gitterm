@@ -7,14 +7,16 @@ extension.
 
 ### Commit Links
 
-- "Copy Remote URL" as button for remote items
+- Actions
+  - "Copy Remote URL" as button for remote items
+  - History from Commit
 
 ### File Links
 
 - Actions
   - ...
-  - History of File
-  - History from Commit (when commit context)
+  - File History
+  - File History from Commit (when commit context)
 
 ### Branch/Tag Links
 
