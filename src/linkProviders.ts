@@ -1,13 +1,12 @@
 import { existsSync } from "fs"
 import { basename } from "path"
 import * as vscode from "vscode"
-import { TerminalFileContext } from "./commands"
 import { Commit } from "./Commit"
 import {
   CommitContext,
   FileContext,
-  RawCommitContext,
   RepositoryContext,
+  TerminalContext,
 } from "./context"
 import RemoteProvider from "./RemoteProvider"
 import Repository from "./Repository"
@@ -22,12 +21,16 @@ import {
 
 type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
 
+interface TerminalOptions extends vscode.TerminalOptions {
+  context?: TerminalContext
+}
+
 interface CommitTerminalLink extends vscode.TerminalLink {
-  context: RepositoryContext & CommitContext & Partial<TerminalFileContext>
+  context: RepositoryContext & CommitContext & Partial<TerminalContext>
 }
 
 interface FileTerminalLink extends vscode.TerminalLink {
-  context: RepositoryContext & FileContext & Partial<CommitContext>
+  context: RepositoryContext & FileContext & Partial<TerminalContext>
 }
 
 export function commitLinkProvider(
@@ -46,8 +49,7 @@ export function commitLinkProvider(
         return []
       }
 
-      const options = terminal.creationOptions
-      const context = "context" in options ? (options.context as object) : {}
+      const { context } = terminal.creationOptions as TerminalOptions
       const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g))
 
       return excludeNulls(
@@ -74,12 +76,14 @@ export function commitLinkProvider(
     },
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
-      const { repository, commit, filename, commitFilenames } = context
+      const { repository, commit } = context
+      const commitFilenames =
+        "commitFilenames" in context ? context.commitFilenames : undefined
 
       const remotes = await commitRemotes(commit, repository)
 
       const commitFilename =
-        filename !== undefined && commitFilenames !== undefined
+        commitFilenames !== undefined
           ? (await commitFilenames)?.get(commit.full) ?? null
           : null
 
@@ -91,15 +95,12 @@ export function commitLinkProvider(
         {
           label: "$(git-commit) Show Commit",
           onSelected: () => {
-            const commandVars: RawCommitContext = { commit: commit.full }
-            const terminalContext: CommitContext = { commit }
-
             runCommandInTerminal({
               name: commit.abbreviated,
               icon: "git-commit",
               cwd: repository.directory,
-              command: userGitCommand("showCommit", commandVars),
-              context: terminalContext,
+              command: userGitCommand("showCommit", { commit: commit.full }),
+              context: { commit },
             })
           },
         },
@@ -140,15 +141,19 @@ export function fileLinkProvider(
       line,
       terminal,
     }): Promise<FileTerminalLink[]> {
+      const { context } = terminal.creationOptions as TerminalOptions
+      const commit = context && "commit" in context ? context.commit : undefined
+
+      if (commit === undefined) {
+        return []
+      }
+
       const folder = await terminalFolders.getFolder(terminal)
       const repository = folder && repositories.getRepository(folder.uri)
 
       if (repository === undefined) {
         return []
       }
-
-      const options = terminal.creationOptions
-      const context = "context" in options ? (options.context as object) : {}
 
       return repository.filenames
         .findMatches(line)
@@ -161,7 +166,8 @@ export function fileLinkProvider(
     },
 
     async handleTerminalLink({ context }: FileTerminalLink) {
-      const { repository, filename, commit } = context
+      const { repository, filename } = context
+      const commit = "commit" in context ? context.commit : undefined
 
       const uri = vscode.Uri.joinPath(repository.directory, filename)
       const exists = existsSync(uri.fsPath)
@@ -270,11 +276,8 @@ function fileAtCommitItems(
   filename: string,
 ) {
   const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
-  const terminalContext: CommitContext & FileContext = { commit, filename }
-  const commandVars: RawCommitContext & FileContext = {
-    commit: commit.full,
-    filename,
-  }
+  const commandVars = { commit: commit.full, filename }
+  const terminalContext = { commit, filename }
 
   return excludeNulls([
     {

@@ -1,7 +1,6 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import { RawCommit } from "./Commit"
-import { FileContext, FileLineContext } from "./context"
+import { CommitFilenames } from "./context"
 import RepositoryStore from "./RepositoryStore"
 import {
   chunk,
@@ -9,12 +8,6 @@ import {
   runGitCommand,
   userGitCommand,
 } from "./util"
-
-export type CommitFilenames = Map<RawCommit, string>
-
-export interface TerminalFileContext extends FileContext {
-  commitFilenames: Promise<CommitFilenames | null>
-}
 
 export function fileHistory(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
@@ -27,18 +20,16 @@ export function fileHistory(repositories: RepositoryStore) {
       }
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const commandVars: FileContext = { filename }
-      const terminalContext: TerminalFileContext = {
-        filename,
-        commitFilenames: commitFilenames(filename, repository.directory),
-      }
 
       runCommandInTerminal({
         name: basename(filename),
         icon: "history",
         cwd: repository.directory,
-        command: userGitCommand("fileHistory", commandVars),
-        context: terminalContext,
+        command: userGitCommand("fileHistory", { filename }),
+        context: {
+          filename,
+          commitFilenames: commitFilenames(filename, repository.directory),
+        },
       })
     },
   )
@@ -54,24 +45,25 @@ export function lineHistory(repositories: RepositoryStore) {
         return
       }
 
+      const filename = vscode.workspace.asRelativePath(document.uri, false)
       const startLine = selection.start.line + 1
       const endLine = selection.end.line + 1
       const lineRange = `${startLine},${endLine}`
       const lineSuffix = startLine === endLine ? startLine : lineRange
 
-      const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const commandVars: FileLineContext = { filename, startLine, endLine }
-      const terminalContext: TerminalFileContext = {
-        filename,
-        commitFilenames: commitFilenames(filename, repository.directory),
-      }
-
       runCommandInTerminal({
         name: `${basename(filename)}:${lineSuffix}`,
         icon: "history",
         cwd: repository.directory,
-        command: userGitCommand("lineHistory", commandVars),
-        context: terminalContext,
+        command: userGitCommand("lineHistory", {
+          filename,
+          startLine,
+          endLine,
+        }),
+        context: {
+          filename,
+          commitFilenames: commitFilenames(filename, repository.directory),
+        },
       })
     },
   )
@@ -88,18 +80,16 @@ export function fileBlame(repositories: RepositoryStore) {
       }
 
       const filename = vscode.workspace.asRelativePath(document.uri, false)
-      const commandsVars: FileContext = { filename }
-      const terminalContext: TerminalFileContext = {
-        filename,
-        commitFilenames: commitFilenames(filename, repository.directory),
-      }
 
       runCommandInTerminal({
         name: basename(filename),
         icon: "person",
         cwd: repository.directory,
-        command: userGitCommand("fileBlame", commandsVars),
-        context: terminalContext,
+        command: userGitCommand("fileBlame", { filename }),
+        context: {
+          filename,
+          commitFilenames: commitFilenames(filename, repository.directory),
+        },
       })
     },
   )

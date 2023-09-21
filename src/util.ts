@@ -1,5 +1,6 @@
 import { spawn } from "child_process"
 import * as vscode from "vscode"
+import { TerminalContext } from "./context"
 
 export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
   return items.filter((item) => item !== null) as Exclude<T, null>[]
@@ -61,7 +62,7 @@ export async function runGitCommand(
   return await runCommand("git", [subCommand, ...args], directory)
 }
 
-export function runCommandInTerminal<Context>({
+export function runCommandInTerminal({
   name,
   icon,
   cwd,
@@ -71,7 +72,7 @@ export function runCommandInTerminal<Context>({
   name: string
   icon: string
   cwd: vscode.Uri
-  context: Context
+  context: TerminalContext
   command: string
 }) {
   const iconPath = new vscode.ThemeIcon(icon)
