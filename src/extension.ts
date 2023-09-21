@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { fileBlame, fileHistory, lineHistory } from "./commands"
+import { fileBlame, fileHistory, lineHistory } from "./editorCommands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"

@@ -25,7 +25,10 @@ export function fileHistory(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "history",
         cwd: repository.directory,
-        command: userGitCommand("fileHistory", { filename }),
+        command: userGitCommand({
+          key: "fileHistory",
+          variables: { filename },
+        }),
         context: {
           filename,
           commitFilenames: commitFilenames(filename, repository.directory),
@@ -55,10 +58,9 @@ export function lineHistory(repositories: RepositoryStore) {
         name: `${basename(filename)}:${lineSuffix}`,
         icon: "history",
         cwd: repository.directory,
-        command: userGitCommand("lineHistory", {
-          filename,
-          startLine,
-          endLine,
+        command: userGitCommand({
+          key: "lineHistory",
+          variables: { filename, startLine, endLine },
         }),
         context: {
           filename,
@@ -85,7 +87,10 @@ export function fileBlame(repositories: RepositoryStore) {
         name: basename(filename),
         icon: "person",
         cwd: repository.directory,
-        command: userGitCommand("fileBlame", { filename }),
+        command: userGitCommand({
+          key: "fileBlame",
+          variables: { filename },
+        }),
         context: {
           filename,
           commitFilenames: commitFilenames(filename, repository.directory),

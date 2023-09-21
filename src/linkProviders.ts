@@ -99,7 +99,10 @@ export function commitLinkProvider(
               name: commit.abbreviated,
               icon: "git-commit",
               cwd: repository.directory,
-              command: userGitCommand("showCommit", { commit: commit.full }),
+              command: userGitCommand({
+                key: "showCommit",
+                variables: { commit: commit.full },
+              }),
               context: { commit },
             })
           },
@@ -276,7 +279,7 @@ function fileAtCommitItems(
   filename: string,
 ) {
   const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
-  const commandVars = { commit: commit.full, filename }
+  const variables = { commit: commit.full, filename }
   const terminalContext = { commit, filename }
 
   return excludeNulls([
@@ -292,7 +295,10 @@ function fileAtCommitItems(
           icon: "file",
           cwd: repository.directory,
           context: terminalContext,
-          command: userGitCommand("showFileContentsAtCommit", commandVars),
+          command: userGitCommand({
+            key: "showFileContentsAtCommit",
+            variables,
+          }),
         })
       },
     },
@@ -304,7 +310,10 @@ function fileAtCommitItems(
           icon: "git-compare",
           cwd: repository.directory,
           context: terminalContext,
-          command: userGitCommand("showFileDiffAtCommit", commandVars),
+          command: userGitCommand({
+            key: "showFileDiffAtCommit",
+            variables,
+          }),
         })
       },
     },

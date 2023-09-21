@@ -1,6 +1,7 @@
 import { spawn } from "child_process"
 import * as vscode from "vscode"
 import { TerminalContext } from "./context"
+import UserGitCommand from "./UserGitCommand"
 
 export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
   return items.filter((item) => item !== null) as Exclude<T, null>[]
@@ -83,17 +84,15 @@ export function runCommandInTerminal({
   terminal.sendText(command)
 }
 
-export function userGitCommand(
-  commandKey: string,
-  variables: Record<string, any>,
-): string {
-  let command = vscode.workspace
+export function userGitCommand(command: UserGitCommand): string {
+  let commandStr = vscode.workspace
     .getConfiguration("gitterm.gitCommands")
-    .get(commandKey) as string
+    .get(command.key) as string
 
-  const matches = Array.from(command.matchAll(/\${(\w+)}/g))
+  const matches = Array.from(commandStr.matchAll(/\${(\w+)}/g))
+  const variables = command.variables as Record<string, any>
 
-  return matches.reduce((command, [substitution, variableName]) => {
-    return command.replace(substitution, variables[variableName])
-  }, command)
+  return matches.reduce((commandStr, [substitution, variableName]) => {
+    return commandStr.replace(substitution, variables[variableName])
+  }, commandStr)
 }
