@@ -55,7 +55,15 @@ function loadFilenames(
   filenames: StringTrie,
   range?: string,
 ): void {
-  let args = ["--all", "--format=", "--name-only", "--diff-filter=AR"]
+  let args = [
+    "--all",
+    "--name-only",
+    "--no-renames",
+    "--diff-merges=first-parent",
+    "--diff-filter=A",
+    "--format=",
+  ]
+
   args = range === undefined ? args : [range, ...args]
 
   streamCommand("git", ["log", ...args], directory, (output) => {
