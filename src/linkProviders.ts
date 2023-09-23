@@ -231,6 +231,9 @@ async function commitRemotes(
     return []
   }
 
+  // The performance of checking whether every remote branch contains a commit
+  // becomes noticeably slow in repositories with long history and many remote
+  // branches
   const args = ["-r", "--contains", commit.full]
   const output = await runGitCommand("branch", repository.directory, args)
   const branches = output.split("\n").map((b) => b.trim())
