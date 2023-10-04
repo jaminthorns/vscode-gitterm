@@ -1,13 +1,7 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import { CommitFilenames } from "./context"
 import RepositoryStore from "./RepositoryStore"
-import {
-  chunk,
-  runCommandInTerminal,
-  runGitCommand,
-  userGitCommand,
-} from "./util"
+import { commitFilenames, runCommandInTerminal, userGitCommand } from "./util"
 
 export function fileHistory(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
@@ -27,7 +21,7 @@ export function fileHistory(repositories: RepositoryStore) {
         cwd: repository.directory,
         command: userGitCommand({
           key: "fileHistory",
-          variables: { filename },
+          variables: { filename, commit: "HEAD" },
         }),
         context: {
           filename,
@@ -60,7 +54,7 @@ export function lineHistory(repositories: RepositoryStore) {
         cwd: repository.directory,
         command: userGitCommand({
           key: "lineHistory",
-          variables: { filename, startLine, endLine },
+          variables: { filename, commit: "HEAD", startLine, endLine },
         }),
         context: {
           filename,
@@ -98,28 +92,4 @@ export function fileBlame(repositories: RepositoryStore) {
       })
     },
   )
-}
-
-// Get a mapping of commits to historical filenames for every commit in which a
-// given path was changed
-async function commitFilenames(
-  path: string,
-  directory: vscode.Uri,
-): Promise<CommitFilenames | null> {
-  try {
-    const args = [
-      "--follow",
-      "--name-only",
-      "--diff-merges=first-parent",
-      "--format=%H",
-      "--",
-      path,
-    ]
-
-    const output = await runGitCommand("log", directory, args)
-
-    return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
-  } catch (error) {
-    return null
-  }
 }

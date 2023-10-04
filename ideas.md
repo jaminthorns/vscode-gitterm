@@ -9,15 +9,11 @@ extension.
 
 - Actions
   - "Copy Remote URL" as button for remote items
-  - History from Commit
-  - File History from Commit (when file context)
 
 ### File Links
 
 - Actions
-  - ...
-  - File History
-  - File History from Commit (when commit context)
+  - File History (is this useful)
 
 ### Branch/Tag Links
 

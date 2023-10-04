@@ -59,18 +59,23 @@
       "properties": {
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log -- '${filename}'",
+          "default": "git log ${commit} -- '${filename}'",
           "description": "Git command to use for file history command"
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log -L ${startLine},${endLine}:'${filename}'",
+          "default": "git log ${commit} -L ${startLine},${endLine}:'${filename}'",
           "description": "Git command to use for line history command"
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
           "default": "git blame '${filename}'",
           "description": "Git command to use for file blame command"
+        },
+        "gitterm.gitCommands.commitHistory": {
+          "type": "string",
+          "default": "git log ${commit}",
+          "description": "Git command to use for showing commit history"
         },
         "gitterm.gitCommands.showCommit": {
           "type": "string",

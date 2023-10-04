@@ -1,6 +1,6 @@
 import { spawn } from "child_process"
 import * as vscode from "vscode"
-import { TerminalContext } from "./context"
+import { CommitFilenames, TerminalContext } from "./context"
 import UserGitCommand from "./UserGitCommand"
 
 export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
@@ -95,4 +95,28 @@ export function userGitCommand(command: UserGitCommand): string {
   return matches.reduce((commandStr, [substitution, variableName]) => {
     return commandStr.replace(substitution, variables[variableName])
   }, commandStr)
+}
+
+// Get a mapping of commits to historical filenames for every commit in which a
+// given path was changed
+export async function commitFilenames(
+  path: string,
+  directory: vscode.Uri,
+): Promise<CommitFilenames | null> {
+  try {
+    const args = [
+      "--follow",
+      "--name-only",
+      "--diff-merges=first-parent",
+      "--format=%H",
+      "--",
+      path,
+    ]
+
+    const output = await runGitCommand("log", directory, args)
+
+    return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
+  } catch (error) {
+    return null
+  }
 }

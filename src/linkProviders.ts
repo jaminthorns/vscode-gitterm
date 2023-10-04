@@ -13,6 +13,7 @@ import Repository from "./Repository"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
 import {
+  commitFilenames,
   excludeNulls,
   runCommandInTerminal,
   runGitCommand,
@@ -111,6 +112,21 @@ export function commitLinkProvider(
           label: "$(clippy) Copy Commit ID",
           onSelected: () => {
             vscode.env.clipboard.writeText(commit.full)
+          },
+        },
+        {
+          label: "$(history) History from Commit",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: commit.abbreviated,
+              icon: "history",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "commitHistory",
+                variables: { commit: commit.full },
+              }),
+              context: { commit },
+            })
           },
         },
         pickRemote(
@@ -283,7 +299,12 @@ function fileAtCommitItems(
 ) {
   const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
   const variables = { commit: commit.full, filename }
-  const terminalContext = { commit, filename }
+
+  const getContext = () => ({
+    commit,
+    filename,
+    commitFilenames: commitFilenames(filename, repository.directory),
+  })
 
   return excludeNulls([
     {
@@ -297,11 +318,11 @@ function fileAtCommitItems(
           name: fileLabel,
           icon: "file",
           cwd: repository.directory,
-          context: terminalContext,
           command: userGitCommand({
             key: "showFileContentsAtCommit",
             variables,
           }),
+          context: getContext(),
         })
       },
     },
@@ -312,11 +333,26 @@ function fileAtCommitItems(
           name: fileLabel,
           icon: "git-compare",
           cwd: repository.directory,
-          context: terminalContext,
           command: userGitCommand({
             key: "showFileDiffAtCommit",
             variables,
           }),
+          context: getContext(),
+        })
+      },
+    },
+    {
+      label: "$(history) File History from Commit",
+      onSelected: () => {
+        runCommandInTerminal({
+          name: fileLabel,
+          icon: "history",
+          cwd: repository.directory,
+          command: userGitCommand({
+            key: "fileHistory",
+            variables,
+          }),
+          context: getContext(),
         })
       },
     },

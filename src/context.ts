@@ -15,13 +15,16 @@ export interface FileContext {
   filename: string
 }
 
-interface FileTerminalContext extends FileContext {
+interface FileHistoryContext extends FileContext {
   commitFilenames: Promise<CommitFilenames | null>
 }
 
 type FileAtCommitContext = CommitContext & FileContext
 
+type FileAtCommitHistoryContext = CommitContext & FileHistoryContext
+
 export type TerminalContext =
-  | FileTerminalContext // Showing file or line history
   | CommitContext // Showing a commit
   | FileAtCommitContext // Showing a file at a commit
+  | FileHistoryContext // Showing file/line history
+  | FileAtCommitHistoryContext // Showing file/line history from a commit
