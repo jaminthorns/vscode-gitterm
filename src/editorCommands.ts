@@ -100,7 +100,8 @@ export function fileBlame(repositories: RepositoryStore) {
   )
 }
 
-// Get a mapping that provides historical paths by commit for a given path
+// Get a mapping of commits to historical filenames for every commit in which a
+// given path was changed
 async function commitFilenames(
   path: string,
   directory: vscode.Uri,
@@ -110,7 +111,6 @@ async function commitFilenames(
       "--follow",
       "--name-only",
       "--diff-merges=first-parent",
-      "--diff-filter=AR",
       "--format=%H",
       "--",
       path,

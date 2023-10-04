@@ -10,6 +10,7 @@ extension.
 - Actions
   - "Copy Remote URL" as button for remote items
   - History from Commit
+  - File History from Commit (when file context)
 
 ### File Links
 
