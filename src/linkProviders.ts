@@ -259,60 +259,6 @@ async function commitRemotes(
   })
 }
 
-function pickRemote(
-  remotes: RemoteProvider[],
-  item: vscode.QuickPickItem,
-  getRemoteUrl: (remote: RemoteProvider) => vscode.Uri | null,
-): SelectableQuickPickItem | null {
-  const openRemoteUrl = (remote: RemoteProvider) => {
-    const url = getRemoteUrl(remote)
-
-    if (url !== null) {
-      vscode.env.openExternal(url)
-    }
-  }
-
-  const copyUrlButton = (
-    remote: RemoteProvider,
-  ): SelectableQuickPickButton => ({
-    tooltip: "Copy Remote URL",
-    iconPath: new vscode.ThemeIcon("clippy"),
-    onSelected: () => {
-      const url = getRemoteUrl(remote)
-
-      if (url !== null) {
-        vscode.env.clipboard.writeText(url.toString())
-        vscode.window.showInformationMessage("Remote URL copied to clipboard")
-      }
-    },
-  })
-
-  if (remotes.length === 0) {
-    return null
-  } else if (remotes.length === 1) {
-    return {
-      ...item,
-      onSelected: () => openRemoteUrl(remotes[0]),
-      buttons: [copyUrlButton(remotes[0])],
-    }
-  } else {
-    return {
-      ...item,
-      label: `${item.label}...`,
-      onSelected: () => {
-        showSelectableQuickPick({
-          placeholder: "Select a remote",
-          items: remotes.map((remote) => ({
-            label: `$(globe) ${remote.label}`,
-            onSelected: () => openRemoteUrl(remote),
-            buttons: [copyUrlButton(remote)],
-          })),
-        })
-      },
-    }
-  }
-}
-
 function fileAtCommitItems(
   repository: Repository,
   remotes: RemoteProvider[],
@@ -384,4 +330,58 @@ function fileAtCommitItems(
       (remote) => remote.fileAtCommitUrl(commit, filename),
     ),
   ])
+}
+
+function pickRemote(
+  remotes: RemoteProvider[],
+  item: vscode.QuickPickItem,
+  getRemoteUrl: (remote: RemoteProvider) => vscode.Uri | null,
+): SelectableQuickPickItem | null {
+  const openRemoteUrl = (remote: RemoteProvider) => {
+    const url = getRemoteUrl(remote)
+
+    if (url !== null) {
+      vscode.env.openExternal(url)
+    }
+  }
+
+  const copyUrlButton = (
+    remote: RemoteProvider,
+  ): SelectableQuickPickButton => ({
+    tooltip: "Copy Remote URL",
+    iconPath: new vscode.ThemeIcon("clippy"),
+    onSelected: () => {
+      const url = getRemoteUrl(remote)
+
+      if (url !== null) {
+        vscode.env.clipboard.writeText(url.toString())
+        vscode.window.showInformationMessage("Remote URL copied to clipboard")
+      }
+    },
+  })
+
+  if (remotes.length === 0) {
+    return null
+  } else if (remotes.length === 1) {
+    return {
+      ...item,
+      onSelected: () => openRemoteUrl(remotes[0]),
+      buttons: [copyUrlButton(remotes[0])],
+    }
+  } else {
+    return {
+      ...item,
+      label: `${item.label}...`,
+      onSelected: () => {
+        showSelectableQuickPick({
+          placeholder: "Select a remote",
+          items: remotes.map((remote) => ({
+            label: `$(globe) ${remote.label}`,
+            onSelected: () => openRemoteUrl(remote),
+            buttons: [copyUrlButton(remote)],
+          })),
+        })
+      },
+    }
+  }
 }
