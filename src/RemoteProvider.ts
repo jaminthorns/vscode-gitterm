@@ -5,8 +5,8 @@ import Remote from "./Remote"
 export default interface RemoteProvider {
   remote: Remote
   label: string
-  openCommit(commit: Commit): void
-  openFileAtCommit(commit: Commit, filename: string): void
+  commitUrl(commit: Commit): vscode.Uri | null
+  fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri | null
 }
 
 export default function RemoteProvider(remote: Remote): RemoteProvider {
@@ -24,10 +24,12 @@ function GitHubProvider(remote: Remote): RemoteProvider {
   const user = pathMatch?.groups?.user ?? null
   const repository = pathMatch?.groups?.repository ?? null
 
-  function openUrl(path: string): void {
+  function url(path: string): vscode.Uri | null {
     if (user === null || repository === null) {
       const message = `Can't parse GitHub remote path: ${remote.path}`
       vscode.window.showErrorMessage(message)
+
+      return null
     } else {
       const url = vscode.Uri.from({
         scheme: "https",
@@ -35,7 +37,7 @@ function GitHubProvider(remote: Remote): RemoteProvider {
         path: `${user}/${repository}${path}`,
       })
 
-      vscode.env.openExternal(url)
+      return url
     }
   }
 
@@ -43,12 +45,12 @@ function GitHubProvider(remote: Remote): RemoteProvider {
     remote,
     label: `${remote.name} (GitHub)`,
 
-    openCommit(commit) {
-      openUrl(`/commit/${commit.full}`)
+    commitUrl(commit) {
+      return url(`/commit/${commit.full}`)
     },
 
-    openFileAtCommit(commit, filename) {
-      openUrl(`/blob/${commit.full}/${filename}`)
+    fileAtCommitUrl(commit, filename) {
+      return url(`/blob/${commit.full}/${filename}`)
     },
   }
 }
@@ -63,12 +65,14 @@ function UnsupportedProvider(remote: Remote): RemoteProvider {
     remote,
     label: `${remote.name} (Unsupported)`,
 
-    openCommit() {
+    commitUrl() {
       showNotSupportedMessage()
+      return null
     },
 
-    openFileAtCommit() {
+    fileAtCommitUrl() {
       showNotSupportedMessage()
+      return null
     },
   }
 }

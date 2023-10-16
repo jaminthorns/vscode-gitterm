@@ -8,6 +8,11 @@ import {
   RepositoryContext,
   TerminalContext,
 } from "./context"
+import {
+  SelectableQuickPickButton,
+  SelectableQuickPickItem,
+  showSelectableQuickPick,
+} from "./quickPick"
 import RemoteProvider from "./RemoteProvider"
 import Repository from "./Repository"
 import RepositoryStore from "./RepositoryStore"
@@ -19,8 +24,6 @@ import {
   runGitCommand,
   userGitCommand,
 } from "./util"
-
-type QuickPickItem = vscode.QuickPickItem & { onSelected?: () => void }
 
 interface TerminalOptions extends vscode.TerminalOptions {
   context?: TerminalContext
@@ -88,7 +91,7 @@ export function commitLinkProvider(
           ? (await commitFilenames)?.get(commit.full) ?? null
           : null
 
-      const commitItems: QuickPickItem[] = excludeNulls([
+      const commitItems: SelectableQuickPickItem[] = excludeNulls([
         {
           label: commit.abbreviated,
           kind: vscode.QuickPickItemKind.Separator,
@@ -132,21 +135,19 @@ export function commitLinkProvider(
         pickRemote(
           remotes,
           { label: "$(link-external) Open Commit on Remote" },
-          (remote) => remote.openCommit(commit),
+          (remote) => remote.commitUrl(commit),
         ),
       ])
 
-      const fileCommitItems: QuickPickItem[] =
+      const fileCommitItems: SelectableQuickPickItem[] =
         commitFilename !== null
           ? fileAtCommitItems(repository, remotes, commit, commitFilename)
           : []
 
-      const selectedItem = await vscode.window.showQuickPick(
-        [...commitItems, ...fileCommitItems],
-        { placeHolder: "Select an action" },
-      )
-
-      selectedItem?.onSelected?.()
+      showSelectableQuickPick({
+        placeholder: "Select an action",
+        items: [...commitItems, ...fileCommitItems],
+      })
     },
   })
 }
@@ -191,7 +192,7 @@ export function fileLinkProvider(
       const uri = vscode.Uri.joinPath(repository.directory, filename)
       const exists = existsSync(uri.fsPath)
 
-      const openItem: QuickPickItem | null = exists
+      const openItem: SelectableQuickPickItem | null = exists
         ? {
             label: "$(go-to-file) Open File",
             onSelected: async () => {
@@ -200,7 +201,7 @@ export function fileLinkProvider(
           }
         : null
 
-      const fileItems: QuickPickItem[] = excludeNulls([
+      const fileItems: SelectableQuickPickItem[] = excludeNulls([
         {
           label: basename(filename),
           kind: vscode.QuickPickItemKind.Separator,
@@ -214,7 +215,7 @@ export function fileLinkProvider(
         },
       ])
 
-      let fileCommitItems: QuickPickItem[] = []
+      let fileCommitItems: SelectableQuickPickItem[] = []
 
       if (commit !== undefined) {
         const remotes = await commitRemotes(commit, repository)
@@ -227,12 +228,10 @@ export function fileLinkProvider(
         )
       }
 
-      const selectedItem = await vscode.window.showQuickPick(
-        [...fileItems, ...fileCommitItems],
-        { placeHolder: "Select an action" },
-      )
-
-      selectedItem?.onSelected?.()
+      showSelectableQuickPick({
+        placeholder: "Select an action",
+        items: [...fileItems, ...fileCommitItems],
+      })
     },
   })
 }
@@ -263,32 +262,55 @@ async function commitRemotes(
 function pickRemote(
   remotes: RemoteProvider[],
   item: vscode.QuickPickItem,
-  onRemoteSelected: (remote: RemoteProvider) => void,
-): QuickPickItem | null {
+  getRemoteUrl: (remote: RemoteProvider) => vscode.Uri | null,
+): SelectableQuickPickItem | null {
+  const openRemoteUrl = (remote: RemoteProvider) => {
+    const url = getRemoteUrl(remote)
+
+    if (url !== null) {
+      vscode.env.openExternal(url)
+    }
+  }
+
+  const copyUrlButton = (
+    remote: RemoteProvider,
+  ): SelectableQuickPickButton => ({
+    tooltip: "Copy Remote URL",
+    iconPath: new vscode.ThemeIcon("clippy"),
+    onSelected: () => {
+      const url = getRemoteUrl(remote)
+
+      if (url !== null) {
+        vscode.env.clipboard.writeText(url.toString())
+        vscode.window.showInformationMessage("Remote URL copied to clipboard")
+      }
+    },
+  })
+
   if (remotes.length === 0) {
     return null
-  }
-
-  const multipleRemotes = remotes.length > 1
-  const label = `${item.label}${multipleRemotes ? "..." : ""}`
-
-  const onSelected = async () => {
-    if (!multipleRemotes) {
-      return onRemoteSelected(remotes[0])
+  } else if (remotes.length === 1) {
+    return {
+      ...item,
+      onSelected: () => openRemoteUrl(remotes[0]),
+      buttons: [copyUrlButton(remotes[0])],
     }
-
-    const items: QuickPickItem[] = remotes.map((remote) => ({
-      label: `$(globe) ${remote.label}`,
-      onSelected: () => onRemoteSelected(remote),
-    }))
-
-    const options = { placeHolder: "Select a remote" }
-    const selectedItem = await vscode.window.showQuickPick(items, options)
-
-    selectedItem?.onSelected?.()
+  } else {
+    return {
+      ...item,
+      label: `${item.label}...`,
+      onSelected: () => {
+        showSelectableQuickPick({
+          placeholder: "Select a remote",
+          items: remotes.map((remote) => ({
+            label: `$(globe) ${remote.label}`,
+            onSelected: () => openRemoteUrl(remote),
+            buttons: [copyUrlButton(remote)],
+          })),
+        })
+      },
+    }
   }
-
-  return { ...item, label, onSelected }
 }
 
 function fileAtCommitItems(
@@ -359,7 +381,7 @@ function fileAtCommitItems(
     pickRemote(
       remotes,
       { label: "$(link-external) Open File on Remote" },
-      (remote) => remote.openFileAtCommit(commit, filename),
+      (remote) => remote.fileAtCommitUrl(commit, filename),
     ),
   ])
 }

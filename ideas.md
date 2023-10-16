@@ -5,11 +5,6 @@ extension.
 
 ## Link Types
 
-### Commit Links
-
-- Actions
-  - "Copy Remote URL" as button for remote items
-
 ### File Links
 
 - Actions
