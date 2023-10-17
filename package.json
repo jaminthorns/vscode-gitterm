@@ -59,7 +59,7 @@
       "properties": {
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log ${commit} -- '${filename}'",
+          "default": "git log --follow --patch ${commit} -- '${filename}'",
           "description": "Git command to use for file history command"
         },
         "gitterm.gitCommands.lineHistory": {
