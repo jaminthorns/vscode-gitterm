@@ -104,15 +104,7 @@ export async function commitFilenames(
   directory: vscode.Uri,
 ): Promise<CommitFilenames | null> {
   try {
-    const args = [
-      "--follow",
-      "--name-only",
-      "--diff-merges=first-parent",
-      "--format=%H",
-      "--",
-      path,
-    ]
-
+    const args = ["--follow", "--name-only", "--format=%H", "--", path]
     const output = await runGitCommand("log", directory, args)
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
