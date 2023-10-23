@@ -23,12 +23,18 @@ export function showSelectableQuickPick({
 
   quickPick.onDidAccept(() => {
     const selectedItem = quickPick.selectedItems[0]
+
     selectedItem.onSelected?.()
+    quickPick.hide()
   })
 
   quickPick.onDidTriggerItemButton((event) => {
     const button = event.button as SelectableQuickPickButton
     button.onSelected?.()
+  })
+
+  quickPick.onDidHide(() => {
+    quickPick.dispose()
   })
 
   quickPick.show()
