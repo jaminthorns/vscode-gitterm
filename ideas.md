@@ -63,6 +63,19 @@ Wrap the `git` command in the user's shell using a function. This wrapper would
 send the arguments of the executed command to GitTerm, which would allow GitTerm
 to contextualize a terminal so that better link actions can be provided.
 
+This has some considerations:
+
+- How would this be made cross-platform?
+
+  We can modify the user's `PATH`, but what kind of executable would be shipped?
+  If a shell function, then we'd need to make a separate script for each shell.
+  If a binary, then we'd to ship a cross-platform binary.
+
+- How does the function communicate with GitTerm?
+
+  A web server is all that I can think of. The part that runs in the shell only
+  needs to send information to GitTerm, so something like `curl` can be used.
+
 ## Workspace Detection within Terminal
 
 To get the workspace folder for a terminal, the best method would be to:
@@ -75,8 +88,6 @@ To get the workspace folder for a terminal, the best method would be to:
 This would provide the most consistent behavior because regardless of the
 directory that the terminal started in, you can navigate to one of the workspace
 folders (that have a Git repository) and get proper link detection.
-
--
 
 For macOS and Linux, you can just use the `lsof` command:
 
