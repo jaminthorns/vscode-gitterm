@@ -46,6 +46,14 @@ export function commitLinkProvider(
       line,
       terminal,
     }): Promise<CommitTerminalLink[]> {
+      const provideCommitLinks = vscode.workspace
+        .getConfiguration("gitterm.terminalLinks")
+        .get("provideCommitLinks")
+
+      if (provideCommitLinks === "never") {
+        return []
+      }
+
       const folder = await terminalFolders.getFolder(terminal)
       const repository = folder && repositories.getRepository(folder.uri)
 
@@ -161,10 +169,18 @@ export function fileLinkProvider(
       line,
       terminal,
     }): Promise<FileTerminalLink[]> {
+      const provideFileLinks = vscode.workspace
+        .getConfiguration("gitterm.terminalLinks")
+        .get("provideFileLinks")
+
+      if (provideFileLinks === "never") {
+        return []
+      }
+
       const { context } = terminal.creationOptions as TerminalOptions
       const commit = context && "commit" in context ? context.commit : undefined
 
-      if (commit === undefined) {
+      if (commit === undefined && provideFileLinks === "withCommitContext") {
         return []
       }
 
