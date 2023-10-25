@@ -3,6 +3,10 @@
 This is a rough notepad of ideas related to the design and planning of this
 extension.
 
+## Commit Summary
+
+General commit information (message, author, date) in the commit quick-pick.
+
 ## Link Types
 
 ### File Links
@@ -28,6 +32,12 @@ extension.
 - Actions
   - Show Stash
   - Copy Stash Name
+
+### Issue Links
+
+Most remotes support something like GitHub's issues and usually have some syntax
+(like `#123`) that automatically creates links to those issues. It would be nice
+to support this on a per-remote basis.
 
 ## Link Detection Methods
 
