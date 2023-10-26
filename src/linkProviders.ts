@@ -1,7 +1,7 @@
 import { existsSync } from "fs"
 import { basename } from "path"
 import * as vscode from "vscode"
-import { Commit } from "./Commit"
+import { Commit, CommitInfo } from "./Commit"
 import {
   CommitContext,
   FileContext,
@@ -89,15 +89,17 @@ export function commitLinkProvider(
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { repository, commit } = context
-      const commitFilenames =
+      const commitFilenamesPromise =
         "commitFilenames" in context ? context.commitFilenames : undefined
 
-      const remotes = await commitRemotes(commit, repository)
+      const [commitFilenames, commitInfo, remotes] = await Promise.all([
+        commitFilenamesPromise,
+        CommitInfo(commit.full, repository.directory),
+        commitRemotes(commit, repository),
+      ])
 
-      const commitFilename =
-        commitFilenames !== undefined
-          ? (await commitFilenames)?.get(commit.full) ?? null
-          : null
+      const commitFilename = commitFilenames?.get(commit.full) ?? null
+      const { authorDate, authorName, subject } = commitInfo
 
       const commitItems: SelectableQuickPickItem[] = excludeNulls([
         {
@@ -105,7 +107,8 @@ export function commitLinkProvider(
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(git-commit) Show Commit",
+          label: subject,
+          detail: `${authorName} • ${authorDate.toLocaleString()}`,
           onSelected: () => {
             runCommandInTerminal({
               name: commit.abbreviated,

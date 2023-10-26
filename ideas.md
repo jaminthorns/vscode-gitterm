@@ -3,10 +3,6 @@
 This is a rough notepad of ideas related to the design and planning of this
 extension.
 
-## Commit Summary
-
-General commit information (message, author, date) in the commit quick-pick.
-
 ## Link Types
 
 ### File Links
