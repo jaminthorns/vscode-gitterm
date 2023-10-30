@@ -19,6 +19,8 @@ extension.
 
 ### Person Links
 
+Command: `git shortlog --all --summary --numbered --email`
+
 - Actions
   - History of Authored Commits
   - History of Committed Commits
