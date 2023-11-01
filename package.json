@@ -1,7 +1,7 @@
 {
   "name": "gitterm",
   "displayName": "GitTerm",
-  "description": "Integrations for using Git in the terminal",
+  "description": "Rich integration between Git CLI and VS Code",
   "publisher": "jaminthorns",
   "icon": "assets/icon.png",
   "repository": {
