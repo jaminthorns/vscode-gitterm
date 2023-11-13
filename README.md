@@ -2,6 +2,7 @@
 
 ## Commands
 
+- Folder History
 - File History
 - Line History
 - File Blame

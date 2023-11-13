@@ -1,5 +1,10 @@
 import { RawCommit } from "./Commit"
 
+interface FolderHistory {
+  key: "folderHistory"
+  variables: { folder: string; commit: RawCommit }
+}
+
 interface FileHistory {
   key: "fileHistory"
   variables: { filename: string; commit: RawCommit }
@@ -41,6 +46,7 @@ interface ShowFileContentsAtCommit {
 }
 
 type UserGitCommand =
+  | FolderHistory
   | FileHistory
   | LineHistory
   | FileBlame

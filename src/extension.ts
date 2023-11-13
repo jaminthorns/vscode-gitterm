@@ -1,5 +1,13 @@
 import * as vscode from "vscode"
-import { fileBlame, fileHistory, lineHistory } from "./editorCommands"
+import {
+  fileBlameCommand,
+  fileBlameEditorCommand,
+  fileHistoryCommand,
+  fileHistoryEditorCommand,
+  folderHistoryCommand,
+  lineHistoryCommand,
+  lineHistoryEditorCommand,
+} from "./commands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
@@ -15,9 +23,18 @@ export async function activate(context: vscode.ExtensionContext) {
   const terminalFolders = setupTerminalFolders()
 
   context.subscriptions.push(
-    fileHistory(repositories),
-    lineHistory(repositories),
-    fileBlame(repositories),
+    // Commands
+    folderHistoryCommand(repositories),
+    fileHistoryCommand(repositories),
+    fileBlameCommand(repositories),
+    lineHistoryCommand(repositories),
+
+    // Editor commands (needed when activating via keybinding)
+    fileHistoryEditorCommand(repositories),
+    fileBlameEditorCommand(repositories),
+    lineHistoryEditorCommand(repositories),
+
+    // Link providers
     commitLinkProvider(repositories, terminalFolders),
     fileLinkProvider(repositories, terminalFolders),
   )
