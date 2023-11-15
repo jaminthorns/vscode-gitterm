@@ -5,11 +5,6 @@ extension.
 
 ## Link Types
 
-### File Links
-
-- Actions
-  - File History (is this useful)
-
 ### Branch/Tag Links
 
 - Actions

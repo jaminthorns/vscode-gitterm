@@ -210,6 +210,7 @@ export function fileLinkProvider(
 
       const uri = vscode.Uri.joinPath(repository.directory, filename)
       const exists = existsSync(uri.fsPath)
+      const fileLabel = basename(filename)
 
       const openItem: SelectableQuickPickItem | null = exists
         ? {
@@ -222,7 +223,7 @@ export function fileLinkProvider(
 
       const fileItems: SelectableQuickPickItem[] = excludeNulls([
         {
-          label: basename(filename),
+          label: fileLabel,
           kind: vscode.QuickPickItemKind.Separator,
         },
         openItem,
@@ -230,6 +231,28 @@ export function fileLinkProvider(
           label: "$(clippy) Copy File Path",
           onSelected: () => {
             vscode.env.clipboard.writeText(filename)
+          },
+        },
+        {
+          label: "$(history) File History",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: fileLabel,
+              icon: "history",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "fileHistory",
+                variables: { commit: "HEAD", filename },
+              }),
+              context: {
+                commit,
+                filename,
+                commitFilenames: commitFilenames(
+                  filename,
+                  repository.directory,
+                ),
+              },
+            })
           },
         },
       ])
