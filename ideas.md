@@ -5,6 +5,29 @@ extension.
 
 ## Link Types
 
+### File Links
+
+- Actions
+  - Open File on Remote
+
+    This would open the file on the remote's default branch. You can get the
+    remote's default branch with:
+
+    ```
+    git rev-parse --abbrev-ref origin/HEAD
+    ```
+
+    Which will only be set if the repository has been cloned or if this command
+    has been run:
+
+    ```
+    git remote set-head --auto origin
+    ```
+
+    So in order to open a file on the remote, you need to get the remote's
+    default branch (running `git remote set-head ...` if necessary), and offer
+    to open the file only if it exists on that branch.
+
 ### Branch/Tag Links
 
 - Actions
