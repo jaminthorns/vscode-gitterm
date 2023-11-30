@@ -150,3 +150,10 @@ terminal. When running any of the editor (file history, line history, blame)
 commands, they would be executed from the corresponding commit. This allows
 powerful history investigation. This could be enabled/disabled with a config
 value.
+
+## Opening Diffs in Editor
+
+Allow user to open diff in a diff editor using VS Code's `vscode.diff` command.
+This would possibly have similar functionality as opening a file at commit in
+editor. Here's a helpful comment for implementation details:
+https://github.com/Microsoft/vscode/issues/34623#issuecomment-423742923
