@@ -157,3 +157,9 @@ Allow user to open diff in a diff editor using VS Code's `vscode.diff` command.
 This would possibly have similar functionality as opening a file at commit in
 editor. Here's a helpful comment for implementation details:
 https://github.com/Microsoft/vscode/issues/34623#issuecomment-423742923
+
+## Line Blame
+
+Allow user to open blame for a line or line range instead of the whole file in
+the same way as line history. This can take advantage of the line translation
+logic that line history does.
