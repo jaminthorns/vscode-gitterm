@@ -8,19 +8,19 @@
   "extends": ["plugin:prettier/recommended"],
   "plugins": ["@typescript-eslint", "import"],
   "rules": {
-    "@typescript-eslint/naming-convention": [
-      "warn",
-      { "selector": ["function"], "format": ["camelCase", "PascalCase"] }
-    ],
     "curly": "warn",
     "eqeqeq": "warn",
     "no-throw-literal": "warn",
-    "no-unused-vars": "warn",
     "sort-imports": ["warn", { "ignoreDeclarationSort": true }],
     "import/order": [
       "warn",
       { "alphabetize": { "order": "asc", "caseInsensitive": true } }
-    ]
+    ],
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      { "selector": ["function"], "format": ["camelCase", "PascalCase"] }
+    ],
+    "@typescript-eslint/no-unused-vars": "warn"
   },
   "ignorePatterns": ["out", "dist", "**/*.d.ts"]
 }

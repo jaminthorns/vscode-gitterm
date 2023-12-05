@@ -1,7 +1,13 @@
 import { basename } from "path"
 import * as vscode from "vscode"
+import { LineTranslator } from "./LineTranslator"
 import RepositoryStore from "./RepositoryStore"
-import { commitFilenames, runCommandInTerminal, userGitCommand } from "./util"
+import {
+  commitFilenames,
+  diffForLineTranslation,
+  runCommandInTerminal,
+  userGitCommand,
+} from "./util"
 
 export function folderHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
@@ -129,7 +135,7 @@ function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
   })
 }
 
-function lineHistory(
+async function lineHistory(
   uri: vscode.Uri,
   startLine: number,
   endLine: number,
@@ -141,21 +147,46 @@ function lineHistory(
     return
   }
 
+  const { directory } = repository
   const filename = vscode.workspace.asRelativePath(uri, false)
-  const lineRange = `${startLine},${endLine}`
-  const lineSuffix = startLine === endLine ? startLine : lineRange
+
+  const [worktreeDiff, stagedDiff] = await Promise.all([
+    diffForLineTranslation(directory, ["--", filename]),
+    diffForLineTranslation(directory, ["--staged", "--", filename]),
+  ])
+
+  const translators = [LineTranslator(worktreeDiff), LineTranslator(stagedDiff)]
+
+  const translateOldLine = (line: number, bound: "start" | "end") => {
+    return translators.reduce((translated, t) => {
+      const range = t.oldLine(translated)
+      const newOffset = range.span === 0 && bound === "start" ? 1 : 0
+
+      return range[bound] + newOffset
+    }, line)
+  }
+
+  const startLineHead = translateOldLine(startLine, "start")
+  const endLineHead = translateOldLine(endLine, "end")
+  const lineRange = `${startLineHead},${endLineHead}`
+  const lineSuffix = startLineHead === endLineHead ? startLineHead : lineRange
 
   runCommandInTerminal({
     name: `${basename(filename)}:${lineSuffix}`,
     icon: "history",
-    cwd: repository.directory,
+    cwd: directory,
     command: userGitCommand({
       key: "lineHistory",
-      variables: { filename, commit: "HEAD", startLine, endLine },
+      variables: {
+        filename,
+        commit: "HEAD",
+        startLine: startLineHead,
+        endLine: endLineHead,
+      },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, repository.directory),
+      commitFilenames: commitFilenames(filename, directory),
     },
   })
 }

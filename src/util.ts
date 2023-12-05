@@ -85,7 +85,7 @@ export function runCommandInTerminal({
 }
 
 export function userGitCommand(command: UserGitCommand): string {
-  let commandStr = vscode.workspace
+  const commandStr = vscode.workspace
     .getConfiguration("gitterm.gitCommands")
     .get(command.key) as string
 
@@ -111,4 +111,11 @@ export async function commitFilenames(
   } catch (error) {
     return null
   }
+}
+
+export async function diffForLineTranslation(
+  directory: vscode.Uri,
+  args: string[],
+) {
+  return await runGitCommand("diff", directory, ["--unified=0", ...args])
 }
