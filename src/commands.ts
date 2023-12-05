@@ -4,7 +4,7 @@ import { LineTranslator } from "./LineTranslator"
 import RepositoryStore from "./RepositoryStore"
 import {
   commitFilenames,
-  diffForLineTranslation,
+  lineTranslationDiff,
   runCommandInTerminal,
   userGitCommand,
 } from "./util"
@@ -30,14 +30,6 @@ export function fileBlameCommand(repositories: RepositoryStore) {
   )
 }
 
-export function lineHistoryCommand(repositories: RepositoryStore) {
-  return vscode.commands.registerCommand(
-    "gitterm.lineHistory",
-    ({ uri, lineNumber }: { uri: vscode.Uri; lineNumber: number }) =>
-      lineHistory(uri, lineNumber, lineNumber, repositories),
-  )
-}
-
 export function fileHistoryEditorCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.fileHistory.editor",
@@ -58,7 +50,7 @@ export function lineHistoryEditorCommand(repositories: RepositoryStore) {
     "gitterm.lineHistory.editor",
     ({ document, selection }: vscode.TextEditor) =>
       lineHistory(
-        document.uri,
+        document,
         selection.start.line + 1,
         selection.end.line + 1,
         repositories,
@@ -136,26 +128,35 @@ function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
 }
 
 async function lineHistory(
-  uri: vscode.Uri,
+  document: vscode.TextDocument,
   startLine: number,
   endLine: number,
   repositories: RepositoryStore,
 ) {
-  const repository = repositories.getRepository(uri)
+  const repository = repositories.getRepository(document.uri)
 
   if (repository === undefined) {
     return
   }
 
   const { directory } = repository
-  const filename = vscode.workspace.asRelativePath(uri, false)
+  const filename = vscode.workspace.asRelativePath(document.uri, false)
 
-  const [worktreeDiff, stagedDiff] = await Promise.all([
-    diffForLineTranslation(directory, ["--", filename]),
-    diffForLineTranslation(directory, ["--staged", "--", filename]),
+  const [unsavedDiff, worktreeDiff, stagedDiff] = await Promise.all([
+    lineTranslationDiff(["--no-index", "--", filename, "-"], {
+      directory,
+      stdin: document.getText(),
+      ignoreNonZeroExitCode: true,
+    }),
+    lineTranslationDiff(["--", filename], { directory }),
+    lineTranslationDiff(["--staged", "--", filename], { directory }),
   ])
 
-  const translators = [LineTranslator(worktreeDiff), LineTranslator(stagedDiff)]
+  const translators = [
+    LineTranslator(unsavedDiff),
+    LineTranslator(worktreeDiff),
+    LineTranslator(stagedDiff),
+  ]
 
   const translateOldLine = (line: number, bound: "start" | "end") => {
     return translators.reduce((translated, t) => {

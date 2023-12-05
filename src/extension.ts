@@ -5,7 +5,6 @@ import {
   fileHistoryCommand,
   fileHistoryEditorCommand,
   folderHistoryCommand,
-  lineHistoryCommand,
   lineHistoryEditorCommand,
 } from "./commands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
@@ -27,7 +26,6 @@ export async function activate(context: vscode.ExtensionContext) {
     folderHistoryCommand(repositories),
     fileHistoryCommand(repositories),
     fileBlameCommand(repositories),
-    lineHistoryCommand(repositories),
 
     // Editor commands (needed when activating via keybinding)
     fileHistoryEditorCommand(repositories),

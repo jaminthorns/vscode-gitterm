@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { runGitCommand } from "./util"
+import { git } from "./util"
 
 export type RawCommit = string
 
@@ -14,8 +14,8 @@ export async function Commit(
 ): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      runGitCommand("rev-parse", directory, [commit]),
-      runGitCommand("rev-parse", directory, ["--short", commit]),
+      git("rev-parse", [commit], { directory }),
+      git("rev-parse", ["--short", commit], { directory }),
     ])
 
     return { full, abbreviated }
@@ -34,11 +34,8 @@ export async function CommitInfo(
   commit: RawCommit,
   directory: vscode.Uri,
 ): Promise<CommitInfo> {
-  const rawInfo = await runGitCommand("log", directory, [
-    "--format=%aI\t%an\t%s",
-    "--max-count=1",
-    commit,
-  ])
+  const args = ["--format=%aI\t%an\t%s", "--max-count=1", commit]
+  const rawInfo = await git("log", args, { directory })
 
   const [rawAuthorDate, authorName, subject] = rawInfo.split("\t")
 

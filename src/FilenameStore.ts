@@ -1,7 +1,7 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
-import { runGitCommand, streamCommand } from "./util"
+import { git, streamCommand } from "./util"
 
 export default interface FilenameStore extends vscode.Disposable {
   findMatches: StringTrie["findMatches"]
@@ -32,7 +32,7 @@ async function setupRefWatcher(
   gitDirectory: vscode.Uri,
   filenames: StringTrie,
 ): Promise<vscode.FileSystemWatcher> {
-  const initialCommit = await runGitCommand("rev-parse", directory, ["HEAD"])
+  const initialCommit = await git("rev-parse", ["HEAD"], { directory })
 
   const refsDir = vscode.Uri.joinPath(gitDirectory, "refs")
   const refsPattern = new vscode.RelativePattern(refsDir, "**/*")

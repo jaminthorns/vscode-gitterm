@@ -2,7 +2,7 @@ import { resolve } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
 import RemoteProviderStore from "./RemoteProviderStore"
-import { runGitCommand } from "./util"
+import { git } from "./util"
 
 export default interface Repository extends vscode.Disposable {
   directory: vscode.Uri
@@ -15,9 +15,7 @@ export default async function Repository(
 ): Promise<Repository> {
   const directory = folder.uri
 
-  const gitDirRel = await runGitCommand("rev-parse", directory, [
-    "--git-common-dir",
-  ])
+  const gitDirRel = await git("rev-parse", ["--git-common-dir"], { directory })
   const gitDirAbs = resolve(directory.fsPath, gitDirRel)
   const gitDirectory = vscode.Uri.parse(gitDirAbs)
 

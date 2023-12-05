@@ -37,10 +37,6 @@
         "title": "GitTerm: File Blame"
       },
       {
-        "command": "gitterm.lineHistory",
-        "title": "GitTerm: Line History"
-      },
-      {
         "command": "gitterm.fileHistory.editor",
         "title": "GitTerm: File History"
       },
@@ -65,10 +61,6 @@
         },
         {
           "command": "gitterm.fileBlame",
-          "when": "false"
-        },
-        {
-          "command": "gitterm.lineHistory",
           "when": "false"
         },
         {
@@ -132,7 +124,7 @@
       ],
       "editor/lineNumber/context": [
         {
-          "command": "gitterm.lineHistory",
+          "command": "gitterm.lineHistory.editor",
           "group": "00_gitterm_line@0",
           "when": "resourceScheme == file"
         }

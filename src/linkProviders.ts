@@ -20,8 +20,8 @@ import TerminalFolderStore from "./TerminalFolderStore"
 import {
   commitFilenames,
   excludeNulls,
+  git,
   runCommandInTerminal,
-  runGitCommand,
   userGitCommand,
 } from "./util"
 
@@ -292,7 +292,7 @@ async function commitRemotes(
   // becomes noticeably slow in repositories with long history and many remote
   // branches
   const args = ["-r", "--contains", commit.full]
-  const output = await runGitCommand("branch", repository.directory, args)
+  const output = await git("branch", args, { directory: repository.directory })
   const branches = output.split("\n").map((b) => b.trim())
 
   return remoteProviders.filter(({ remote }) => {

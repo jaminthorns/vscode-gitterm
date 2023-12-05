@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { runGitCommand } from "./util"
+import { git } from "./util"
 
 type Server =
   | { protocol: "ssh"; host: string; user: string }
@@ -16,7 +16,7 @@ export default async function Remote(
   name: string,
   directory: vscode.Uri,
 ): Promise<Remote | null> {
-  const urlRaw = await runGitCommand("remote", directory, ["get-url", name])
+  const urlRaw = await git("remote", ["get-url", name], { directory })
 
   const sshPattern =
     /^(?!http)(?:ssh:\/\/)?(?:(?<user>.+)@)?(?<host>.+):(?<path>.*)$/

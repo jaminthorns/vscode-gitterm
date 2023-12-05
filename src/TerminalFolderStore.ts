@@ -1,6 +1,6 @@
 import { lookpath } from "lookpath"
 import * as vscode from "vscode"
-import { runCommand } from "./util"
+import { run } from "./util"
 
 export default interface TerminalFolderStore {
   addFolder(terminal: vscode.Terminal): Promise<void>
@@ -73,7 +73,7 @@ export default function TerminalFolderStore(): TerminalFolderStore {
 
 async function lsofCwd(pid: number): Promise<string> {
   const args = ["-a", "-d", "cwd", "-Fn", "-p", pid.toString()]
-  const output = await runCommand("lsof", args)
+  const output = await run("lsof", args)
 
   return output.split("\n")[2].slice(1)
 }

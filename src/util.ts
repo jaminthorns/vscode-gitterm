@@ -20,21 +20,31 @@ export function chunk<T>(array: T[], count: number): T[][] {
   }, [])
 }
 
-export async function runCommand(
+interface CommandOptions {
+  directory?: vscode.Uri
+  stdin?: string
+  ignoreNonZeroExitCode?: boolean
+}
+
+export async function run(
   command: string,
   args: string[],
-  directory?: vscode.Uri,
+  options: CommandOptions = {},
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const stdoutData: Buffer[] = []
     const stderrData: Buffer[] = []
-    const process = spawn(command, args, { cwd: directory?.fsPath })
+    const process = spawn(command, args, { cwd: options.directory?.fsPath })
+
+    if (options.stdin !== undefined) {
+      process.stdin.end(options.stdin)
+    }
 
     process.stdout.on("data", (data) => stdoutData.push(data))
     process.stderr.on("data", (data) => stderrData.push(data))
 
     process.on("close", (code) => {
-      if (code === 0) {
+      if (code === 0 || options.ignoreNonZeroExitCode) {
         const stdout = Buffer.concat(stdoutData).toString()
         resolve(stdout.trim())
       } else {
@@ -55,12 +65,16 @@ export function streamCommand(
   process.stdout.on("data", (data) => onOutput(data.toString()))
 }
 
-export async function runGitCommand(
+interface GitCommandOptions extends CommandOptions {
+  directory: vscode.Uri
+}
+
+export async function git(
   subCommand: string,
-  directory: vscode.Uri,
   args: string[],
+  options: GitCommandOptions,
 ): Promise<string> {
-  return await runCommand("git", [subCommand, ...args], directory)
+  return await run("git", [subCommand, ...args], options)
 }
 
 export function runCommandInTerminal({
@@ -105,7 +119,7 @@ export async function commitFilenames(
 ): Promise<CommitFilenames | null> {
   try {
     const args = ["--follow", "--name-only", "--format=%H", "--", path]
-    const output = await runGitCommand("log", directory, args)
+    const output = await git("log", args, { directory })
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {
@@ -113,9 +127,9 @@ export async function commitFilenames(
   }
 }
 
-export async function diffForLineTranslation(
-  directory: vscode.Uri,
+export async function lineTranslationDiff(
   args: string[],
+  options: GitCommandOptions,
 ) {
-  return await runGitCommand("diff", directory, ["--unified=0", ...args])
+  return await git("diff", ["--unified=0", ...args], options)
 }
