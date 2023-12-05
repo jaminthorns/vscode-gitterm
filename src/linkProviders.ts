@@ -397,7 +397,7 @@ function pickRemote(
 
       if (url !== null) {
         vscode.env.clipboard.writeText(url.toString())
-        vscode.window.showInformationMessage("Remote URL copied to clipboard")
+        vscode.window.showInformationMessage("Remote URL copied to clipboard.")
       }
     },
   })

@@ -169,6 +169,15 @@ async function lineHistory(
 
   const startLineHead = translateOldLine(startLine, "start")
   const endLineHead = translateOldLine(endLine, "end")
+
+  if (startLineHead > endLineHead) {
+    const suffix = startLine === endLine ? "" : "s"
+    const message = `Can't show history for newly added line${suffix}.`
+
+    vscode.window.showInformationMessage(message)
+    return
+  }
+
   const lineRange = `${startLineHead},${endLineHead}`
   const lineSuffix = startLineHead === endLineHead ? startLineHead : lineRange
 
