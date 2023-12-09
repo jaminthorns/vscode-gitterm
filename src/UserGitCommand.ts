@@ -25,6 +25,15 @@ interface FileBlame {
   variables: { filename: string }
 }
 
+interface LineBlame {
+  key: "lineBlame"
+  variables: {
+    filename: string
+    startLine: number
+    endLine: number
+  }
+}
+
 interface CommitHistory {
   key: "commitHistory"
   variables: { commit: RawCommit }
@@ -50,6 +59,7 @@ type UserGitCommand =
   | FileHistory
   | LineHistory
   | FileBlame
+  | LineBlame
   | CommitHistory
   | ShowCommit
   | ShowFileDiffAtCommit

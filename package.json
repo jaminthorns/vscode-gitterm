@@ -41,12 +41,16 @@
         "title": "GitTerm: File History"
       },
       {
+        "command": "gitterm.lineHistory.editor",
+        "title": "GitTerm: Line History"
+      },
+      {
         "command": "gitterm.fileBlame.editor",
         "title": "GitTerm: File Blame"
       },
       {
-        "command": "gitterm.lineHistory.editor",
-        "title": "GitTerm: Line History"
+        "command": "gitterm.lineBlame.editor",
+        "title": "GitTerm: Line Blame"
       }
     ],
     "menus": {
@@ -68,11 +72,15 @@
           "when": "resourceScheme == file"
         },
         {
+          "command": "gitterm.lineHistory.editor",
+          "when": "resourceScheme == file"
+        },
+        {
           "command": "gitterm.fileBlame.editor",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.lineHistory.editor",
+          "command": "gitterm.lineBlame.editor",
           "when": "resourceScheme == file"
         }
       ],
@@ -112,6 +120,11 @@
           "when": "resourceScheme == file"
         },
         {
+          "command": "gitterm.lineBlame.editor",
+          "group": "10_gitterm_line@0",
+          "when": "resourceScheme == file"
+        },
+        {
           "command": "gitterm.fileHistory.editor",
           "group": "11_gitterm_file@0",
           "when": "resourceScheme == file"
@@ -127,23 +140,33 @@
           "command": "gitterm.lineHistory.editor",
           "group": "00_gitterm_line@0",
           "when": "resourceScheme == file"
+        },
+        {
+          "command": "gitterm.lineBlame.editor",
+          "group": "00_gitterm_line@0",
+          "when": "resourceScheme == file"
         }
       ]
     },
     "keybindings": [
       {
         "command": "gitterm.fileHistory.editor",
-        "key": "alt+h",
+        "key": "alt+shift+h",
         "when": "editorFocus"
       },
       {
         "command": "gitterm.fileBlame.editor",
-        "key": "alt+b",
+        "key": "alt+shift+b",
         "when": "editorFocus"
       },
       {
         "command": "gitterm.lineHistory.editor",
-        "key": "alt+l",
+        "key": "alt+h",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "gitterm.lineBlame.editor",
+        "key": "alt+b",
         "when": "editorTextFocus"
       }
     ],
@@ -204,8 +227,13 @@
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
-          "default": "git blame '${filename}'",
+          "default": "git blame -- '${filename}'",
           "description": "Git command to use for file blame command"
+        },
+        "gitterm.gitCommands.lineBlame": {
+          "type": "string",
+          "default": "git blame -L ${startLine},${endLine} -- '${filename}'",
+          "description": "Git command to use for line blame command"
         },
         "gitterm.gitCommands.commitHistory": {
           "type": "string",

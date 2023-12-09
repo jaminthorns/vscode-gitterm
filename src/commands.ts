@@ -58,6 +58,19 @@ export function lineHistoryEditorCommand(repositories: RepositoryStore) {
   )
 }
 
+export function lineBlameEditorCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerTextEditorCommand(
+    "gitterm.lineBlame.editor",
+    ({ document, selection }: vscode.TextEditor) =>
+      lineBlame(
+        document,
+        selection.start.line + 1,
+        selection.end.line + 1,
+        repositories,
+      ),
+  )
+}
+
 function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
   const repository = repositories.getRepository(uri)
 
@@ -65,12 +78,13 @@ function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
     return
   }
 
+  const { directory } = repository
   const folder = vscode.workspace.asRelativePath(uri, false)
 
   runCommandInTerminal({
     name: basename(folder),
     icon: "history",
-    cwd: repository.directory,
+    cwd: directory,
     command: userGitCommand({
       key: "folderHistory",
       variables: { folder, commit: "HEAD" },
@@ -86,43 +100,20 @@ function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
     return
   }
 
+  const { directory } = repository
   const filename = vscode.workspace.asRelativePath(uri, false)
 
   runCommandInTerminal({
     name: basename(filename),
     icon: "history",
-    cwd: repository.directory,
+    cwd: directory,
     command: userGitCommand({
       key: "fileHistory",
       variables: { filename, commit: "HEAD" },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, repository.directory),
-    },
-  })
-}
-
-function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
-  const repository = repositories.getRepository(uri)
-
-  if (repository === undefined) {
-    return
-  }
-
-  const filename = vscode.workspace.asRelativePath(uri, false)
-
-  runCommandInTerminal({
-    name: basename(filename),
-    icon: "person",
-    cwd: repository.directory,
-    command: userGitCommand({
-      key: "fileBlame",
-      variables: { filename },
-    }),
-    context: {
-      filename,
-      commitFilenames: commitFilenames(filename, repository.directory),
+      commitFilenames: commitFilenames(filename, directory),
     },
   })
 }
@@ -158,17 +149,8 @@ async function lineHistory(
     LineTranslator(stagedDiff),
   ]
 
-  const translateOldLine = (line: number, bound: "start" | "end") => {
-    return translators.reduce((translated, t) => {
-      const range = t.oldLine(translated)
-      const newOffset = range.span === 0 && bound === "start" ? 1 : 0
-
-      return range[bound] + newOffset
-    }, line)
-  }
-
-  const startLineHead = translateOldLine(startLine, "start")
-  const endLineHead = translateOldLine(endLine, "end")
+  const startLineHead = translateOldLine(startLine, "start", translators)
+  const endLineHead = translateOldLine(endLine, "end", translators)
 
   if (startLineHead > endLineHead) {
     const suffix = startLine === endLine ? "" : "s"
@@ -199,4 +181,97 @@ async function lineHistory(
       commitFilenames: commitFilenames(filename, directory),
     },
   })
+}
+
+function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
+  const repository = repositories.getRepository(uri)
+
+  if (repository === undefined) {
+    return
+  }
+
+  const { directory } = repository
+  const filename = vscode.workspace.asRelativePath(uri, false)
+
+  runCommandInTerminal({
+    name: basename(filename),
+    icon: "person",
+    cwd: directory,
+    command: userGitCommand({
+      key: "fileBlame",
+      variables: { filename },
+    }),
+    context: {
+      filename,
+      commitFilenames: commitFilenames(filename, directory),
+    },
+  })
+}
+
+async function lineBlame(
+  document: vscode.TextDocument,
+  startLine: number,
+  endLine: number,
+  repositories: RepositoryStore,
+) {
+  const repository = repositories.getRepository(document.uri)
+
+  if (repository === undefined) {
+    return
+  }
+
+  const { directory } = repository
+  const filename = vscode.workspace.asRelativePath(document.uri, false)
+
+  const unsavedDiff = await lineTranslationDiff(
+    ["--no-index", "--", filename, "-"],
+    { directory, stdin: document.getText(), ignoreNonZeroExitCode: true },
+  )
+
+  const translators = [LineTranslator(unsavedDiff)]
+  const startLineSaved = translateOldLine(startLine, "start", translators)
+  const endLineSaved = translateOldLine(endLine, "end", translators)
+
+  if (startLineSaved > endLineSaved) {
+    const suffix = startLine === endLine ? "" : "s"
+    const message = `Can't show blame for unsaved line${suffix}.`
+
+    vscode.window.showInformationMessage(message)
+    return
+  }
+
+  const lineRange = `${startLineSaved},${endLineSaved}`
+  const lineSuffix =
+    startLineSaved === endLineSaved ? startLineSaved : lineRange
+
+  runCommandInTerminal({
+    name: `${basename(filename)}:${lineSuffix}`,
+    icon: "person",
+    cwd: directory,
+    command: userGitCommand({
+      key: "lineBlame",
+      variables: {
+        filename,
+        endLine: endLineSaved,
+        startLine: startLineSaved,
+      },
+    }),
+    context: {
+      filename,
+      commitFilenames: commitFilenames(filename, directory),
+    },
+  })
+}
+
+const translateOldLine = (
+  line: number,
+  bound: "start" | "end",
+  translators: LineTranslator[],
+) => {
+  return translators.reduce((translated, t) => {
+    const range = t.oldLine(translated)
+    const newOffset = range.span === 0 && bound === "start" ? 1 : 0
+
+    return range[bound] + newOffset
+  }, line)
 }
