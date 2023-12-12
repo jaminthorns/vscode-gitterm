@@ -121,7 +121,7 @@
         },
         {
           "command": "gitterm.lineBlame.editor",
-          "group": "10_gitterm_line@0",
+          "group": "10_gitterm_line@1",
           "when": "resourceScheme == file"
         },
         {
@@ -143,7 +143,7 @@
         },
         {
           "command": "gitterm.lineBlame.editor",
-          "group": "00_gitterm_line@0",
+          "group": "00_gitterm_line@1",
           "when": "resourceScheme == file"
         }
       ]
