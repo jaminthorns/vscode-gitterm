@@ -9,6 +9,11 @@ import {
   userGitCommand,
 } from "./util"
 
+interface LineNumberHandlerArgs {
+  uri: vscode.Uri
+  lineNumber: number
+}
+
 export function folderHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.folderHistory",
@@ -30,24 +35,46 @@ export function fileBlameCommand(repositories: RepositoryStore) {
   )
 }
 
-export function fileHistoryEditorCommand(repositories: RepositoryStore) {
+export function lineHistoryCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand(
+    "gitterm.lineHistory",
+    async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
+      // TODO: Handle Git URIs
+      const document = await vscode.workspace.openTextDocument(uri)
+      lineHistory(document, lineNumber, lineNumber, repositories)
+    },
+  )
+}
+
+export function lineBlameCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand(
+    "gitterm.lineBlame",
+    async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
+      // TODO: Handle Git URIs
+      const document = await vscode.workspace.openTextDocument(uri)
+      lineBlame(document, lineNumber, lineNumber, repositories)
+    },
+  )
+}
+
+export function activeFileHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.fileHistory.editor",
+    "gitterm.activeFileHistory",
     ({ document }: vscode.TextEditor) =>
       fileHistory(document.uri, repositories),
   )
 }
 
-export function fileBlameEditorCommand(repositories: RepositoryStore) {
+export function activeFileBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.fileBlame.editor",
+    "gitterm.activeFileBlame",
     ({ document }: vscode.TextEditor) => fileBlame(document.uri, repositories),
   )
 }
 
-export function lineHistoryEditorCommand(repositories: RepositoryStore) {
+export function selectionHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.lineHistory.editor",
+    "gitterm.selectionHistory",
     ({ document, selection }: vscode.TextEditor) =>
       lineHistory(
         document,
@@ -58,9 +85,9 @@ export function lineHistoryEditorCommand(repositories: RepositoryStore) {
   )
 }
 
-export function lineBlameEditorCommand(repositories: RepositoryStore) {
+export function selectionBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.lineBlame.editor",
+    "gitterm.selectionBlame",
     ({ document, selection }: vscode.TextEditor) =>
       lineBlame(
         document,

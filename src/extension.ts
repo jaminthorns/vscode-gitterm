@@ -1,12 +1,14 @@
 import * as vscode from "vscode"
 import {
+  activeFileBlameCommand,
+  activeFileHistoryCommand,
   fileBlameCommand,
-  fileBlameEditorCommand,
   fileHistoryCommand,
-  fileHistoryEditorCommand,
   folderHistoryCommand,
-  lineBlameEditorCommand,
-  lineHistoryEditorCommand,
+  lineBlameCommand,
+  lineHistoryCommand,
+  selectionBlameCommand,
+  selectionHistoryCommand,
 } from "./commands"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import RepositoryStore from "./RepositoryStore"
@@ -27,12 +29,12 @@ export async function activate(context: vscode.ExtensionContext) {
     folderHistoryCommand(repositories),
     fileHistoryCommand(repositories),
     fileBlameCommand(repositories),
-
-    // Editor commands
-    fileHistoryEditorCommand(repositories),
-    lineHistoryEditorCommand(repositories),
-    fileBlameEditorCommand(repositories),
-    lineBlameEditorCommand(repositories),
+    lineHistoryCommand(repositories),
+    lineBlameCommand(repositories),
+    activeFileHistoryCommand(repositories),
+    activeFileBlameCommand(repositories),
+    selectionHistoryCommand(repositories),
+    selectionBlameCommand(repositories),
 
     // Link providers
     commitLinkProvider(repositories, terminalFolders),

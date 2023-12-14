@@ -37,20 +37,28 @@
         "title": "GitTerm: File Blame"
       },
       {
-        "command": "gitterm.fileHistory.editor",
-        "title": "GitTerm: File History"
-      },
-      {
-        "command": "gitterm.lineHistory.editor",
+        "command": "gitterm.lineHistory",
         "title": "GitTerm: Line History"
       },
       {
-        "command": "gitterm.fileBlame.editor",
-        "title": "GitTerm: File Blame"
+        "command": "gitterm.lineBlame",
+        "title": "GitTerm: Line Blame"
       },
       {
-        "command": "gitterm.lineBlame.editor",
-        "title": "GitTerm: Line Blame"
+        "command": "gitterm.activeFileHistory",
+        "title": "GitTerm: Active File History"
+      },
+      {
+        "command": "gitterm.activeFileBlame",
+        "title": "GitTerm: Active File Blame"
+      },
+      {
+        "command": "gitterm.selectionHistory",
+        "title": "GitTerm: Selection History"
+      },
+      {
+        "command": "gitterm.selectionBlame",
+        "title": "GitTerm: Selection Blame"
       }
     ],
     "menus": {
@@ -68,19 +76,27 @@
           "when": "false"
         },
         {
-          "command": "gitterm.fileHistory.editor",
+          "command": "gitterm.lineHistory",
+          "when": "false"
+        },
+        {
+          "command": "gitterm.lineBlame",
+          "when": "false"
+        },
+        {
+          "command": "gitterm.activeFileHistory",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.lineHistory.editor",
+          "command": "gitterm.activeFileBlame",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.fileBlame.editor",
+          "command": "gitterm.selectionHistory",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.lineBlame.editor",
+          "command": "gitterm.selectionBlame",
           "when": "resourceScheme == file"
         }
       ],
@@ -115,34 +131,34 @@
       ],
       "editor/context": [
         {
-          "command": "gitterm.lineHistory.editor",
-          "group": "10_gitterm_line@0",
+          "command": "gitterm.selectionHistory",
+          "group": "10_gitterm_selection@0",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.lineBlame.editor",
-          "group": "10_gitterm_line@1",
+          "command": "gitterm.selectionBlame",
+          "group": "10_gitterm_selection@1",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.fileHistory.editor",
+          "command": "gitterm.activeFileHistory",
           "group": "11_gitterm_file@0",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.fileBlame.editor",
+          "command": "gitterm.activeFileBlame",
           "group": "11_gitterm_file@1",
           "when": "resourceScheme == file"
         }
       ],
       "editor/lineNumber/context": [
         {
-          "command": "gitterm.lineHistory.editor",
+          "command": "gitterm.lineHistory",
           "group": "00_gitterm_line@0",
           "when": "resourceScheme == file"
         },
         {
-          "command": "gitterm.lineBlame.editor",
+          "command": "gitterm.lineBlame",
           "group": "00_gitterm_line@1",
           "when": "resourceScheme == file"
         }
@@ -150,22 +166,22 @@
     },
     "keybindings": [
       {
-        "command": "gitterm.fileHistory.editor",
+        "command": "gitterm.activeFileHistory",
         "key": "alt+shift+h",
         "when": "editorFocus"
       },
       {
-        "command": "gitterm.fileBlame.editor",
+        "command": "gitterm.activeFileBlame",
         "key": "alt+shift+b",
         "when": "editorFocus"
       },
       {
-        "command": "gitterm.lineHistory.editor",
+        "command": "gitterm.selectionHistory",
         "key": "alt+h",
         "when": "editorTextFocus"
       },
       {
-        "command": "gitterm.lineBlame.editor",
+        "command": "gitterm.selectionBlame",
         "key": "alt+b",
         "when": "editorTextFocus"
       }
@@ -213,47 +229,47 @@
         "gitterm.gitCommands.folderHistory": {
           "type": "string",
           "default": "git log --stat ${commit} -- '${folder}'",
-          "description": "Git command to use for folder history command"
+          "description": "Git command for showing folder history"
         },
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
           "default": "git log --follow --patch ${commit} -- '${filename}'",
-          "description": "Git command to use for file history command"
-        },
-        "gitterm.gitCommands.lineHistory": {
-          "type": "string",
-          "default": "git log ${commit} -L ${startLine},${endLine}:'${filename}'",
-          "description": "Git command to use for line history command"
+          "description": "Git command for showing file history"
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
           "default": "git blame -- '${filename}'",
-          "description": "Git command to use for file blame command"
+          "description": "Git command for showing file blame"
+        },
+        "gitterm.gitCommands.lineHistory": {
+          "type": "string",
+          "default": "git log ${commit} -L ${startLine},${endLine}:'${filename}'",
+          "description": "Git command for showing history for ranges of lines in a file"
         },
         "gitterm.gitCommands.lineBlame": {
           "type": "string",
           "default": "git blame -L ${startLine},${endLine} -- '${filename}'",
-          "description": "Git command to use for line blame command"
+          "description": "Git command for showing blame for ranges of lines in a file"
         },
         "gitterm.gitCommands.commitHistory": {
           "type": "string",
           "default": "git log ${commit}",
-          "description": "Git command to use for showing commit history"
+          "description": "Git command for showing history from a commit"
         },
         "gitterm.gitCommands.showCommit": {
           "type": "string",
           "default": "git show -m ${commit}",
-          "description": "Git command to use for showing a commit"
+          "description": "Git command for showing a commit"
         },
         "gitterm.gitCommands.showFileDiffAtCommit": {
           "type": "string",
           "default": "git show -m ${commit} -- '${filename}'",
-          "description": "Git command to use for showing a file's diff at a commit"
+          "description": "Git command for showing a file's diff at a commit"
         },
         "gitterm.gitCommands.showFileContentsAtCommit": {
           "type": "string",
           "default": "git show ${commit}:'${filename}'",
-          "description": "Git command to use for showing a file's contents at a commit"
+          "description": "Git command for showing a file's contents at a commit"
         }
       }
     }
