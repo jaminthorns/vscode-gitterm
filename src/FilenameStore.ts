@@ -43,7 +43,7 @@ async function setupRefWatcher(
       const content = await vscode.workspace.fs.readFile(uri)
       const commit = content.toString().trim()
 
-      loadFilenames(uri, filenames, `${initialCommit}...${commit}`)
+      loadFilenames(directory, filenames, `${initialCommit}...${commit}`)
     }
   })
 
