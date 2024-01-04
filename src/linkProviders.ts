@@ -22,6 +22,7 @@ import {
   excludeNulls,
   git,
   runCommandInTerminal,
+  truncate,
   userGitCommand,
 } from "./util"
 
@@ -98,8 +99,9 @@ export function commitLinkProvider(
         commitRemotes(commit, repository),
       ])
 
-      const commitFilename = commitFilenames?.get(commit.full) ?? null
       const { authorDate, authorName, subject } = commitInfo
+      const commitLabel = `${commit.abbreviated} • ${truncate(subject, 36)}`
+      const commitFilename = commitFilenames?.get(commit.full) ?? null
 
       const commitItems: SelectableQuickPickItem[] = excludeNulls([
         {
@@ -111,7 +113,7 @@ export function commitLinkProvider(
           detail: `${authorName} • ${authorDate.toLocaleString()}`,
           onSelected: () => {
             runCommandInTerminal({
-              name: commit.abbreviated,
+              name: commitLabel,
               icon: "git-commit",
               cwd: repository.directory,
               command: userGitCommand({
@@ -132,7 +134,7 @@ export function commitLinkProvider(
           label: "$(history) History from Commit",
           onSelected: () => {
             runCommandInTerminal({
-              name: commit.abbreviated,
+              name: commitLabel,
               icon: "history",
               cwd: repository.directory,
               command: userGitCommand({

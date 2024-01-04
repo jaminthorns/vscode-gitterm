@@ -20,6 +20,14 @@ export function chunk<T>(array: T[], count: number): T[][] {
   }, [])
 }
 
+export function truncate(text: string, maxLength: number): string {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength - 3) + "..."
+  } else {
+    return text
+  }
+}
+
 interface CommandOptions {
   directory?: vscode.Uri
   stdin?: string
