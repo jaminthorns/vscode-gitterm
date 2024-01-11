@@ -59,6 +59,10 @@
       {
         "command": "gitterm.selectionBlame",
         "title": "GitTerm: Selection Blame"
+      },
+      {
+        "command": "gitterm.debugFilenames",
+        "title": "GitTerm: Debug Filenames"
       }
     ],
     "menus": {

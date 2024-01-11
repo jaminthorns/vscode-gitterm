@@ -10,6 +10,7 @@ import {
   selectionBlameCommand,
   selectionHistoryCommand,
 } from "./commands"
+import { debugFilenames } from "./debugging"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
@@ -39,6 +40,9 @@ export async function activate(context: vscode.ExtensionContext) {
     // Link providers
     commitLinkProvider(repositories, terminalFolders),
     fileLinkProvider(repositories, terminalFolders),
+
+    // Debugging
+    debugFilenames(repositories),
   )
 }
 

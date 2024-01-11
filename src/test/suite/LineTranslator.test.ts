@@ -1,4 +1,4 @@
-import { deepStrictEqual } from "assert"
+import { deepEqual } from "assert"
 import { LineTranslator } from "../../LineTranslator"
 
 const deletionDiff = `diff --git a/test b/test
@@ -30,39 +30,39 @@ suite("LineTranslator", () => {
   const dt = LineTranslator(deletionDiff)
 
   test("before deletion", () => {
-    deepStrictEqual(dt.newLine(2), { start: 2, end: 2, span: 1 })
-    deepStrictEqual(dt.oldLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(dt.newLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(dt.oldLine(2), { start: 2, end: 2, span: 1 })
   })
 
   test("after deletion", () => {
-    deepStrictEqual(dt.newLine(5), { start: 4, end: 4, span: 1 })
-    deepStrictEqual(dt.oldLine(4), { start: 5, end: 5, span: 1 })
+    deepEqual(dt.newLine(5), { start: 4, end: 4, span: 1 })
+    deepEqual(dt.oldLine(4), { start: 5, end: 5, span: 1 })
   })
 
   test("inside deletion", () => {
-    deepStrictEqual(dt.newLine(4), { start: 3, end: 3, span: 0 })
+    deepEqual(dt.newLine(4), { start: 3, end: 3, span: 0 })
   })
 
   const at = LineTranslator(additionDiff)
 
   test("before addition", () => {
-    deepStrictEqual(at.newLine(2), { start: 2, end: 2, span: 1 })
-    deepStrictEqual(at.oldLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(at.newLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(at.oldLine(2), { start: 2, end: 2, span: 1 })
   })
 
   test("after addition", () => {
-    deepStrictEqual(at.newLine(5), { start: 6, end: 6, span: 1 })
-    deepStrictEqual(at.oldLine(6), { start: 5, end: 5, span: 1 })
+    deepEqual(at.newLine(5), { start: 6, end: 6, span: 1 })
+    deepEqual(at.oldLine(6), { start: 5, end: 5, span: 1 })
   })
 
   test("inside addition", () => {
-    deepStrictEqual(at.oldLine(4), { start: 3, end: 3, span: 0 })
+    deepEqual(at.oldLine(4), { start: 3, end: 3, span: 0 })
   })
 
   const mt = LineTranslator(modificationDiff)
 
   test("inside modification (deletion and addition)", () => {
-    deepStrictEqual(mt.newLine(4), { start: 4, end: 6, span: 3 })
-    deepStrictEqual(mt.oldLine(5), { start: 4, end: 5, span: 2 })
+    deepEqual(mt.newLine(4), { start: 4, end: 6, span: 3 })
+    deepEqual(mt.oldLine(5), { start: 4, end: 5, span: 2 })
   })
 })

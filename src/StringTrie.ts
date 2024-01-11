@@ -1,6 +1,6 @@
-type StringTrieData = {
+type StringTrieNode = {
   terminal: boolean
-  children: Map<string, StringTrieData>
+  children: Map<string, StringTrieNode>
 }
 
 type Match = {
@@ -9,14 +9,19 @@ type Match = {
 }
 
 export default interface StringTrie {
+  getStrings(): string[]
   addStrings(strings: string[]): void
   findMatches(text: string): Match[]
 }
 
 export default function StringTrie(): StringTrie {
-  const root: StringTrieData = { terminal: false, children: new Map() }
+  const root: StringTrieNode = { terminal: false, children: new Map() }
 
   return {
+    getStrings() {
+      return getStrings(root, "", [])
+    },
+
     addStrings(strings) {
       for (const string of strings) {
         addString(string, root)
@@ -47,7 +52,25 @@ export default function StringTrie(): StringTrie {
   }
 }
 
-function addString(string: string, current: StringTrieData) {
+function getStrings(
+  current: StringTrieNode,
+  prefix: string,
+  strings: string[],
+): string[] {
+  for (const [part, child] of current.children.entries()) {
+    const string = prefix + part
+
+    if (child.terminal) {
+      strings.push(string)
+    }
+
+    getStrings(child, string, strings)
+  }
+
+  return strings
+}
+
+function addString(string: string, current: StringTrieNode) {
   const first = string.slice(0, 1)
   const rest = string.slice(1)
   const terminal = first === ""
@@ -68,7 +91,7 @@ function addString(string: string, current: StringTrieData) {
 
 function longestMatch(
   string: string,
-  current: StringTrieData,
+  current: StringTrieNode,
   processed: string = "",
   matched: string | null = null,
 ): string | null {

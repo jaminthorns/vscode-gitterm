@@ -1,3 +1,4 @@
+import { writeFile } from "fs"
 import { basename } from "path"
 import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
@@ -5,6 +6,7 @@ import { git, streamCommand } from "./util"
 
 export default interface FilenameStore extends vscode.Disposable {
   findMatches: StringTrie["findMatches"]
+  writeToFile(): void
 }
 
 export default async function FilenameStore(
@@ -19,6 +21,16 @@ export default async function FilenameStore(
   return {
     findMatches(...args) {
       return filenames.findMatches(...args)
+    },
+
+    writeToFile() {
+      const debugFilename = `filenames_${Date.now()}`
+      const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
+      const filenamesData = filenames.getStrings().join("\n")
+
+      writeFile(debugFilePath, filenamesData, () => {
+        console.debug(`Filenames written to ${debugFilePath}`)
+      })
     },
 
     dispose() {

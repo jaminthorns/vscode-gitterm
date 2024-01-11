@@ -5,6 +5,7 @@ export default interface RepositoryStore {
   addRepository(folder: vscode.WorkspaceFolder): Promise<void>
   removeRepository(folder: vscode.WorkspaceFolder): void
   getRepository(uri: vscode.Uri): Repository | undefined
+  allRepositories(): Repository[]
 }
 
 export default function RepositoryStore(): RepositoryStore {
@@ -22,6 +23,10 @@ export default function RepositoryStore(): RepositoryStore {
     getRepository(uri) {
       const folder = vscode.workspace.getWorkspaceFolder(uri)
       return folder && repositories.get(folder.uri)
+    },
+
+    allRepositories() {
+      return Array.from(repositories.values())
     },
   }
 }
