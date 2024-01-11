@@ -78,7 +78,7 @@ function loadFilenames(
 
   args = range === undefined ? args : [range, ...args]
 
-  streamCommand("git", ["log", ...args], directory, (output) => {
-    filenames.addStrings(output.split("\n"))
+  streamCommand("git", ["log", ...args], directory, (filename) => {
+    filenames.addString(filename)
   })
 }

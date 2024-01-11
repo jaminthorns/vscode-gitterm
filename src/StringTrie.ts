@@ -10,7 +10,7 @@ type Match = {
 
 export default interface StringTrie {
   getStrings(): string[]
-  addStrings(strings: string[]): void
+  addString(string: string): void
   findMatches(text: string): Match[]
 }
 
@@ -22,10 +22,8 @@ export default function StringTrie(): StringTrie {
       return getStrings(root, "", [])
     },
 
-    addStrings(strings) {
-      for (const string of strings) {
-        addString(string, root)
-      }
+    addString(string) {
+      addString(string, root)
     },
 
     findMatches(text) {

@@ -1,4 +1,5 @@
 import { spawn } from "child_process"
+import { createInterface } from "readline"
 import * as vscode from "vscode"
 import { CommitFilenames, TerminalContext } from "./context"
 import UserGitCommand from "./UserGitCommand"
@@ -67,10 +68,12 @@ export function streamCommand(
   command: string,
   args: string[],
   directory: vscode.Uri | undefined,
-  onOutput: (output: string) => unknown,
+  onLineOutput: (output: string) => unknown,
 ) {
   const process = spawn(command, args, { cwd: directory?.fsPath })
-  process.stdout.on("data", (data) => onOutput(data.toString()))
+  const readline = createInterface({ input: process.stdout, terminal: false })
+
+  readline.on("line", onLineOutput)
 }
 
 interface GitCommandOptions extends CommandOptions {

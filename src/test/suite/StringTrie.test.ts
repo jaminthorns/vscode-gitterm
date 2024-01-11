@@ -3,8 +3,9 @@ import StringTrie from "../../StringTrie"
 
 suite("StringTrie", () => {
   const trie = StringTrie()
+  const strings = ["abc", "a", "bc", "ade", "cdefg", "xyz"]
 
-  trie.addStrings(["abc", "a", "bc", "ade", "cdefg", "xyz"])
+  strings.forEach(trie.addString)
 
   test("no matching members, no match", () => {
     deepEqual(trie.findMatches("xy"), [])
