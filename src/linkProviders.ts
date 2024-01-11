@@ -67,17 +67,15 @@ export function commitLinkProvider(
 
       return excludeNulls(
         await Promise.all(
-          lineMatches.map(async ([match, rawCommit]) => {
+          lineMatches.map(async (match) => {
+            const rawCommit = match[0]
             const commit = await Commit(rawCommit, repository.directory)
 
             if (commit === null) {
               return null
             } else {
-              const matchStart = line.indexOf(match)
-              const startIndex = matchStart + match.indexOf(rawCommit)
-
               return {
-                startIndex,
+                startIndex: match.index as number, // TODO: Remove assertion in TypeScript 5.4
                 length: rawCommit.length,
                 tooltip: "Pick a commit action",
                 context: { ...context, repository, commit },
