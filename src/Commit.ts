@@ -14,8 +14,8 @@ export async function Commit(
 ): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      git("rev-parse", [commit], { directory }),
-      git("rev-parse", ["--short", commit], { directory }),
+      git("rev-parse", [`${commit}^{commit}`], { directory }),
+      git("rev-parse", ["--short", `${commit}^{commit}`], { directory }),
     ])
 
     return { full, abbreviated }
