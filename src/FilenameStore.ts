@@ -55,7 +55,7 @@ async function setupRefWatcher(
       const content = await vscode.workspace.fs.readFile(uri)
       const commit = content.toString().trim()
 
-      loadFilenames(directory, filenames, `${initialCommit}...${commit}`)
+      loadFilenames(directory, filenames, `${initialCommit}..${commit}`)
     }
   })
 
@@ -68,7 +68,6 @@ function loadFilenames(
   range?: string,
 ): void {
   let args = [
-    "--all",
     "--name-only",
     "--no-renames",
     "--diff-merges=first-parent",
@@ -76,7 +75,7 @@ function loadFilenames(
     "--format=",
   ]
 
-  args = range === undefined ? args : [range, ...args]
+  args = range === undefined ? ["--all", ...args] : [range, ...args]
 
   streamCommand("git", ["log", ...args], directory, (filename) => {
     filenames.addString(filename)
