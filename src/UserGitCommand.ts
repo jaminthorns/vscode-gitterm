@@ -1,20 +1,18 @@
-import { RawCommit } from "./Commit"
-
 interface FolderHistory {
   key: "folderHistory"
-  variables: { folder: string; commit: RawCommit }
+  variables: { folder: string; revision: string }
 }
 
 interface FileHistory {
   key: "fileHistory"
-  variables: { filename: string; commit: RawCommit }
+  variables: { filename: string; revision: string }
 }
 
 interface LineHistory {
   key: "lineHistory"
   variables: {
     filename: string
-    commit: RawCommit
+    revision: string
     startLine: number
     endLine: number
   }
@@ -34,24 +32,24 @@ interface LineBlame {
   }
 }
 
-interface CommitHistory {
-  key: "commitHistory"
-  variables: { commit: RawCommit }
+interface RevisionHistory {
+  key: "revisionHistory"
+  variables: { revision: string }
 }
 
-interface ShowCommit {
-  key: "showCommit"
-  variables: { commit: RawCommit }
+interface ShowRevision {
+  key: "showRevision"
+  variables: { revision: string }
 }
 
-interface ShowFileDiffAtCommit {
-  key: "showFileDiffAtCommit"
-  variables: { filename: string; commit: RawCommit }
+interface ShowFileDiffAtRevision {
+  key: "showFileDiffAtRevision"
+  variables: { filename: string; revision: string }
 }
 
-interface ShowFileContentsAtCommit {
-  key: "showFileContentsAtCommit"
-  variables: { filename: string; commit: RawCommit }
+interface ShowFileContentsAtRevision {
+  key: "showFileContentsAtRevision"
+  variables: { filename: string; revision: string }
 }
 
 type UserGitCommand =
@@ -60,9 +58,9 @@ type UserGitCommand =
   | LineHistory
   | FileBlame
   | LineBlame
-  | CommitHistory
-  | ShowCommit
-  | ShowFileDiffAtCommit
-  | ShowFileContentsAtCommit
+  | RevisionHistory
+  | ShowRevision
+  | ShowFileDiffAtRevision
+  | ShowFileContentsAtRevision
 
 export default UserGitCommand

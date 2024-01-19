@@ -115,8 +115,8 @@ export function commitLinkProvider(
               icon: "git-commit",
               cwd: repository.directory,
               command: userGitCommand({
-                key: "showCommit",
-                variables: { commit: commit.full },
+                key: "showRevision",
+                variables: { revision: commit.full },
               }),
               context: { commit },
             })
@@ -136,8 +136,8 @@ export function commitLinkProvider(
               icon: "history",
               cwd: repository.directory,
               command: userGitCommand({
-                key: "commitHistory",
-                variables: { commit: commit.full },
+                key: "revisionHistory",
+                variables: { revision: commit.full },
               }),
               context: { commit },
             })
@@ -183,7 +183,7 @@ export function fileLinkProvider(
       const { context } = terminal.creationOptions as TerminalOptions
       const commit = context && "commit" in context ? context.commit : undefined
 
-      if (commit === undefined && provideFileLinks === "withCommitContext") {
+      if (commit === undefined && provideFileLinks === "withRevisionContext") {
         return []
       }
 
@@ -242,7 +242,7 @@ export function fileLinkProvider(
               cwd: repository.directory,
               command: userGitCommand({
                 key: "fileHistory",
-                variables: { commit: "HEAD", filename },
+                variables: { revision: "HEAD", filename },
               }),
               context: {
                 commit,
@@ -308,7 +308,7 @@ function fileAtCommitItems(
   filename: string,
 ) {
   const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
-  const variables = { commit: commit.full, filename }
+  const variables = { revision: commit.full, filename }
 
   const getContext = () => ({
     commit,
@@ -329,7 +329,7 @@ function fileAtCommitItems(
           icon: "file",
           cwd: repository.directory,
           command: userGitCommand({
-            key: "showFileContentsAtCommit",
+            key: "showFileContentsAtRevision",
             variables,
           }),
           context: getContext(),
@@ -344,7 +344,7 @@ function fileAtCommitItems(
           icon: "git-compare",
           cwd: repository.directory,
           command: userGitCommand({
-            key: "showFileDiffAtCommit",
+            key: "showFileDiffAtRevision",
             variables,
           }),
           context: getContext(),

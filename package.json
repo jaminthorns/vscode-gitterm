@@ -215,29 +215,29 @@
           "enum": [
             "always",
             "never",
-            "withCommitContext"
+            "withRevisionContext"
           ],
           "enumItemLabels": [
             "Always",
             "Never",
-            "Only when terminal has commit context"
+            "Only when terminal has revision context"
           ],
           "enumDescriptions": [
             "Always provide file links",
             "Never provide file links",
-            "Only provide file links when terminal has commit context"
+            "Only provide file links when terminal has revision context"
           ],
           "default": "always",
           "description": "Whether to provide file links in the terminal"
         },
         "gitterm.gitCommands.folderHistory": {
           "type": "string",
-          "default": "git log --stat ${commit} -- '${folder}'",
+          "default": "git log --stat ${revision} -- '${folder}'",
           "description": "Git command for showing folder history"
         },
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log --follow --patch ${commit} -- '${filename}'",
+          "default": "git log --follow --patch ${revision} -- '${filename}'",
           "description": "Git command for showing file history"
         },
         "gitterm.gitCommands.fileBlame": {
@@ -247,7 +247,7 @@
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log ${commit} -L ${startLine},${endLine}:'${filename}'",
+          "default": "git log ${revision} -L ${startLine},${endLine}:'${filename}'",
           "description": "Git command for showing history for ranges of lines in a file"
         },
         "gitterm.gitCommands.lineBlame": {
@@ -255,25 +255,25 @@
           "default": "git blame -L ${startLine},${endLine} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file"
         },
-        "gitterm.gitCommands.commitHistory": {
+        "gitterm.gitCommands.revisionHistory": {
           "type": "string",
-          "default": "git log ${commit}",
-          "description": "Git command for showing history from a commit"
+          "default": "git log ${revision}",
+          "description": "Git command for showing history from a revision"
         },
-        "gitterm.gitCommands.showCommit": {
+        "gitterm.gitCommands.showRevision": {
           "type": "string",
-          "default": "git show -m ${commit}",
-          "description": "Git command for showing a commit"
+          "default": "git show -m ${revision}",
+          "description": "Git command for showing a revision"
         },
-        "gitterm.gitCommands.showFileDiffAtCommit": {
+        "gitterm.gitCommands.showFileDiffAtRevision": {
           "type": "string",
-          "default": "git show -m ${commit} -- '${filename}'",
-          "description": "Git command for showing a file's diff at a commit"
+          "default": "git show -m ${revision} -- '${filename}'",
+          "description": "Git command for showing a file's diff at a revision"
         },
-        "gitterm.gitCommands.showFileContentsAtCommit": {
+        "gitterm.gitCommands.showFileContentsAtRevision": {
           "type": "string",
-          "default": "git show ${commit}:'${filename}'",
-          "description": "Git command for showing a file's contents at a commit"
+          "default": "git show ${revision}:'${filename}'",
+          "description": "Git command for showing a file's contents at a revision"
         }
       }
     }

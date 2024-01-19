@@ -114,7 +114,7 @@ function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
     cwd: directory,
     command: userGitCommand({
       key: "folderHistory",
-      variables: { folder, commit: "HEAD" },
+      variables: { folder, revision: "HEAD" },
     }),
     context: { folder },
   })
@@ -136,7 +136,7 @@ function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
     cwd: directory,
     command: userGitCommand({
       key: "fileHistory",
-      variables: { filename, commit: "HEAD" },
+      variables: { filename, revision: "HEAD" },
     }),
     context: {
       filename,
@@ -198,7 +198,7 @@ async function lineHistory(
       key: "lineHistory",
       variables: {
         filename,
-        commit: "HEAD",
+        revision: "HEAD",
         startLine: startLineHead,
         endLine: endLineHead,
       },
