@@ -63,6 +63,18 @@
       {
         "command": "gitterm.debugFilenames",
         "title": "GitTerm: Debug Filenames"
+      },
+      {
+        "command": "gitterm.debugLocalBranches",
+        "title": "GitTerm: Debug Local Branches"
+      },
+      {
+        "command": "gitterm.debugRemoteBranches",
+        "title": "GitTerm: Debug Remote Branches"
+      },
+      {
+        "command": "gitterm.debugTags",
+        "title": "GitTerm: Debug Tags"
       }
     ],
     "menus": {

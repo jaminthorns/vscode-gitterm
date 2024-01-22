@@ -11,6 +11,7 @@ type Match = {
 export default interface StringTrie {
   getStrings(): string[]
   addString(string: string): void
+  removeString(string: string): void
   findMatches(text: string): Match[]
 }
 
@@ -24,6 +25,10 @@ export default function StringTrie(): StringTrie {
 
     addString(string) {
       addString(string, root)
+    },
+
+    removeString(string) {
+      removeString(string, root)
     },
 
     findMatches(text) {
@@ -84,6 +89,23 @@ function addString(string: string, current: StringTrieNode) {
     }
 
     addString(rest, nextChild)
+  }
+}
+
+// This removes the terminal entry for a string, but it doesn't prune the tree.
+function removeString(string: string, current: StringTrieNode) {
+  const first = string.slice(0, 1)
+  const rest = string.slice(1)
+  const terminal = first === ""
+
+  if (terminal) {
+    current.terminal = false
+  } else {
+    let nextChild = current.children.get(first)
+
+    if (nextChild !== undefined) {
+      removeString(rest, nextChild)
+    }
   }
 }
 

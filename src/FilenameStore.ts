@@ -14,7 +14,11 @@ export default async function FilenameStore(
   gitDirectory: vscode.Uri,
 ): Promise<FilenameStore> {
   const filenames = StringTrie()
-  const refWatcher = await setupRefWatcher(directory, gitDirectory, filenames)
+  const filenameWatcher = await setupFilenameWatcher(
+    directory,
+    gitDirectory,
+    filenames,
+  )
 
   loadFilenames(directory, filenames)
 
@@ -34,23 +38,23 @@ export default async function FilenameStore(
     },
 
     dispose() {
-      refWatcher.dispose()
+      filenameWatcher.dispose()
     },
   }
 }
 
-async function setupRefWatcher(
+async function setupFilenameWatcher(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
   filenames: StringTrie,
 ): Promise<vscode.FileSystemWatcher> {
   const initialCommit = await git("rev-parse", ["HEAD"], { directory })
 
-  const refsDir = vscode.Uri.joinPath(gitDirectory, "refs")
-  const refsPattern = new vscode.RelativePattern(refsDir, "**/*")
-  const refWatcher = vscode.workspace.createFileSystemWatcher(refsPattern)
+  const dir = vscode.Uri.joinPath(gitDirectory, "refs")
+  const pattern = new vscode.RelativePattern(dir, "**/*")
+  const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
-  refWatcher.onDidCreate(async (uri) => {
+  watcher.onDidCreate(async (uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
       const content = await vscode.workspace.fs.readFile(uri)
       const commit = content.toString().trim()
@@ -59,7 +63,7 @@ async function setupRefWatcher(
     }
   })
 
-  return refWatcher
+  return watcher
 }
 
 function loadFilenames(

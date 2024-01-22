@@ -1,11 +1,40 @@
 import { deepEqual } from "assert"
 import StringTrie from "../../StringTrie"
 
-suite("StringTrie", () => {
-  const trie = StringTrie()
-  const strings = ["abc", "a", "bc", "ade", "cdefg", "xyz"]
+suite("StringTrie adding/removing", () => {
+  test("add a string", () => {
+    const trie = StringTrie()
 
-  strings.forEach(trie.addString)
+    deepEqual(trie.findMatches("abc"), [])
+
+    trie.addString("abc")
+
+    deepEqual(trie.findMatches("abc"), [{ startIndex: 0, text: "abc" }])
+  })
+
+  test("remove a string", () => {
+    const trie = StringTrie()
+
+    trie.addString("abc")
+    trie.addString("xyz")
+
+    deepEqual(trie.findMatches("abc"), [{ startIndex: 0, text: "abc" }])
+
+    trie.removeString("abc")
+
+    deepEqual(trie.findMatches("abc"), [])
+  })
+})
+
+suite("StringTrie matching", () => {
+  const trie = StringTrie()
+
+  trie.addString("abc")
+  trie.addString("a")
+  trie.addString("bc")
+  trie.addString("ade")
+  trie.addString("cdefg")
+  trie.addString("xyz")
 
   test("no matching members, no match", () => {
     deepEqual(trie.findMatches("xy"), [])
