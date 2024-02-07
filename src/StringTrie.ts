@@ -1,30 +1,41 @@
-type StringTrieNode = {
-  terminal: boolean
-  children: Map<string, StringTrieNode>
+type Children<Value> = Map<string, Node<Value>>
+
+type NonTerminalNode<Value> = {
+  terminal: false
+  children: Children<Value>
 }
 
-type Match = {
+type TerminalNode<Value> = {
+  terminal: true
+  value: Value
+  children: Children<Value>
+}
+
+type Node<Value> = NonTerminalNode<Value> | TerminalNode<Value>
+
+type Match<Value> = {
   startIndex: number
   text: string
+  value: Value
 }
 
-export default interface StringTrie {
+export default interface StringTrie<Value = undefined> {
   getStrings(): string[]
-  addString(string: string): void
+  addString(string: string, value?: Value): void
   removeString(string: string): void
-  findMatches(text: string): Match[]
+  findMatches(text: string): Match<Value>[]
 }
 
-export default function StringTrie(): StringTrie {
-  const root: StringTrieNode = { terminal: false, children: new Map() }
+export default function StringTrie<Value = undefined>(): StringTrie<Value> {
+  const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {
     getStrings() {
       return getStrings(root, "", [])
     },
 
-    addString(string) {
-      addString(string, root)
+    addString(string, value) {
+      addString(string, value, root)
     },
 
     removeString(string) {
@@ -40,7 +51,11 @@ export default function StringTrie(): StringTrie {
         const match = longestMatch(string, root)
 
         if (match !== null) {
-          matches.push({ startIndex: index, text: match })
+          matches.push({
+            startIndex: index,
+            text: match.text,
+            value: match.value,
+          })
         }
       }
 
@@ -55,8 +70,8 @@ export default function StringTrie(): StringTrie {
   }
 }
 
-function getStrings(
-  current: StringTrieNode,
+function getStrings<Value>(
+  current: Node<Value>,
   prefix: string,
   strings: string[],
 ): string[] {
@@ -73,7 +88,7 @@ function getStrings(
   return strings
 }
 
-function addString(string: string, current: StringTrieNode) {
+function addString<Value>(string: string, value: Value, current: Node<Value>) {
   const first = string.slice(0, 1)
   const rest = string.slice(1)
   const terminal = first === ""
@@ -88,12 +103,12 @@ function addString(string: string, current: StringTrieNode) {
       current.children.set(first, nextChild)
     }
 
-    addString(rest, nextChild)
+    addString(rest, value, nextChild)
   }
 }
 
 // This removes the terminal entry for a string, but it doesn't prune the tree.
-function removeString(string: string, current: StringTrieNode) {
+function removeString<Value>(string: string, current: Node<Value>) {
   const first = string.slice(0, 1)
   const rest = string.slice(1)
   const terminal = first === ""
@@ -109,27 +124,26 @@ function removeString(string: string, current: StringTrieNode) {
   }
 }
 
-function longestMatch(
+function longestMatch<Value>(
   string: string,
-  current: StringTrieNode,
+  current: Node<Value>,
   processed: string = "",
-  matched: string | null = null,
-): string | null {
+): { text: string; value: Value } | null {
   const first = string.slice(0, 1)
   const rest = string.slice(1)
   const nextChild = current.children.get(first)
 
-  if (nextChild === undefined || first === "") {
-    return matched
-  } else {
-    const nextProcessed = processed + first
-    const nextMatched = nextChild.terminal ? nextProcessed : matched
+  const endOfTrie = nextChild === undefined
+  const endOfString = first === ""
 
-    return longestMatch(rest, nextChild, nextProcessed, nextMatched)
+  if (endOfTrie || endOfString) {
+    return current.terminal ? { text: processed, value: current.value } : null
+  } else {
+    return longestMatch(rest, nextChild, processed + first)
   }
 }
 
-function overlaps(a: Match, b: Match) {
+function overlaps<Value>(a: Match<Value>, b: Match<Value>) {
   const aEndIndex = a.startIndex + a.text.length - 1
   const bEndIndex = b.startIndex + b.text.length - 1
 
