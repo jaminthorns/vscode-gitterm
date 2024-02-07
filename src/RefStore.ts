@@ -4,54 +4,66 @@ import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
 import { streamCommand } from "./util"
 
-type RefDirectory = "heads" | "remotes" | "tags"
-
-interface RefCommand {
-  subcommand: string
-  args: string[]
-}
+type RefTrie = StringTrie<RefType>
+type RefType = "branch" | "remote" | "tag"
 
 export default interface RefStore extends vscode.Disposable {
-  findMatches: StringTrie["findMatches"]
+  findMatches: RefTrie["findMatches"]
   writeToFile(): void
 }
 
 export default function RefStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
-  refDirectory: RefDirectory,
-  refCommand: RefCommand,
 ): RefStore {
-  const branches = StringTrie()
-  const refWatcher = setupRefWatcher(refDirectory, gitDirectory, branches)
+  const refs: RefTrie = StringTrie()
 
-  loadBranches(directory, branches, refCommand)
+  const branchWatcher = setupRefWatcher("branch", "heads", gitDirectory, refs)
+  const remoteWatcher = setupRefWatcher("remote", "remotes", gitDirectory, refs)
+  const tagWatcher = setupRefWatcher("tag", "tags", gitDirectory, refs)
+
+  loadRefs("branch", directory, refs, "branch", [
+    "--format=%(refname:lstrip=2)",
+  ])
+
+  loadRefs("remote", directory, refs, "branch", [
+    "--remotes",
+    "--format=%(refname:lstrip=2)",
+  ])
+
+  loadRefs("tag", directory, refs, "tag", ["--format=%(refname:lstrip=2)"])
 
   return {
     findMatches(...args) {
-      return branches.findMatches(...args)
+      return refs.findMatches(...args)
     },
 
     writeToFile() {
-      const debugFilename = `${refDirectory}_${Date.now()}`
+      const debugFilename = `refs_${Date.now()}`
       const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
-      const branchesData = branches.getStrings().join("\n")
+      const refsData = refs
+        .getEntries()
+        .map(([ref, type]) => `${ref}: ${JSON.stringify(type)}`)
+        .join("\n")
 
-      writeFile(debugFilePath, branchesData, () => {
+      writeFile(debugFilePath, refsData, () => {
         console.debug(`Refs written to ${debugFilePath}`)
       })
     },
 
     dispose() {
-      refWatcher.dispose()
+      branchWatcher.dispose()
+      remoteWatcher.dispose()
+      tagWatcher.dispose()
     },
   }
 }
 
 function setupRefWatcher(
-  refDirectory: RefDirectory,
+  type: RefType,
+  refDirectory: string,
   gitDirectory: vscode.Uri,
-  branches: StringTrie,
+  refs: RefTrie,
 ): vscode.FileSystemWatcher {
   const dir = vscode.Uri.joinPath(gitDirectory, "refs", refDirectory)
   const pattern = new vscode.RelativePattern(dir, "**/*")
@@ -59,25 +71,27 @@ function setupRefWatcher(
 
   watcher.onDidCreate((uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
-      branches.addString(relative(dir.fsPath, uri.fsPath))
+      refs.addString(relative(dir.fsPath, uri.fsPath), type)
     }
   })
 
   watcher.onDidDelete((uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
-      branches.removeString(relative(dir.fsPath, uri.fsPath))
+      refs.removeString(relative(dir.fsPath, uri.fsPath))
     }
   })
 
   return watcher
 }
 
-async function loadBranches(
+async function loadRefs(
+  type: RefType,
   directory: vscode.Uri,
-  branches: StringTrie,
-  { subcommand, args }: RefCommand,
+  refs: RefTrie,
+  gitSubcommand: string,
+  gitArgs: string[],
 ): Promise<void> {
-  streamCommand("git", [subcommand, ...args], directory, (branch) => {
-    branches.addString(branch)
+  streamCommand("git", [gitSubcommand, ...gitArgs], directory, (branch) => {
+    refs.addString(branch, type)
   })
 }

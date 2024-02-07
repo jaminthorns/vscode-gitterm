@@ -4,8 +4,10 @@ import * as vscode from "vscode"
 import StringTrie from "./StringTrie"
 import { git, streamCommand } from "./util"
 
+type FilenameTrie = StringTrie<null>
+
 export default interface FilenameStore extends vscode.Disposable {
-  findMatches: StringTrie["findMatches"]
+  findMatches: FilenameTrie["findMatches"]
   writeToFile(): void
 }
 
@@ -13,7 +15,8 @@ export default async function FilenameStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
 ): Promise<FilenameStore> {
-  const filenames = StringTrie()
+  const filenames: FilenameTrie = StringTrie()
+
   const filenameWatcher = await setupFilenameWatcher(
     directory,
     gitDirectory,
@@ -30,7 +33,7 @@ export default async function FilenameStore(
     writeToFile() {
       const debugFilename = `filenames_${Date.now()}`
       const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
-      const filenamesData = filenames.getStrings().join("\n")
+      const filenamesData = filenames.getEntries().join("\n")
 
       writeFile(debugFilePath, filenamesData, () => {
         console.debug(`Filenames written to ${debugFilePath}`)
@@ -46,7 +49,7 @@ export default async function FilenameStore(
 async function setupFilenameWatcher(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
-  filenames: StringTrie,
+  filenames: FilenameTrie,
 ): Promise<vscode.FileSystemWatcher> {
   const initialCommit = await git("rev-parse", ["HEAD"], { directory })
 
@@ -68,7 +71,7 @@ async function setupFilenameWatcher(
 
 function loadFilenames(
   directory: vscode.Uri,
-  filenames: StringTrie,
+  filenames: FilenameTrie,
   range?: string,
 ): void {
   let args = [
@@ -82,6 +85,6 @@ function loadFilenames(
   args = range === undefined ? ["--all", ...args] : [range, ...args]
 
   streamCommand("git", ["log", ...args], directory, (filename) => {
-    filenames.addString(filename)
+    filenames.addString(filename, null)
   })
 }

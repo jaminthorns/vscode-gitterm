@@ -13,25 +13,27 @@ type TerminalNode<Value> = {
 
 type Node<Value> = NonTerminalNode<Value> | TerminalNode<Value>
 
+type Entry<Value> = [string, Value]
+
 type Match<Value> = {
   startIndex: number
   text: string
   value: Value
 }
 
-export default interface StringTrie<Value = undefined> {
-  getStrings(): string[]
-  addString(string: string, value?: Value): void
+export default interface StringTrie<Value> {
+  getEntries(): Entry<Value>[]
+  addString(string: string, value: Value): void
   removeString(string: string): void
   findMatches(text: string): Match<Value>[]
 }
 
-export default function StringTrie<Value = undefined>(): StringTrie<Value> {
+export default function StringTrie<Value>(): StringTrie<Value> {
   const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {
-    getStrings() {
-      return getStrings(root, "", [])
+    getEntries() {
+      return getEntries(root, "", [])
     },
 
     addString(string, value) {
@@ -70,22 +72,22 @@ export default function StringTrie<Value = undefined>(): StringTrie<Value> {
   }
 }
 
-function getStrings<Value>(
+function getEntries<Value>(
   current: Node<Value>,
   prefix: string,
-  strings: string[],
-): string[] {
+  entries: Entry<Value>[],
+): Entry<Value>[] {
   for (const [part, child] of current.children.entries()) {
     const string = prefix + part
 
     if (child.terminal) {
-      strings.push(string)
+      entries.push([string, child.value])
     }
 
-    getStrings(child, string, strings)
+    getEntries(child, string, entries)
   }
 
-  return strings
+  return entries
 }
 
 function addString<Value>(string: string, value: Value, current: Node<Value>) {
@@ -94,7 +96,7 @@ function addString<Value>(string: string, value: Value, current: Node<Value>) {
   const terminal = first === ""
 
   if (terminal) {
-    current.terminal = true
+    Object.assign(current, { terminal: true, value: value })
   } else {
     let nextChild = current.children.get(first)
 

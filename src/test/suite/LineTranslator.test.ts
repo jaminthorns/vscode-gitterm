@@ -1,4 +1,4 @@
-import { deepEqual } from "assert"
+import { deepEqual } from "assert/strict"
 import { LineTranslator } from "../../LineTranslator"
 
 const deletionDiff = `diff --git a/test b/test
