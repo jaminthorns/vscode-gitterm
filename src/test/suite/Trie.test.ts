@@ -1,9 +1,9 @@
 import { deepEqual } from "assert/strict"
-import StringTrie from "../../StringTrie"
+import Trie from "../../Trie"
 
 suite("StringTrie adding/removing", () => {
   test("add a string", () => {
-    const trie = StringTrie<null>()
+    const trie = Trie<null>()
 
     deepEqual(trie.findMatches("abc"), [])
 
@@ -15,7 +15,7 @@ suite("StringTrie adding/removing", () => {
   })
 
   test("remove a string", () => {
-    const trie = StringTrie<null>()
+    const trie = Trie<null>()
 
     trie.addString("abc", null)
     trie.addString("xyz", null)
@@ -31,7 +31,7 @@ suite("StringTrie adding/removing", () => {
 })
 
 suite("StringTrie matching", () => {
-  const trie = StringTrie<null>()
+  const trie = Trie<null>()
 
   trie.addString("abc", null)
   trie.addString("a", null)

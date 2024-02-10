@@ -1,10 +1,10 @@
 import { writeFile } from "fs"
 import { basename } from "path"
 import * as vscode from "vscode"
-import StringTrie from "./StringTrie"
+import Trie from "./Trie"
 import { git, streamCommand } from "./util"
 
-type FilenameTrie = StringTrie<null>
+type FilenameTrie = Trie<null>
 
 export default interface FilenameStore extends vscode.Disposable {
   findMatches: FilenameTrie["findMatches"]
@@ -15,7 +15,7 @@ export default async function FilenameStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
 ): Promise<FilenameStore> {
-  const filenames: FilenameTrie = StringTrie()
+  const filenames: FilenameTrie = Trie()
 
   const filenameWatcher = await setupFilenameWatcher(
     directory,

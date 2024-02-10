@@ -1,10 +1,10 @@
 import { writeFile } from "fs"
 import { basename, relative } from "path"
 import * as vscode from "vscode"
-import StringTrie from "./StringTrie"
+import Trie from "./Trie"
 import { streamCommand } from "./util"
 
-type RefTrie = StringTrie<RefType>
+type RefTrie = Trie<RefType>
 type RefType = "branch" | "remote" | "tag"
 
 export default interface RefStore extends vscode.Disposable {
@@ -16,7 +16,7 @@ export default function RefStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
 ): RefStore {
-  const refs: RefTrie = StringTrie()
+  const refs: RefTrie = Trie()
 
   const branchWatcher = setupRefWatcher("branch", "heads", gitDirectory, refs)
   const remoteWatcher = setupRefWatcher("remote", "remotes", gitDirectory, refs)

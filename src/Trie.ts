@@ -21,14 +21,14 @@ type Match<Value> = {
   value: Value
 }
 
-export default interface StringTrie<Value> {
+export default interface Trie<Value> {
   getEntries(): Entry<Value>[]
   addString(string: string, value: Value): void
   removeString(string: string): void
   findMatches(text: string): Match<Value>[]
 }
 
-export default function StringTrie<Value>(): StringTrie<Value> {
+export default function Trie<Value>(): Trie<Value> {
   const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {
