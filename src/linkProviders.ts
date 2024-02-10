@@ -136,7 +136,6 @@ export function commitLinkProvider(
                 key: "revisionHistory",
                 variables: { revision: commit.full },
               }),
-              context: { commit },
             })
           },
         },

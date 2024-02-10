@@ -92,14 +92,14 @@ export function runCommandInTerminal({
   name,
   icon,
   cwd,
-  context,
   command,
+  context,
 }: {
   name: string
   icon: string
   cwd: vscode.Uri
-  context: TerminalContext
   command: string
+  context?: TerminalContext
 }) {
   const iconPath = new vscode.ThemeIcon(icon)
   const options = { name, iconPath, cwd, context }
