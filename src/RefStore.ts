@@ -4,7 +4,7 @@ import * as vscode from "vscode"
 import Trie from "./Trie"
 import { streamCommand } from "./util"
 
-type RefTrie = Trie<RefType>
+type RefTrie = Trie<Set<RefType>>
 type RefType = "branch" | "remote" | "tag"
 
 export default interface RefStore extends vscode.Disposable {
@@ -42,8 +42,8 @@ export default function RefStore(
       const debugFilename = `refs_${Date.now()}`
       const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
       const refsData = refs
-        .getEntries()
-        .map(([ref, type]) => `${ref}: ${JSON.stringify(type)}`)
+        .entries()
+        .map(([ref, types]) => `${ref}: ${Array.from(types).join(", ")}`)
         .join("\n")
 
       writeFile(debugFilePath, refsData, () => {
@@ -71,13 +71,24 @@ function setupRefWatcher(
 
   watcher.onDidCreate((uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
-      refs.addString(relative(dir.fsPath, uri.fsPath), type)
+      const ref = relative(dir.fsPath, uri.fsPath)
+
+      refs.update(ref, (types = new Set()) => types.add(type))
     }
   })
 
   watcher.onDidDelete((uri) => {
     if (basename(uri.fsPath) !== "HEAD") {
-      refs.removeString(relative(dir.fsPath, uri.fsPath))
+      const ref = relative(dir.fsPath, uri.fsPath)
+
+      const types = refs.update(ref, (types = new Set()) => {
+        types.delete(type)
+        return types
+      })
+
+      if (types.size === 0) {
+        refs.delete(ref)
+      }
     }
   })
 
@@ -92,6 +103,6 @@ async function loadRefs(
   gitArgs: string[],
 ): Promise<void> {
   streamCommand("git", [gitSubcommand, ...gitArgs], directory, (branch) => {
-    refs.addString(branch, type)
+    refs.update(branch, (types = new Set()) => types.add(type))
   })
 }

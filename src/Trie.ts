@@ -21,10 +21,13 @@ type Match<Value> = {
   value: Value
 }
 
+type Updater<Value> = (value: Value | undefined) => Value
+
 export default interface Trie<Value> {
-  getEntries(): Entry<Value>[]
-  addString(string: string, value: Value): void
-  removeString(string: string): void
+  entries(): Entry<Value>[]
+  set(key: string, value: Value): void
+  update(key: string, updater: Updater<Value>): Value
+  delete(key: string): void
   findMatches(text: string): Match<Value>[]
 }
 
@@ -32,16 +35,20 @@ export default function Trie<Value>(): Trie<Value> {
   const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {
-    getEntries() {
+    entries() {
       return getEntries(root, "", [])
     },
 
-    addString(string, value) {
-      addString(string, value, root)
+    set(key, value) {
+      doUpdate(key, () => value, root)
     },
 
-    removeString(string) {
-      removeString(string, root)
+    update(key, updater) {
+      return doUpdate(key, updater, root)
+    },
+
+    delete(key) {
+      doDelete(key, root)
     },
 
     findMatches(text) {
@@ -90,27 +97,36 @@ function getEntries<Value>(
   return entries
 }
 
-function addString<Value>(string: string, value: Value, current: Node<Value>) {
-  const first = string.slice(0, 1)
-  const rest = string.slice(1)
+function doUpdate<Value>(
+  key: string,
+  updater: Updater<Value>,
+  current: Node<Value>,
+): Value {
+  const first = key.slice(0, 1)
+  const rest = key.slice(1)
   const terminal = first === ""
 
   if (terminal) {
-    Object.assign(current, { terminal: true, value: value })
+    const value = current.terminal ? current.value : undefined
+    const updated = updater(value)
+
+    Object.assign(current, { terminal: true, value: updated })
+
+    return updated
   } else {
     let nextChild = current.children.get(first)
 
     if (nextChild === undefined) {
-      nextChild = { terminal, children: new Map() }
+      nextChild = { terminal: false, children: new Map() }
       current.children.set(first, nextChild)
     }
 
-    addString(rest, value, nextChild)
+    return doUpdate(rest, updater, nextChild)
   }
 }
 
 // This removes the terminal entry for a string, but it doesn't prune the tree.
-function removeString<Value>(string: string, current: Node<Value>) {
+function doDelete<Value>(string: string, current: Node<Value>) {
   const first = string.slice(0, 1)
   const rest = string.slice(1)
   const terminal = first === ""
@@ -121,7 +137,7 @@ function removeString<Value>(string: string, current: Node<Value>) {
     let nextChild = current.children.get(first)
 
     if (nextChild !== undefined) {
-      removeString(rest, nextChild)
+      doDelete(rest, nextChild)
     }
   }
 }

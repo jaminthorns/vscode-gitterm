@@ -7,7 +7,7 @@ suite("StringTrie adding/removing", () => {
 
     deepEqual(trie.findMatches("abc"), [])
 
-    trie.addString("abc", null)
+    trie.set("abc", null)
 
     deepEqual(trie.findMatches("abc"), [
       { startIndex: 0, text: "abc", value: null },
@@ -17,14 +17,14 @@ suite("StringTrie adding/removing", () => {
   test("remove a string", () => {
     const trie = Trie<null>()
 
-    trie.addString("abc", null)
-    trie.addString("xyz", null)
+    trie.set("abc", null)
+    trie.set("xyz", null)
 
     deepEqual(trie.findMatches("abc"), [
       { startIndex: 0, text: "abc", value: null },
     ])
 
-    trie.removeString("abc")
+    trie.delete("abc")
 
     deepEqual(trie.findMatches("abc"), [])
   })
@@ -33,12 +33,12 @@ suite("StringTrie adding/removing", () => {
 suite("StringTrie matching", () => {
   const trie = Trie<null>()
 
-  trie.addString("abc", null)
-  trie.addString("a", null)
-  trie.addString("bc", null)
-  trie.addString("ade", null)
-  trie.addString("cdefg", null)
-  trie.addString("xyz", null)
+  trie.set("abc", null)
+  trie.set("a", null)
+  trie.set("bc", null)
+  trie.set("ade", null)
+  trie.set("cdefg", null)
+  trie.set("xyz", null)
 
   test("no matching members, no match", () => {
     deepEqual(trie.findMatches("xy"), [])
@@ -70,7 +70,7 @@ suite("StringTrie matching", () => {
   })
 
   test("get entries", () => {
-    deepEqual(trie.getEntries(), [
+    deepEqual(trie.entries(), [
       ["a", null],
       ["abc", null],
       ["ade", null],

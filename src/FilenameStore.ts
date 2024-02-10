@@ -33,7 +33,10 @@ export default async function FilenameStore(
     writeToFile() {
       const debugFilename = `filenames_${Date.now()}`
       const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
-      const filenamesData = filenames.getEntries().join("\n")
+      const filenamesData = filenames
+        .entries()
+        .map(([filename]) => filename)
+        .join("\n")
 
       writeFile(debugFilePath, filenamesData, () => {
         console.debug(`Filenames written to ${debugFilePath}`)
@@ -85,6 +88,6 @@ function loadFilenames(
   args = range === undefined ? ["--all", ...args] : [range, ...args]
 
   streamCommand("git", ["log", ...args], directory, (filename) => {
-    filenames.addString(filename, null)
+    filenames.set(filename, null)
   })
 }
