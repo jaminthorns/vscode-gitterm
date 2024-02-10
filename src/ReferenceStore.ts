@@ -1,11 +1,11 @@
 import { writeFile } from "fs"
 import { basename, relative } from "path"
 import * as vscode from "vscode"
+import { ReferenceType } from "./Reference"
 import Trie from "./Trie"
 import { streamCommand } from "./util"
 
 type ReferenceTrie = Trie<Set<ReferenceType>>
-type ReferenceType = "branch" | "remote" | "tag"
 
 export default interface ReferenceStore extends vscode.Disposable {
   findMatches: ReferenceTrie["findMatches"]

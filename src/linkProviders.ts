@@ -5,6 +5,7 @@ import { Commit, CommitInfo } from "./Commit"
 import {
   CommitContext,
   FileContext,
+  ReferenceContext,
   RepositoryContext,
   TerminalContext,
 } from "./context"
@@ -32,10 +33,6 @@ interface TerminalOptions extends vscode.TerminalOptions {
 
 interface CommitTerminalLink extends vscode.TerminalLink {
   context: RepositoryContext & CommitContext & Partial<TerminalContext>
-}
-
-interface FileTerminalLink extends vscode.TerminalLink {
-  context: RepositoryContext & FileContext & Partial<TerminalContext>
 }
 
 export function commitLinkProvider(
@@ -161,6 +158,56 @@ export function commitLinkProvider(
       })
     },
   })
+}
+
+interface ReferenceTerminalLink extends vscode.TerminalLink {
+  context: RepositoryContext & ReferenceContext & Partial<TerminalContext>
+}
+
+export function referenceLinkProvider(
+  repositories: RepositoryStore,
+  terminalFolders: TerminalFolderStore,
+) {
+  return vscode.window.registerTerminalLinkProvider({
+    async provideTerminalLinks({
+      line,
+      terminal,
+    }): Promise<ReferenceTerminalLink[]> {
+      const provideReferenceLinks = vscode.workspace
+        .getConfiguration("gitterm.terminalLinks")
+        .get("provideReferenceLinks")
+
+      if (provideReferenceLinks === "never") {
+        return []
+      }
+
+      const folder = await terminalFolders.getFolder(terminal)
+      const repository = folder && repositories.getRepository(folder.uri)
+
+      if (repository === undefined) {
+        return []
+      }
+
+      const { context } = terminal.creationOptions as TerminalOptions
+
+      return repository.references
+        .findMatches(line)
+        .map(({ startIndex, text: reference, value: types }) => ({
+          startIndex,
+          length: reference.length,
+          tooltip: `Pick a ${Array.from(types).join("/")} action`,
+          context: { ...context, repository, reference, types },
+        }))
+    },
+
+    async handleTerminalLink({ context }: ReferenceTerminalLink) {
+      vscode.window.showInformationMessage("Not yet implemented.")
+    },
+  })
+}
+
+interface FileTerminalLink extends vscode.TerminalLink {
+  context: RepositoryContext & FileContext & Partial<TerminalContext>
 }
 
 export function fileLinkProvider(

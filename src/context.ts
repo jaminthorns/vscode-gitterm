@@ -1,4 +1,5 @@
 import { Commit, RawCommit } from "./Commit"
+import { ReferenceType } from "./Reference"
 import Repository from "./Repository"
 
 export type CommitFilenames = Map<RawCommit, string>
@@ -9,6 +10,11 @@ export interface RepositoryContext {
 
 export interface CommitContext {
   commit: Commit
+}
+
+export interface ReferenceContext {
+  reference: string
+  types: Set<ReferenceType>
 }
 
 export interface FolderContext {
