@@ -65,8 +65,8 @@
         "title": "GitTerm: Debug Filenames"
       },
       {
-        "command": "gitterm.debugRefs",
-        "title": "GitTerm: Debug Refs"
+        "command": "gitterm.debugReferences",
+        "title": "GitTerm: Debug References"
       }
     ],
     "menus": {

@@ -10,7 +10,7 @@ import {
   selectionBlameCommand,
   selectionHistoryCommand,
 } from "./commands"
-import { debugFilenames, debugRefs } from "./debugging"
+import { debugFilenames, debugReferences } from "./debugging"
 import { commitLinkProvider, fileLinkProvider } from "./linkProviders"
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
@@ -43,7 +43,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Debugging
     debugFilenames(repositories),
-    debugRefs(repositories),
+    debugReferences(repositories),
   )
 }
 

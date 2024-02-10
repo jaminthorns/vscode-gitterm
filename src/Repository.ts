@@ -1,7 +1,7 @@
 import { resolve } from "path"
 import * as vscode from "vscode"
 import FilenameStore from "./FilenameStore"
-import RefStore from "./RefStore"
+import ReferenceStore from "./ReferenceStore"
 import RemoteProviderStore from "./RemoteProviderStore"
 import { git } from "./util"
 
@@ -9,7 +9,7 @@ export default interface Repository extends vscode.Disposable {
   directory: vscode.Uri
   remoteProviders: RemoteProviderStore
   filenames: FilenameStore
-  refs: RefStore
+  references: ReferenceStore
 }
 
 export default async function Repository(
@@ -23,18 +23,18 @@ export default async function Repository(
 
   const remoteProviders = RemoteProviderStore(directory, gitDirectory)
   const filenames = await FilenameStore(directory, gitDirectory)
-  const refs = RefStore(directory, gitDirectory)
+  const references = ReferenceStore(directory, gitDirectory)
 
   return {
     directory,
     remoteProviders,
     filenames,
-    refs,
+    references,
 
     dispose() {
       remoteProviders.dispose()
       filenames.dispose()
-      refs.dispose()
+      references.dispose()
     },
   }
 }

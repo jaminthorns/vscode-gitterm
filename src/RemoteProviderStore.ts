@@ -43,11 +43,11 @@ function setupRemoteWatcher(
   gitDirectory: vscode.Uri,
   providers: Map<string, RemoteProvider>,
 ): vscode.FileSystemWatcher {
-  const refsDir = vscode.Uri.joinPath(gitDirectory, "refs", "remotes")
-  const remotesPattern = new vscode.RelativePattern(refsDir, "*")
-  const remoteWatcher = vscode.workspace.createFileSystemWatcher(remotesPattern)
+  const dir = vscode.Uri.joinPath(gitDirectory, "refs", "remotes")
+  const pattern = new vscode.RelativePattern(dir, "*")
+  const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
-  remoteWatcher.onDidCreate(async (uri) => {
+  watcher.onDidCreate(async (uri) => {
     const name = basename(uri.fsPath)
     const remote = await Remote(name, directory)
 
@@ -56,11 +56,11 @@ function setupRemoteWatcher(
     }
   })
 
-  remoteWatcher.onDidDelete(async (uri) => {
+  watcher.onDidDelete(async (uri) => {
     providers.delete(basename(uri.fsPath))
   })
 
-  return remoteWatcher
+  return watcher
 }
 
 export async function loadProviders(

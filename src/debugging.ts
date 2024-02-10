@@ -9,10 +9,10 @@ export function debugFilenames(repositories: RepositoryStore) {
   })
 }
 
-export function debugRefs(repositories: RepositoryStore) {
-  return vscode.commands.registerCommand("gitterm.debugRefs", () => {
+export function debugReferences(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand("gitterm.debugReferences", () => {
     repositories.allRepositories().forEach((repository) => {
-      repository.refs.writeToFile()
+      repository.references.writeToFile()
     })
   })
 }

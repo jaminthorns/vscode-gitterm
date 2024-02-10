@@ -4,50 +4,69 @@ import * as vscode from "vscode"
 import Trie from "./Trie"
 import { streamCommand } from "./util"
 
-type RefTrie = Trie<Set<RefType>>
-type RefType = "branch" | "remote" | "tag"
+type ReferenceTrie = Trie<Set<ReferenceType>>
+type ReferenceType = "branch" | "remote" | "tag"
 
-export default interface RefStore extends vscode.Disposable {
-  findMatches: RefTrie["findMatches"]
+export default interface ReferenceStore extends vscode.Disposable {
+  findMatches: ReferenceTrie["findMatches"]
   writeToFile(): void
 }
 
-export default function RefStore(
+export default function ReferenceStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
-): RefStore {
-  const refs: RefTrie = Trie()
+): ReferenceStore {
+  const references: ReferenceTrie = Trie()
 
-  const branchWatcher = setupRefWatcher("branch", "heads", gitDirectory, refs)
-  const remoteWatcher = setupRefWatcher("remote", "remotes", gitDirectory, refs)
-  const tagWatcher = setupRefWatcher("tag", "tags", gitDirectory, refs)
+  const branchWatcher = setupReferenceWatcher(
+    "branch",
+    "heads",
+    gitDirectory,
+    references,
+  )
 
-  loadRefs("branch", directory, refs, "branch", [
+  const remoteWatcher = setupReferenceWatcher(
+    "remote",
+    "remotes",
+    gitDirectory,
+    references,
+  )
+
+  const tagWatcher = setupReferenceWatcher(
+    "tag",
+    "tags",
+    gitDirectory,
+    references,
+  )
+
+  loadReferences("branch", directory, references, "branch", [
     "--format=%(refname:lstrip=2)",
   ])
 
-  loadRefs("remote", directory, refs, "branch", [
+  loadReferences("remote", directory, references, "branch", [
     "--remotes",
     "--format=%(refname:lstrip=2)",
   ])
 
-  loadRefs("tag", directory, refs, "tag", ["--format=%(refname:lstrip=2)"])
+  loadReferences("tag", directory, references, "tag", [
+    "--format=%(refname:lstrip=2)",
+  ])
 
   return {
     findMatches(...args) {
-      return refs.findMatches(...args)
+      return references.findMatches(...args)
     },
 
     writeToFile() {
       const debugFilename = `refs_${Date.now()}`
       const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
-      const refsData = refs
+      const referencesData = references
         .entries()
         .map(([ref, types]) => `${ref}: ${Array.from(types).join(", ")}`)
         .join("\n")
 
-      writeFile(debugFilePath, refsData, () => {
-        console.debug(`Refs written to ${debugFilePath}`)
+      writeFile(debugFilePath, referencesData, () => {
+        console.debug(`References written to ${debugFilePath}`)
       })
     },
 
@@ -59,11 +78,11 @@ export default function RefStore(
   }
 }
 
-function setupRefWatcher(
-  type: RefType,
+function setupReferenceWatcher(
+  type: ReferenceType,
   refDirectory: string,
   gitDirectory: vscode.Uri,
-  refs: RefTrie,
+  references: ReferenceTrie,
 ): vscode.FileSystemWatcher {
   const dir = vscode.Uri.joinPath(gitDirectory, "refs", refDirectory)
   const pattern = new vscode.RelativePattern(dir, "**/*")
@@ -73,7 +92,7 @@ function setupRefWatcher(
     if (basename(uri.fsPath) !== "HEAD") {
       const ref = relative(dir.fsPath, uri.fsPath)
 
-      refs.update(ref, (types = new Set()) => types.add(type))
+      references.update(ref, (types = new Set()) => types.add(type))
     }
   })
 
@@ -81,13 +100,13 @@ function setupRefWatcher(
     if (basename(uri.fsPath) !== "HEAD") {
       const ref = relative(dir.fsPath, uri.fsPath)
 
-      const types = refs.update(ref, (types = new Set()) => {
+      const types = references.update(ref, (types = new Set()) => {
         types.delete(type)
         return types
       })
 
       if (types.size === 0) {
-        refs.delete(ref)
+        references.delete(ref)
       }
     }
   })
@@ -95,14 +114,14 @@ function setupRefWatcher(
   return watcher
 }
 
-async function loadRefs(
-  type: RefType,
+async function loadReferences(
+  type: ReferenceType,
   directory: vscode.Uri,
-  refs: RefTrie,
+  references: ReferenceTrie,
   gitSubcommand: string,
   gitArgs: string[],
 ): Promise<void> {
   streamCommand("git", [gitSubcommand, ...gitArgs], directory, (branch) => {
-    refs.update(branch, (types = new Set()) => types.add(type))
+    references.update(branch, (types = new Set()) => types.add(type))
   })
 }
