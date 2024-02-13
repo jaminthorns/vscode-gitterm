@@ -14,6 +14,7 @@ import {
   SelectableQuickPickItem,
   showSelectableQuickPick,
 } from "./quickPick"
+import { ReferenceType, referenceInfo } from "./Reference"
 import RemoteProvider from "./RemoteProvider"
 import Repository from "./Repository"
 import RepositoryStore from "./RepositoryStore"
@@ -200,7 +201,55 @@ export function referenceLinkProvider(
     },
 
     async handleTerminalLink({ context }: ReferenceTerminalLink) {
-      vscode.window.showInformationMessage("Not yet implemented.")
+      const { repository, reference, types } = context
+
+      if (types.size > 1) {
+        // TODO: Implement type picker
+        return
+      }
+
+      const type = Array.from(types)[0]
+
+      const { icon, label } = referenceInfo[type]
+
+      const items: SelectableQuickPickItem[] = excludeNulls([
+        {
+          label: reference,
+          kind: vscode.QuickPickItemKind.Separator,
+        },
+        {
+          label: `$(${icon}) History from ${label}`,
+          onSelected: () => {
+            runCommandInTerminal({
+              name: reference,
+              icon: icon,
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "revisionHistory",
+                variables: { revision: reference },
+              }),
+            })
+          },
+        },
+        {
+          label: `$(clippy) Copy ${label} Name`,
+          onSelected: () => {
+            vscode.env.clipboard.writeText(reference)
+          },
+        },
+        // The only way this seems to be possible is to call `git ls-remote
+        // REMOTE refs/tags/TAG` with every remote
+        // pickRemote(
+        //   remotes,
+        //   { label: `$(link-external) Open ${label} on Remote` },
+        //   (remote) => remote.referenceUrl(reference),
+        // ),
+      ])
+
+      showSelectableQuickPick({
+        placeholder: "Select an action",
+        items,
+      })
     },
   })
 }

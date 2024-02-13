@@ -6,6 +6,7 @@ export default interface RemoteProvider {
   remote: Remote
   label: string
   commitUrl(commit: Commit): vscode.Uri | null
+  referenceUrl(reference: string): vscode.Uri | null
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri | null
 }
 
@@ -49,6 +50,10 @@ function GitHubProvider(remote: Remote): RemoteProvider {
       return url(`/commit/${commit.full}`)
     },
 
+    referenceUrl(reference) {
+      return url(`/tree/${reference}`)
+    },
+
     fileAtCommitUrl(commit, filename) {
       return url(`/blob/${commit.full}/${filename}`)
     },
@@ -66,6 +71,11 @@ function UnsupportedProvider(remote: Remote): RemoteProvider {
     label: `${remote.name} (Unsupported)`,
 
     commitUrl() {
+      showNotSupportedMessage()
+      return null
+    },
+
+    referenceUrl() {
       showNotSupportedMessage()
       return null
     },
