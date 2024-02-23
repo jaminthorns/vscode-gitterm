@@ -9,8 +9,9 @@
 
 ## Terminal Links
 
-- Commit Links
+- Commit links
 - File links
+- Reference links (local/remote branches, tags)
 
 ## Smart Stuff
 

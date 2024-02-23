@@ -8,6 +8,7 @@ extension.
 ### File Links
 
 - Actions
+
   - Open File on Remote
 
     This would open the file on the remote's default branch. You can get the
@@ -27,13 +28,6 @@ extension.
     So in order to open a file on the remote, you need to get the remote's
     default branch (running `git remote set-head ...` if necessary), and offer
     to open the file only if it exists on that branch.
-
-### Branch/Tag Links
-
-- Actions
-  - History from Branch/Tag
-  - Copy Branch/Tag Name
-  - Open Branch/Tag on <REMOTE>
 
 ### Person Links
 
