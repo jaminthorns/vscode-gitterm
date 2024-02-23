@@ -1,7 +1,7 @@
 import { writeFile } from "fs"
 import { basename, relative } from "path"
 import * as vscode from "vscode"
-import { ReferenceType } from "./Reference"
+import { ReferenceType, referenceInfo } from "./Reference"
 import Trie from "./Trie"
 import { streamCommand } from "./util"
 
@@ -20,24 +20,17 @@ export default function ReferenceStore(
 
   const branchWatcher = setupReferenceWatcher(
     "branch",
-    "heads",
     gitDirectory,
     references,
   )
 
   const remoteWatcher = setupReferenceWatcher(
     "remote",
-    "remotes",
     gitDirectory,
     references,
   )
 
-  const tagWatcher = setupReferenceWatcher(
-    "tag",
-    "tags",
-    gitDirectory,
-    references,
-  )
+  const tagWatcher = setupReferenceWatcher("tag", gitDirectory, references)
 
   loadReferences("branch", directory, references, "branch", [
     "--format=%(refname:lstrip=2)",
@@ -80,11 +73,11 @@ export default function ReferenceStore(
 
 function setupReferenceWatcher(
   type: ReferenceType,
-  refDirectory: string,
   gitDirectory: vscode.Uri,
   references: ReferenceTrie,
 ): vscode.FileSystemWatcher {
-  const dir = vscode.Uri.joinPath(gitDirectory, "refs", refDirectory)
+  const refDir = referenceInfo[type].directory
+  const dir = vscode.Uri.joinPath(gitDirectory, "refs", refDir)
   const pattern = new vscode.RelativePattern(dir, "**/*")
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 

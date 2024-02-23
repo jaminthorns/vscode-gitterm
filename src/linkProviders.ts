@@ -1,5 +1,5 @@
 import { existsSync } from "fs"
-import { basename } from "path"
+import { basename, join } from "path"
 import * as vscode from "vscode"
 import { Commit, CommitInfo } from "./Commit"
 import {
@@ -143,7 +143,7 @@ export function commitLinkProvider(
         pickRemote(
           remotes,
           { label: "$(link-external) Open Commit on Remote" },
-          (remote) => remote.commitUrl(commit),
+          (provider) => provider.commitUrl(commit),
         ),
       ])
 
@@ -205,12 +205,18 @@ export function referenceLinkProvider(
 
       if (types.size > 1) {
         // TODO: Implement type picker
-        return
       }
 
       const type = Array.from(types)[0]
 
-      const { icon, label } = referenceInfo[type]
+      const { label, directory } = referenceInfo[type]
+
+      const remotes = await referenceRemotes(
+        type,
+        reference,
+        directory,
+        repository,
+      )
 
       const items: SelectableQuickPickItem[] = excludeNulls([
         {
@@ -218,11 +224,11 @@ export function referenceLinkProvider(
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: `$(${icon}) History from ${label}`,
+          label: `$(history) History from ${label}`,
           onSelected: () => {
             runCommandInTerminal({
               name: reference,
-              icon: icon,
+              icon: "history",
               cwd: repository.directory,
               command: userGitCommand({
                 key: "revisionHistory",
@@ -237,13 +243,18 @@ export function referenceLinkProvider(
             vscode.env.clipboard.writeText(reference)
           },
         },
-        // The only way this seems to be possible is to call `git ls-remote
-        // REMOTE refs/tags/TAG` with every remote
-        // pickRemote(
-        //   remotes,
-        //   { label: `$(link-external) Open ${label} on Remote` },
-        //   (remote) => remote.referenceUrl(reference),
-        // ),
+        pickRemote(
+          remotes,
+          { label: `$(link-external) Open ${label} on Remote` },
+          (provider) => {
+            const refName =
+              type === "remote"
+                ? reference.replace(`${provider.remote.name}/`, "")
+                : reference
+
+            return provider.referenceUrl(refName)
+          },
+        ),
       ])
 
       showSelectableQuickPick({
@@ -252,6 +263,38 @@ export function referenceLinkProvider(
       })
     },
   })
+}
+
+async function referenceRemotes(
+  type: ReferenceType,
+  reference: string,
+  directory: string,
+  repository: Repository,
+): Promise<RemoteProvider[]> {
+  const remoteProviders = repository.remoteProviders.sorted()
+
+  if (remoteProviders.length === 0) {
+    return []
+  }
+
+  if (type === "remote") {
+    return remoteProviders.filter(({ remote }) =>
+      reference.startsWith(remote.name),
+    )
+  }
+
+  return excludeNulls(
+    await Promise.all(
+      remoteProviders.map(async (provider) => {
+        const pattern = join("refs", directory, reference)
+        const output = await git("ls-remote", [provider.remote.name, pattern], {
+          directory: repository.directory,
+        })
+
+        return output === "" ? null : provider
+      }),
+    ),
+  )
 }
 
 interface FileTerminalLink extends vscode.TerminalLink {
@@ -464,7 +507,7 @@ function fileAtCommitItems(
     pickRemote(
       remotes,
       { label: "$(link-external) Open File on Remote" },
-      (remote) => remote.fileAtCommitUrl(commit, filename),
+      (provider) => provider.fileAtCommitUrl(commit, filename),
     ),
   ])
 }
@@ -472,10 +515,10 @@ function fileAtCommitItems(
 function pickRemote(
   remotes: RemoteProvider[],
   item: vscode.QuickPickItem,
-  getRemoteUrl: (remote: RemoteProvider) => vscode.Uri | null,
+  getRemoteUrl: (provider: RemoteProvider) => vscode.Uri | null,
 ): SelectableQuickPickItem | null {
-  const openRemoteUrl = (remote: RemoteProvider) => {
-    const url = getRemoteUrl(remote)
+  const openRemoteUrl = (provider: RemoteProvider) => {
+    const url = getRemoteUrl(provider)
 
     if (url !== null) {
       vscode.env.openExternal(url)
@@ -483,12 +526,12 @@ function pickRemote(
   }
 
   const copyUrlButton = (
-    remote: RemoteProvider,
+    provider: RemoteProvider,
   ): SelectableQuickPickButton => ({
     tooltip: "Copy Remote URL",
     iconPath: new vscode.ThemeIcon("clippy"),
     onSelected: () => {
-      const url = getRemoteUrl(remote)
+      const url = getRemoteUrl(provider)
 
       if (url !== null) {
         vscode.env.clipboard.writeText(url.toString())
@@ -512,10 +555,10 @@ function pickRemote(
       onSelected: () => {
         showSelectableQuickPick({
           placeholder: "Select a remote",
-          items: remotes.map((remote) => ({
-            label: `$(globe) ${remote.label}`,
-            onSelected: () => openRemoteUrl(remote),
-            buttons: [copyUrlButton(remote)],
+          items: remotes.map((provider) => ({
+            label: `$(globe) ${provider.label}`,
+            onSelected: () => openRemoteUrl(provider),
+            buttons: [copyUrlButton(provider)],
           })),
         })
       },
