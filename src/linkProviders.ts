@@ -195,7 +195,7 @@ export function referenceLinkProvider(
         .map(({ startIndex, text: reference, value: types }) => ({
           startIndex,
           length: reference.length,
-          tooltip: `Pick a ${Array.from(types).join("/")} action`,
+          tooltip: "Pick a reference action",
           context: { ...context, repository, reference, types },
         }))
     },
@@ -203,11 +203,26 @@ export function referenceLinkProvider(
     async handleTerminalLink({ context }: ReferenceTerminalLink) {
       const { repository, reference, types } = context
 
+      let type: ReferenceType | undefined
+
       if (types.size > 1) {
-        // TODO: Implement type picker
+        const items = Array.from(types).map((type) => {
+          const { icon, label } = referenceInfo[type].disambiguate
+          return { type, label: `$(${icon}) ${label}` }
+        })
+
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: "Ambiguous reference name, select a type",
+        })
+
+        type = selected?.type
+      } else {
+        type = Array.from(types)[0]
       }
 
-      const type = Array.from(types)[0]
+      if (type === undefined) {
+        return
+      }
 
       const { label, directory } = referenceInfo[type]
 
