@@ -3,9 +3,15 @@
 This is a rough notepad of ideas related to the design and planning of this
 extension.
 
+Legend:
+
+  - ❗ Required before release
+  - 🤔 Maybe in the future
+  - 📝 Documentation
+
 ## Link Types
 
-### File Links
+### File Links ❗
 
 - Actions
 
@@ -29,7 +35,7 @@ extension.
     default branch (running `git remote set-head ...` if necessary), and offer
     to open the file only if it exists on that branch.
 
-### Person Links
+### Person Links ❗
 
 Command: `git shortlog --all --summary --numbered --email`
 
@@ -37,19 +43,19 @@ Command: `git shortlog --all --summary --numbered --email`
   - History of Authored Commits
   - History of Committed Commits
 
-### Stash Links
+### Stash Links ❗
 
 - Actions
   - Show Stash
   - Copy Stash Name
 
-### Issue Links
+### Issue Links 🤔
 
 Most remotes support something like GitHub's issues and usually have some syntax
 (like `#123`) that automatically creates links to those issues. It would be nice
 to support this on a per-remote basis.
 
-## Link Detection Methods
+## Link Detection Methods 📝
 
 - Parsing
 
@@ -77,7 +83,7 @@ to support this on a per-remote basis.
   collection must be kept up-to-date, which adds complexity. If parsing (with or
   without validation) is not an option, then this is the only remaining option.
 
-## Shell Integration
+## Shell Integration 🤔
 
 Wrap the `git` command in the user's shell using a function. This wrapper would
 send the arguments of the executed command to GitTerm, which would allow GitTerm
@@ -96,7 +102,7 @@ This has some considerations:
   A web server is all that I can think of. The part that runs in the shell only
   needs to send information to GitTerm, so something like `curl` can be used.
 
-## Workspace Detection within Terminal
+## Workspace Detection within Terminal 📝
 
 To get the workspace folder for a terminal, the best method would be to:
 
@@ -137,7 +143,7 @@ Alternatively, we could use a less reliable but more "static" approach:
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
 
-## Opening Files at Commit in Editor
+## Opening Files at Commit in Editor ❗
 
 Allow user to open files in editor when showing a file at a commit instead of a
 terminal. When running any of the editor (file history, line history, blame)
@@ -145,25 +151,25 @@ commands, they would be executed from the corresponding commit. This allows
 powerful history investigation. This could be enabled/disabled with a config
 value.
 
-## Opening Diffs in Editor
+## Opening Diffs in Editor ❗
 
 Allow user to open diff in a diff editor using VS Code's `vscode.diff` command.
 This would possibly have similar functionality as opening a file at commit in
 editor. Here's a helpful comment for implementation details:
 https://github.com/Microsoft/vscode/issues/34623#issuecomment-423742923
 
-## Opening Commits in Editor
+## Opening Commits in Editor ❗
 
 With the new multi-diff editor, commits can be shown in an editor. There should
 be an API to access this, since the GitHub PR and Issues extensions now takes
 advantage of it.
 
-## Multi-selection for Line History and Line Blame
+## Multi-selection for Line History and Line Blame ❗
 
 You can provide multiple instances of the `-L` flag for both `git log` and `git
 blame`. This could be used in conjuction with multiple selections.
 
-## Optimize quick picks for expensive operations
+## Optimize quick picks for expensive operations ❗
 
 There are some quick picks that take a while to appear after clicking a terminal
 link because we're doing expensive operations to determine which items should be
