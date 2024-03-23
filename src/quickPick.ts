@@ -37,7 +37,10 @@ export function showSelectableQuickPick({
 
   quickPick.items = items.map((item, index) => {
     if (isPending(item)) {
-      item.pending.then((item) => {
+      const { placeholder, pending } = item
+
+      pending.then((item) => {
+        const activeItems = quickPick.activeItems
         const newItems = Array.from(quickPick.items)
 
         if (item === null) {
@@ -47,9 +50,20 @@ export function showSelectableQuickPick({
         }
 
         quickPick.items = newItems
+
+        // Restore active items if possible.
+        if (activeItems.length > 0) {
+          if (activeItems[0] === placeholder) {
+            if (item !== null) {
+              quickPick.activeItems = [item]
+            }
+          } else {
+            quickPick.activeItems = activeItems
+          }
+        }
       })
 
-      return item.placeholder
+      return placeholder
     } else {
       return item
     }
