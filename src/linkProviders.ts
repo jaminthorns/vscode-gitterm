@@ -10,6 +10,7 @@ import {
   TerminalContext,
 } from "./context"
 import {
+  ConcreteQuickPickItem,
   SelectableQuickPickButton,
   SelectableQuickPickItem,
   showSelectableQuickPick,
@@ -224,16 +225,33 @@ export function referenceLinkProvider(
         return
       }
 
-      const { label, directory } = referenceInfo[type]
+      const getOpenOnRemoteItem = async (type: ReferenceType) => {
+        const { directory } = referenceInfo[type]
 
-      const remotes = await referenceRemotes(
-        type,
-        reference,
-        directory,
-        repository,
-      )
+        const remotes = await referenceRemotes(
+          type,
+          reference,
+          directory,
+          repository,
+        )
 
-      const items: SelectableQuickPickItem[] = excludeNulls([
+        return pickRemote(
+          remotes,
+          { label: `$(link-external) Open ${label} on Remote` },
+          (provider) => {
+            const refName =
+              type === "remote"
+                ? reference.replace(`${provider.remote.name}/`, "")
+                : reference
+
+            return provider.referenceUrl(refName)
+          },
+        )
+      }
+
+      const { label } = referenceInfo[type]
+
+      const items: SelectableQuickPickItem[] = [
         {
           label: reference,
           kind: vscode.QuickPickItemKind.Separator,
@@ -258,19 +276,11 @@ export function referenceLinkProvider(
             vscode.env.clipboard.writeText(reference)
           },
         },
-        pickRemote(
-          remotes,
-          { label: `$(link-external) Open ${label} on Remote` },
-          (provider) => {
-            const refName =
-              type === "remote"
-                ? reference.replace(`${provider.remote.name}/`, "")
-                : reference
-
-            return provider.referenceUrl(refName)
-          },
-        ),
-      ])
+        {
+          placeholder: { label: "$(loading~spin) Loading remotes..." },
+          pending: getOpenOnRemoteItem(type),
+        },
+      ]
 
       showSelectableQuickPick({
         placeholder: "Select an action",
@@ -531,7 +541,7 @@ function pickRemote(
   remotes: RemoteProvider[],
   item: vscode.QuickPickItem,
   getRemoteUrl: (provider: RemoteProvider) => vscode.Uri | null,
-): SelectableQuickPickItem | null {
+): ConcreteQuickPickItem | null {
   const openRemoteUrl = (provider: RemoteProvider) => {
     const url = getRemoteUrl(provider)
 

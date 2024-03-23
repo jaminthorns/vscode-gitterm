@@ -168,12 +168,3 @@ advantage of it.
 
 You can provide multiple instances of the `-L` flag for both `git log` and `git
 blame`. This could be used in conjuction with multiple selections.
-
-## Optimize quick picks for expensive operations ❗
-
-There are some quick picks that take a while to appear after clicking a terminal
-link because we're doing expensive operations to determine which items should be
-shown. For example, checking which remotes have a reference so we know which
-remote to show when opening a reference on a remote takes a second or 2. We can
-use the `QuickPick.busy` property and render placeholder items so that the items
-that don't need the expensive information can be shown immediately.
