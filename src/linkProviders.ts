@@ -74,7 +74,7 @@ export function commitLinkProvider(
               return null
             } else {
               return {
-                startIndex: match.index as number, // TODO: Remove assertion in TypeScript 5.4.
+                startIndex: match.index,
                 length: rawCommit.length,
                 tooltip: "Pick a commit action",
                 context: { ...context, repository, commit },
