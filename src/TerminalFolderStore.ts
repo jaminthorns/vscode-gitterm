@@ -28,24 +28,24 @@ export default function TerminalFolderStore(): TerminalFolderStore {
       let folder: vscode.WorkspaceFolder | undefined
 
       if (cwd !== undefined) {
-        // If the cwd is explicitly given, then use it
+        // If the cwd is explicitly given, then use it.
         const uri = typeof cwd === "string" ? vscode.Uri.file(cwd) : cwd
         folder = vscode.workspace.getWorkspaceFolder(uri)
       } else if (folders !== undefined && folders.length === 1) {
-        // If there is only 1 folder, then it's the only reasonable choice
+        // If there is only 1 folder, then it's the only reasonable choice.
         folder = folders[0]
       } else if ((await lookpath("lsof")) !== undefined) {
-        // We can detect the cwd using the `lsof` command when available
+        // We can detect the cwd using the `lsof` command when available.
         const uri = vscode.Uri.file(await lsofCwd(processId))
         folder = vscode.workspace.getWorkspaceFolder(uri)
       } else if (activeTextEditor !== undefined) {
         // VS Code's behavior is to spawn new terminals in the active editor's
-        // folder, so this is a decent guess
+        // folder, so this is a decent guess.
         const uri = activeTextEditor.document.uri
         folder = vscode.workspace.getWorkspaceFolder(uri)
       }
 
-      // When we can't find a folder for a terminal, we ignore it
+      // When we can't find a folder for a terminal, we ignore it.
       if (folder !== undefined) {
         workspaceFolders.set(processId, folder)
       }

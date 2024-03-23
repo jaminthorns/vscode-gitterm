@@ -52,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
   )
 }
 
-// TODO: Account for workspace folders without Git repositories
+// TODO: Account for workspace folders without Git repositories.
 function setupRepositories(
   workspaceFolders: readonly vscode.WorkspaceFolder[],
 ): RepositoryStore {

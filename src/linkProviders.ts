@@ -74,7 +74,7 @@ export function commitLinkProvider(
               return null
             } else {
               return {
-                startIndex: match.index as number, // TODO: Remove assertion in TypeScript 5.4
+                startIndex: match.index as number, // TODO: Remove assertion in TypeScript 5.4.
                 length: rawCommit.length,
                 tooltip: "Pick a commit action",
                 context: { ...context, repository, commit },
@@ -319,7 +319,7 @@ async function referenceRemotes(
 
   // This is noticeably slow because it reaches out to remotes, but since the
   // command for each remote is executed in parallel, it shouldn't get worse
-  // with more remotes
+  // with more remotes.
   return excludeNulls(
     await Promise.all(
       remoteProviders.map(async (provider) => {
@@ -465,7 +465,7 @@ async function commitRemotes(
 
   // The performance of checking whether every remote branch contains a commit
   // becomes noticeably slow in repositories with long history and many remote
-  // branches
+  // branches.
   const args = ["-r", "--contains", commit.full]
   const output = await git("branch", args, { directory: repository.directory })
   const branches = output.split("\n").map((b) => b.trim())

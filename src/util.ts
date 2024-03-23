@@ -123,7 +123,7 @@ export function userGitCommand(command: UserGitCommand): string {
 }
 
 // Get a mapping of commits to historical filenames for every commit in which a
-// given path was changed
+// given path was changed.
 export async function commitFilenames(
   path: string,
   directory: vscode.Uri,

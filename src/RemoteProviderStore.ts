@@ -20,7 +20,7 @@ export default function RemoteProviderStore(
   return {
     sorted() {
       return Array.from(providers.values()).sort((a, b) => {
-        // Show "origin" remote at the top with the rest sorted alphabetically
+        // Show "origin" remote at the top with the rest sorted alphabetically.
         switch (true) {
           case a.remote.name === "origin":
             return -1

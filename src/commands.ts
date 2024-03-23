@@ -39,7 +39,7 @@ export function lineHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.lineHistory",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
-      // TODO: Handle Git URIs
+      // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
       lineHistory(document, lineNumber, lineNumber, repositories)
     },
@@ -50,7 +50,7 @@ export function lineBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.lineBlame",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
-      // TODO: Handle Git URIs
+      // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
       lineBlame(document, lineNumber, lineNumber, repositories)
     },
