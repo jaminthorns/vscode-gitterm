@@ -87,13 +87,11 @@ export function commitLinkProvider(
 
     async handleTerminalLink({ context }: CommitTerminalLink) {
       const { repository, commit } = context
-      const commitFilenamesPromise =
-        "commitFilenames" in context ? context.commitFilenames : undefined
 
-      const [commitFilenames, commitInfo, remotes] = await Promise.all([
-        commitFilenamesPromise,
+      const remotes = commitRemotes(commit, repository)
+      const [commitFilenames, commitInfo] = await Promise.all([
+        "commitFilenames" in context ? context.commitFilenames : undefined,
         CommitInfo(commit.full, repository.directory),
-        commitRemotes(commit, repository),
       ])
 
       const { authorDate, authorName, subject } = commitInfo
@@ -141,17 +139,28 @@ export function commitLinkProvider(
             })
           },
         },
-        pickRemote(
-          remotes,
-          { label: "$(link-external) Open Commit on Remote" },
-          (provider) => provider.commitUrl(commit),
-        ),
+        {
+          placeholder: { label: "$(loading~spin) Loading remotes..." },
+          pending: remotes.then((remotes) => {
+            return pickRemote(
+              remotes,
+              { label: "$(link-external) Open Commit on Remote" },
+              (provider) => provider.commitUrl(commit),
+            )
+          }),
+        },
       ])
 
-      const fileCommitItems: SelectableQuickPickItem[] =
-        commitFilename !== null
-          ? fileAtCommitItems(repository, remotes, commit, commitFilename)
-          : []
+      let fileCommitItems: SelectableQuickPickItem[] = []
+
+      if (commitFilename !== null) {
+        fileCommitItems = fileAtCommitItems(
+          repository,
+          remotes,
+          commit,
+          commitFilename,
+        )
+      }
 
       showSelectableQuickPick({
         placeholder: "Select an action",
@@ -308,6 +317,9 @@ async function referenceRemotes(
     )
   }
 
+  // This is noticeably slow because it reaches out to remotes, but since the
+  // command for each remote is executed in parallel, it shouldn't get worse
+  // with more remotes
   return excludeNulls(
     await Promise.all(
       remoteProviders.map(async (provider) => {
@@ -423,7 +435,7 @@ export function fileLinkProvider(
       let fileCommitItems: SelectableQuickPickItem[] = []
 
       if (commit !== undefined) {
-        const remotes = await commitRemotes(commit, repository)
+        const remotes = commitRemotes(commit, repository)
 
         fileCommitItems = fileAtCommitItems(
           repository,
@@ -466,7 +478,7 @@ async function commitRemotes(
 
 function fileAtCommitItems(
   repository: Repository,
-  remotes: RemoteProvider[],
+  remotes: Promise<RemoteProvider[]>,
   commit: Commit,
   filename: string,
 ) {
@@ -529,11 +541,16 @@ function fileAtCommitItems(
         })
       },
     },
-    pickRemote(
-      remotes,
-      { label: "$(link-external) Open File on Remote" },
-      (provider) => provider.fileAtCommitUrl(commit, filename),
-    ),
+    {
+      placeholder: { label: "$(loading~spin) Loading remotes..." },
+      pending: remotes.then((remotes) => {
+        return pickRemote(
+          remotes,
+          { label: "$(link-external) Open File on Remote" },
+          (provider) => provider.fileAtCommitUrl(commit, filename),
+        )
+      }),
+    },
   ])
 }
 
