@@ -20,7 +20,7 @@ export type SelectableQuickPickItem =
 function isPending(
   item: ConcreteQuickPickItem | PendingQuickPickItem,
 ): item is PendingQuickPickItem {
-  return "placeholder" in item
+  return "pending" in item
 }
 
 export function showSelectableQuickPick({
@@ -37,33 +37,8 @@ export function showSelectableQuickPick({
 
   quickPick.items = items.map((item, index) => {
     if (isPending(item)) {
-      const { placeholder, pending } = item
-
-      pending.then((item) => {
-        const activeItems = quickPick.activeItems
-        const newItems = Array.from(quickPick.items)
-
-        if (item === null) {
-          newItems.splice(index, 1)
-        } else {
-          newItems[index] = item
-        }
-
-        quickPick.items = newItems
-
-        // Restore active items if possible.
-        if (activeItems.length > 0) {
-          if (activeItems[0] === placeholder) {
-            if (item !== null) {
-              quickPick.activeItems = [item]
-            }
-          } else {
-            quickPick.activeItems = activeItems
-          }
-        }
-      })
-
-      return placeholder
+      resolvePendingItem(quickPick, item, index)
+      return item.placeholder
     } else {
       return item
     }
@@ -86,4 +61,34 @@ export function showSelectableQuickPick({
   })
 
   quickPick.show()
+}
+
+async function resolvePendingItem(
+  quickPick: vscode.QuickPick<ConcreteQuickPickItem>,
+  { placeholder, pending }: PendingQuickPickItem,
+  index: number,
+) {
+  const resolved = await pending
+
+  const activeItems = quickPick.activeItems
+  const newItems = Array.from(quickPick.items)
+
+  if (resolved === null) {
+    newItems.splice(index, 1)
+  } else {
+    newItems[index] = resolved
+  }
+
+  quickPick.items = newItems
+
+  // Settings items clears activeItems, restore activeItems if possible.
+  if (activeItems.length > 0) {
+    if (activeItems[0] === placeholder) {
+      if (resolved !== null) {
+        quickPick.activeItems = [resolved]
+      }
+    } else {
+      quickPick.activeItems = activeItems
+    }
+  }
 }
