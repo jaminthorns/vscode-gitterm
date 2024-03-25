@@ -44,7 +44,7 @@ export function showSelectableQuickPick({
         const newItems = Array.from(quickPick.items)
 
         if (item === null) {
-          delete newItems[index]
+          newItems.splice(index, 1)
         } else {
           newItems[index] = item
         }
