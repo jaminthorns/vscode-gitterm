@@ -55,6 +55,12 @@ Most remotes support something like GitHub's issues and usually have some syntax
 (like `#123`) that automatically creates links to those issues. It would be nice
 to support this on a per-remote basis.
 
+### Commit Range Links 🤔
+
+When pulling, you get a message in the form of `Updating <commit>..<commit>`. It
+would be nice if you could click the commit range and get the history for that
+range.
+
 ## Link Detection Methods 📝
 
 - Parsing
