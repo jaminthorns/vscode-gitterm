@@ -163,8 +163,3 @@ https://github.com/Microsoft/vscode/issues/34623#issuecomment-423742923
 With the new multi-diff editor, commits can be shown in an editor. There should
 be an API to access this, since the GitHub PR and Issues extensions now takes
 advantage of it.
-
-## Multi-selection for Line History and Line Blame ❗
-
-You can provide multiple instances of the `-L` flag for both `git log` and `git
-blame`. This could be used in conjuction with multiple selections.

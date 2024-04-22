@@ -14,24 +14,35 @@ interface LineNumberHandlerArgs {
   lineNumber: number
 }
 
+interface Range {
+  start: number
+  end: number
+}
+
 export function folderHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.folderHistory",
-    (uri: vscode.Uri) => folderHistory(uri, repositories),
+    (uri: vscode.Uri) => {
+      folderHistory(uri, repositories)
+    },
   )
 }
 
 export function fileHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.fileHistory",
-    (uri: vscode.Uri) => fileHistory(uri, repositories),
+    (uri: vscode.Uri) => {
+      fileHistory(uri, repositories)
+    },
   )
 }
 
 export function fileBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.fileBlame",
-    (uri: vscode.Uri) => fileBlame(uri, repositories),
+    (uri: vscode.Uri) => {
+      fileBlame(uri, repositories)
+    },
   )
 }
 
@@ -41,7 +52,9 @@ export function lineHistoryCommand(repositories: RepositoryStore) {
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
       // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
-      lineHistory(document, lineNumber, lineNumber, repositories)
+      const range = { start: lineNumber, end: lineNumber }
+
+      lineHistory(document, [range], repositories)
     },
   )
 }
@@ -52,7 +65,9 @@ export function lineBlameCommand(repositories: RepositoryStore) {
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
       // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
-      lineBlame(document, lineNumber, lineNumber, repositories)
+      const range = { start: lineNumber, end: lineNumber }
+
+      lineBlame(document, [range], repositories)
     },
   )
 }
@@ -60,42 +75,45 @@ export function lineBlameCommand(repositories: RepositoryStore) {
 export function activeFileHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.activeFileHistory",
-    ({ document }: vscode.TextEditor) =>
-      fileHistory(document.uri, repositories),
+    ({ document }: vscode.TextEditor) => {
+      fileHistory(document.uri, repositories)
+    },
   )
 }
 
 export function activeFileBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.activeFileBlame",
-    ({ document }: vscode.TextEditor) => fileBlame(document.uri, repositories),
+    ({ document }: vscode.TextEditor) => {
+      fileBlame(document.uri, repositories)
+    },
   )
 }
 
 export function selectionHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.selectionHistory",
-    ({ document, selection }: vscode.TextEditor) =>
-      lineHistory(
-        document,
-        selection.start.line + 1,
-        selection.end.line + 1,
-        repositories,
-      ),
+    ({ document, selections }: vscode.TextEditor) => {
+      const ranges = selections.map(selectionToRange)
+
+      lineHistory(document, ranges, repositories)
+    },
   )
 }
 
 export function selectionBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
     "gitterm.selectionBlame",
-    ({ document, selection }: vscode.TextEditor) =>
-      lineBlame(
-        document,
-        selection.start.line + 1,
-        selection.end.line + 1,
-        repositories,
-      ),
+    ({ document, selections }: vscode.TextEditor) => {
+      const ranges = selections.map(selectionToRange)
+
+      lineBlame(document, ranges, repositories)
+    },
   )
+}
+
+function selectionToRange({ start, end }: vscode.Selection): Range {
+  return { start: start.line + 1, end: end.line + 1 }
 }
 
 function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
@@ -147,8 +165,7 @@ function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
 
 async function lineHistory(
   document: vscode.TextDocument,
-  startLine: number,
-  endLine: number,
+  ranges: Range[],
   repositories: RepositoryStore,
 ) {
   const repository = repositories.getRepository(document.uri)
@@ -176,32 +193,36 @@ async function lineHistory(
     LineTranslator(stagedDiff),
   ]
 
-  const startLineHead = translateOldLine(startLine, "start", translators)
-  const endLineHead = translateOldLine(endLine, "end", translators)
+  const headRanges = ranges.map(({ start, end }) => ({
+    start: translateOldLine(start, "start", translators),
+    end: translateOldLine(end, "end", translators),
+  }))
 
-  if (startLineHead > endLineHead) {
-    const suffix = startLine === endLine ? "" : "s"
-    const message = `Can't show history for newly added line${suffix}.`
+  const newRanges = headRanges
+    .map(({ start, end }, i) => ({ isNew: start > end, original: ranges[i] }))
+    .filter(({ isNew }) => isNew)
+    .map(({ original }) => original)
+
+  if (newRanges.length > 0) {
+    const newRangesStr = newRanges.map(displayRange).join(", ")
+    const message = `Can't show history for newly added lines: ${newRangesStr}`
 
     vscode.window.showInformationMessage(message)
     return
   }
 
-  const lineRange = `${startLineHead},${endLineHead}`
-  const lineSuffix = startLineHead === endLineHead ? startLineHead : lineRange
+  const rangeSuffix = headRanges.map(displayRange).join(",")
+  const lineRanges = headRanges
+    .map(({ start, end }) => `-L ${start},${end}:'${filename}'`)
+    .join(" ")
 
   runCommandInTerminal({
-    name: `${basename(filename)}:${lineSuffix}`,
+    name: `${basename(filename)}:${rangeSuffix}`,
     icon: "history",
     cwd: directory,
     command: userGitCommand({
       key: "lineHistory",
-      variables: {
-        filename,
-        revision: "HEAD",
-        startLine: startLineHead,
-        endLine: endLineHead,
-      },
+      variables: { revision: "HEAD", lineRanges },
     }),
     context: {
       filename,
@@ -237,8 +258,7 @@ function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
 
 async function lineBlame(
   document: vscode.TextDocument,
-  startLine: number,
-  endLine: number,
+  ranges: Range[],
   repositories: RepositoryStore,
 ) {
   const repository = repositories.getRepository(document.uri)
@@ -256,32 +276,37 @@ async function lineBlame(
   )
 
   const translators = [LineTranslator(unsavedDiff)]
-  const startLineSaved = translateOldLine(startLine, "start", translators)
-  const endLineSaved = translateOldLine(endLine, "end", translators)
 
-  if (startLineSaved > endLineSaved) {
-    const suffix = startLine === endLine ? "" : "s"
-    const message = `Can't show blame for unsaved line${suffix}.`
+  const savedRanges = ranges.map(({ start, end }) => ({
+    start: translateOldLine(start, "start", translators),
+    end: translateOldLine(end, "end", translators),
+  }))
+
+  const unsavedRanges = savedRanges
+    .map(({ start, end }, i) => ({ isNew: start > end, original: ranges[i] }))
+    .filter(({ isNew }) => isNew)
+    .map(({ original }) => original)
+
+  if (unsavedRanges.length > 0) {
+    const unsavedRangesStr = unsavedRanges.map(displayRange).join(", ")
+    const message = `Can't show blame for unsaved lines: ${unsavedRangesStr}`
 
     vscode.window.showInformationMessage(message)
     return
   }
 
-  const lineRange = `${startLineSaved},${endLineSaved}`
-  const lineSuffix =
-    startLineSaved === endLineSaved ? startLineSaved : lineRange
+  const rangeSuffix = savedRanges.map(displayRange).join(",")
+  const lineRanges = savedRanges
+    .map(({ start, end }) => `-L ${start},${end}`)
+    .join(" ")
 
   runCommandInTerminal({
-    name: `${basename(filename)}:${lineSuffix}`,
+    name: `${basename(filename)}:${rangeSuffix}`,
     icon: "person",
     cwd: directory,
     command: userGitCommand({
       key: "lineBlame",
-      variables: {
-        filename,
-        endLine: endLineSaved,
-        startLine: startLineSaved,
-      },
+      variables: { filename, lineRanges },
     }),
     context: {
       filename,
@@ -290,15 +315,19 @@ async function lineBlame(
   })
 }
 
-const translateOldLine = (
+function translateOldLine(
   line: number,
   bound: "start" | "end",
   translators: LineTranslator[],
-) => {
+) {
   return translators.reduce((translated, t) => {
     const range = t.oldLine(translated)
     const newOffset = range.span === 0 && bound === "start" ? 1 : 0
 
     return range[bound] + newOffset
   }, line)
+}
+
+function displayRange({ start, end }: Range): string {
+  return start === end ? `${start}` : `${start}-${end}`
 }

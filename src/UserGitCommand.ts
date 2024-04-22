@@ -11,10 +11,8 @@ interface FileHistory {
 interface LineHistory {
   key: "lineHistory"
   variables: {
-    filename: string
     revision: string
-    startLine: number
-    endLine: number
+    lineRanges: string
   }
 }
 
@@ -27,8 +25,7 @@ interface LineBlame {
   key: "lineBlame"
   variables: {
     filename: string
-    startLine: number
-    endLine: number
+    lineRanges: string
   }
 }
 

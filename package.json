@@ -268,12 +268,12 @@
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log ${revision} -L ${startLine},${endLine}:'${filename}'",
+          "default": "git log ${revision} ${lineRanges}",
           "description": "Git command for showing history for ranges of lines in a file"
         },
         "gitterm.gitCommands.lineBlame": {
           "type": "string",
-          "default": "git blame -L ${startLine},${endLine} -- '${filename}'",
+          "default": "git blame ${lineRanges} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file"
         },
         "gitterm.gitCommands.revisionHistory": {
