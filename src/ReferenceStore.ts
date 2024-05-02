@@ -1,9 +1,14 @@
 import { writeFile } from "fs"
-import { basename, relative } from "path"
+import { relative } from "path"
 import * as vscode from "vscode"
-import { ReferenceType, referenceInfo } from "./Reference"
+import {
+  ReferenceType,
+  ignoreReferenceFile,
+  referenceInfo,
+  referenceValid,
+} from "./Reference"
 import Trie from "./Trie"
-import { streamCommand } from "./util"
+import { isDirectory, streamCommand } from "./util"
 
 type ReferenceTrie = Trie<Set<ReferenceType>>
 
@@ -20,17 +25,24 @@ export default function ReferenceStore(
 
   const branchWatcher = setupReferenceWatcher(
     "branch",
+    directory,
     gitDirectory,
     references,
   )
 
   const remoteWatcher = setupReferenceWatcher(
     "remote",
+    directory,
     gitDirectory,
     references,
   )
 
-  const tagWatcher = setupReferenceWatcher("tag", gitDirectory, references)
+  const tagWatcher = setupReferenceWatcher(
+    "tag",
+    directory,
+    gitDirectory,
+    references,
+  )
 
   loadReferences("branch", directory, references, "branch", [
     "--format=%(refname:lstrip=2)",
@@ -71,37 +83,51 @@ export default function ReferenceStore(
   }
 }
 
+// TODO: Handle reftable repositories.
 function setupReferenceWatcher(
   type: ReferenceType,
+  directory: vscode.Uri,
   gitDirectory: vscode.Uri,
   references: ReferenceTrie,
 ): vscode.FileSystemWatcher {
   const refDir = referenceInfo[type].directory
-  const dir = vscode.Uri.joinPath(gitDirectory, "refs", refDir)
-  const pattern = new vscode.RelativePattern(dir, "**/*")
+  const refsDir = vscode.Uri.joinPath(gitDirectory, "refs", refDir)
+  const pattern = new vscode.RelativePattern(refsDir, "**/*")
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
-  watcher.onDidCreate((uri) => {
-    if (basename(uri.fsPath) !== "HEAD") {
-      const ref = relative(dir.fsPath, uri.fsPath)
-
-      references.update(ref, (types = new Set()) => types.add(type))
+  watcher.onDidCreate(async (uri) => {
+    if (ignoreReferenceFile(uri) || (await isDirectory(uri))) {
+      return
     }
+
+    const ref = relative(refsDir.fsPath, uri.fsPath)
+
+    references.update(ref, (types = new Set()) => types.add(type))
   })
 
+  // TODO: Handle deleting of packed refs.
   watcher.onDidDelete((uri) => {
-    if (basename(uri.fsPath) !== "HEAD") {
-      const ref = relative(dir.fsPath, uri.fsPath)
-
-      const types = references.update(ref, (types = new Set()) => {
-        types.delete(type)
-        return types
-      })
-
-      if (types.size === 0) {
-        references.delete(ref)
-      }
+    if (ignoreReferenceFile(uri)) {
+      return
     }
+
+    const refOrDir = relative(refsDir.fsPath, uri.fsPath)
+
+    references
+      .entries(refOrDir)
+      .filter(([, types]) => types.has(type))
+      .forEach(async ([ref, types]) => {
+        // Valid references get deleted when being packed.
+        if (await referenceValid(ref, type, directory)) {
+          return
+        }
+
+        types.delete(type)
+
+        if (types.size === 0) {
+          references.delete(ref)
+        }
+      })
   })
 
   return watcher

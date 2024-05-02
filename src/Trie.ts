@@ -24,7 +24,7 @@ type Match<Value> = {
 type Updater<Value> = (value: Value | undefined) => Value
 
 export default interface Trie<Value> {
-  entries(): Entry<Value>[]
+  entries(prefix?: string): Entry<Value>[]
   set(key: string, value: Value): void
   update(key: string, updater: Updater<Value>): Value
   delete(key: string): void
@@ -35,8 +35,13 @@ export default function Trie<Value>(): Trie<Value> {
   const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {
-    entries() {
-      return getEntries(root, "", [])
+    entries(prefix) {
+      if (prefix === undefined) {
+        return getEntries("", root, [])
+      } else {
+        const start = getNode(prefix, root)
+        return start === null ? [] : getEntries(prefix, start, [])
+      }
     },
 
     set(key, value) {
@@ -79,19 +84,30 @@ export default function Trie<Value>(): Trie<Value> {
   }
 }
 
+function getNode<Value>(key: string, current: Node<Value>): Node<Value> | null {
+  const first = key.slice(0, 1)
+  const rest = key.slice(1)
+  const terminal = first === ""
+
+  if (terminal) {
+    return current
+  } else {
+    const nextChild = current.children.get(first)
+    return nextChild === undefined ? null : getNode(rest, nextChild)
+  }
+}
+
 function getEntries<Value>(
-  current: Node<Value>,
   prefix: string,
+  current: Node<Value>,
   entries: Entry<Value>[],
 ): Entry<Value>[] {
+  if (current.terminal) {
+    entries.push([prefix, current.value])
+  }
+
   for (const [part, child] of current.children.entries()) {
-    const string = prefix + part
-
-    if (child.terminal) {
-      entries.push([string, child.value])
-    }
-
-    getEntries(child, string, entries)
+    getEntries(prefix + part, child, entries)
   }
 
   return entries
@@ -126,15 +142,15 @@ function doUpdate<Value>(
 }
 
 // This removes the terminal entry for a string, but it doesn't prune the tree.
-function doDelete<Value>(string: string, current: Node<Value>) {
-  const first = string.slice(0, 1)
-  const rest = string.slice(1)
+function doDelete<Value>(key: string, current: Node<Value>) {
+  const first = key.slice(0, 1)
+  const rest = key.slice(1)
   const terminal = first === ""
 
   if (terminal) {
     current.terminal = false
   } else {
-    let nextChild = current.children.get(first)
+    const nextChild = current.children.get(first)
 
     if (nextChild !== undefined) {
       doDelete(rest, nextChild)

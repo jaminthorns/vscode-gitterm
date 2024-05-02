@@ -78,5 +78,11 @@ suite("StringTrie matching", () => {
       ["cdefg", null],
       ["xyz", null],
     ])
+
+    deepEqual(trie.entries("a"), [
+      ["a", null],
+      ["abc", null],
+      ["ade", null],
+    ])
   })
 })

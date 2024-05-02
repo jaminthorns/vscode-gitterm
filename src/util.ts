@@ -29,6 +29,11 @@ export function truncate(text: string, maxLength: number): string {
   }
 }
 
+export async function isDirectory(uri: vscode.Uri): Promise<boolean> {
+  const { type } = await vscode.workspace.fs.stat(uri)
+  return type === vscode.FileType.Directory
+}
+
 interface CommandOptions {
   directory?: vscode.Uri
   stdin?: string

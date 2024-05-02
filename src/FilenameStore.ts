@@ -1,8 +1,8 @@
 import { writeFile } from "fs"
-import { basename } from "path"
 import * as vscode from "vscode"
+import { ignoreReferenceFile } from "./Reference"
 import Trie from "./Trie"
-import { git, streamCommand } from "./util"
+import { git, isDirectory, streamCommand } from "./util"
 
 type FilenameTrie = Trie<null>
 
@@ -61,12 +61,14 @@ async function setupFilenameWatcher(
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
   watcher.onDidCreate(async (uri) => {
-    if (basename(uri.fsPath) !== "HEAD") {
-      const content = await vscode.workspace.fs.readFile(uri)
-      const commit = content.toString().trim()
-
-      loadFilenames(directory, filenames, `${initialCommit}..${commit}`)
+    if (ignoreReferenceFile(uri) || (await isDirectory(uri))) {
+      return
     }
+
+    const content = await vscode.workspace.fs.readFile(uri)
+    const commit = content.toString().trim()
+
+    loadFilenames(directory, filenames, `${initialCommit}..${commit}`)
   })
 
   return watcher
