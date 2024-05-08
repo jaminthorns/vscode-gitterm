@@ -44,6 +44,8 @@ export default function ReferenceStore(
     references,
   )
 
+  const packedRefsWatcher = setupPackedRefsWatcher(gitDirectory, references)
+
   loadReferences("branch", directory, references, "branch", [
     "--format=%(refname:lstrip=2)",
   ])
@@ -79,6 +81,7 @@ export default function ReferenceStore(
       branchWatcher.dispose()
       remoteWatcher.dispose()
       tagWatcher.dispose()
+      packedRefsWatcher.dispose()
     },
   }
 }
@@ -143,4 +146,24 @@ async function loadReferences(
   streamCommand("git", [gitSubcommand, ...gitArgs], directory, (branch) => {
     references.update(branch, (types = new Set()) => types.add(type))
   })
+}
+
+function setupPackedRefsWatcher(
+  gitDirectory: vscode.Uri,
+  references: ReferenceTrie,
+) {
+  const pattern = new vscode.RelativePattern(gitDirectory, "*")
+  const watcher = vscode.workspace.createFileSystemWatcher(pattern)
+
+  watcher.onDidChange(async (uri) => {
+    console.log("CHANGE", uri.fsPath)
+
+    const decoder = new TextDecoder()
+    const file = await vscode.workspace.fs.readFile(uri)
+    const content = decoder.decode(file)
+
+    console.log("content", content)
+  })
+
+  return watcher
 }
