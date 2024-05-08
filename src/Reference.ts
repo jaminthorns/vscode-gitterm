@@ -8,22 +8,26 @@ export const referenceInfo: Record<
   ReferenceType,
   {
     label: string
+    remoteLabel: string
     directory: string
     disambiguate: { label: string; icon: string }
   }
 > = {
   branch: {
     label: "Branch",
+    remoteLabel: "Upstream Branch",
     directory: "heads",
     disambiguate: { icon: "git-branch", label: "Local Branch" },
   },
   remote: {
-    label: "Branch",
+    label: "Remote Branch",
+    remoteLabel: "Branch",
     directory: "remotes",
     disambiguate: { icon: "globe", label: "Remote Branch" },
   },
   tag: {
     label: "Tag",
+    remoteLabel: "Tag",
     directory: "tags",
     disambiguate: { icon: "tag", label: "Tag" },
   },
