@@ -133,13 +133,13 @@ function setupReferenceWatcher(
   return watcher
 }
 
-async function loadReferences(
+function loadReferences(
   type: ReferenceType,
   directory: vscode.Uri,
   references: ReferenceTrie,
   gitSubcommand: string,
   gitArgs: string[],
-): Promise<void> {
+) {
   streamCommand("git", [gitSubcommand, ...gitArgs], directory, (branch) => {
     references.update(branch, (types = new Set()) => types.add(type))
   })

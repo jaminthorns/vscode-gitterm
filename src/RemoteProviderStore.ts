@@ -56,7 +56,7 @@ function setupRemoteWatcher(
     }
   })
 
-  watcher.onDidDelete(async (uri) => {
+  watcher.onDidDelete((uri) => {
     providers.delete(basename(uri.fsPath))
   })
 

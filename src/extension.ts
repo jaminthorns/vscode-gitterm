@@ -19,7 +19,7 @@ import {
 import RepositoryStore from "./RepositoryStore"
 import TerminalFolderStore from "./TerminalFolderStore"
 
-export async function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
   const { workspaceFolders } = vscode.workspace
 
   if (workspaceFolders === undefined) {

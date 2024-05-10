@@ -422,7 +422,7 @@ export function fileLinkProvider(
         }))
     },
 
-    async handleTerminalLink({ context }: FileTerminalLink) {
+    handleTerminalLink({ context }: FileTerminalLink) {
       const { repository, filename } = context
       const commit = "commit" in context ? context.commit : undefined
 

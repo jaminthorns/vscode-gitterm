@@ -78,7 +78,7 @@ function loadFilenames(
   directory: vscode.Uri,
   filenames: FilenameTrie,
   range?: string,
-): void {
+) {
   let args = [
     "--name-only",
     "--no-renames",
