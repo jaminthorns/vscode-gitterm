@@ -5,9 +5,9 @@ extension.
 
 Legend:
 
-  - ❗ Required before release
-  - 🤔 Maybe in the future
-  - 📝 Documentation
+- ❗ Required before release
+- 🤔 Maybe in the future
+- 📝 Documentation
 
 ## Link Types
 
@@ -148,24 +148,3 @@ Alternatively, we could use a less reliable but more "static" approach:
 
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
-
-## Opening Files at Commit in Editor ❗
-
-Allow user to open files in editor when showing a file at a commit instead of a
-terminal. When running any of the editor (file history, line history, blame)
-commands, they would be executed from the corresponding commit. This allows
-powerful history investigation. This could be enabled/disabled with a config
-value.
-
-## Opening Diffs in Editor ❗
-
-Allow user to open diff in a diff editor using VS Code's `vscode.diff` command.
-This would possibly have similar functionality as opening a file at commit in
-editor. Here's a helpful comment for implementation details:
-https://github.com/Microsoft/vscode/issues/34623#issuecomment-423742923
-
-## Opening Commits in Editor ❗
-
-With the new multi-diff editor, commits can be shown in an editor. There should
-be an API to access this, since the GitHub PR and Issues extensions now takes
-advantage of it.

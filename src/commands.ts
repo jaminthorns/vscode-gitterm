@@ -1,13 +1,9 @@
 import { basename } from "path"
 import * as vscode from "vscode"
+import { Commit } from "./Commit"
 import { LineTranslator } from "./LineTranslator"
 import RepositoryStore from "./RepositoryStore"
-import {
-  commitFilenames,
-  lineTranslationDiff,
-  runCommandInTerminal,
-  userGitCommand,
-} from "./util"
+import { commitFilenames, runCommandInTerminal, userGitCommand } from "./util"
 
 interface LineNumberHandlerArgs {
   uri: vscode.Uri
@@ -50,7 +46,6 @@ export function lineHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.lineHistory",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
-      // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
       const range = { start: lineNumber, end: lineNumber }
 
@@ -63,7 +58,6 @@ export function lineBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
     "gitterm.lineBlame",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
-      // TODO: Handle Git URIs.
       const document = await vscode.workspace.openTextDocument(uri)
       const range = { start: lineNumber, end: lineNumber }
 
@@ -132,13 +126,13 @@ function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
     cwd: directory,
     command: userGitCommand({
       key: "folderHistory",
-      variables: { folder, revision: "HEAD" },
+      variables: { revision: "HEAD", folder },
     }),
     context: { folder },
   })
 }
 
-function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
+async function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
   const repository = repositories.getRepository(uri)
 
   if (repository === undefined) {
@@ -147,18 +141,20 @@ function fileHistory(uri: vscode.Uri, repositories: RepositoryStore) {
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(uri, false)
+  const revision = uriRevision(uri)
+  const label = basename(filename)
 
   runCommandInTerminal({
-    name: basename(filename),
+    name: await suffixWithRevision(label, revision, directory),
     icon: "history",
     cwd: directory,
     command: userGitCommand({
       key: "fileHistory",
-      variables: { filename, revision: "HEAD" },
+      variables: { revision, filename },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory),
     },
   })
 }
@@ -176,62 +172,56 @@ async function lineHistory(
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(document.uri, false)
+  const revision = uriRevision(document.uri)
 
-  const [unsavedDiff, worktreeDiff, stagedDiff] = await Promise.all([
-    lineTranslationDiff(["--no-index", "--", filename, "-"], {
-      directory,
-      stdin: document.getText(),
-      ignoreNonZeroExitCode: true,
-    }),
-    lineTranslationDiff(["--", filename], { directory }),
-    lineTranslationDiff(["--staged", "--", filename], { directory }),
-  ])
+  let translatedRanges
 
-  const translators = [
-    LineTranslator(unsavedDiff),
-    LineTranslator(worktreeDiff),
-    LineTranslator(stagedDiff),
-  ]
+  if (revision === "HEAD") {
+    const translators = await Promise.all([
+      // Unsaved
+      LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
+        directory,
+        stdin: document.getText(),
+        ignoreNonZeroExitCode: true,
+      }),
+      // Working Tree
+      LineTranslator.fromDiff(["--", filename], { directory }),
+      // Staged
+      LineTranslator.fromDiff(["--staged", "--", filename], { directory }),
+    ])
 
-  const headRanges = ranges.map(({ start, end }) => ({
-    start: translateOldLine(start, "start", translators),
-    end: translateOldLine(end, "end", translators),
-  }))
+    translatedRanges = translateRanges(ranges, translators, "newly added")
 
-  const newRanges = headRanges
-    .map(({ start, end }, i) => ({ isNew: start > end, original: ranges[i] }))
-    .filter(({ isNew }) => isNew)
-    .map(({ original }) => original)
-
-  if (newRanges.length > 0) {
-    const newRangesStr = newRanges.map(displayRange).join(", ")
-    const message = `Can't show history for newly added lines: ${newRangesStr}`
-
-    vscode.window.showInformationMessage(message)
-    return
+    if (translatedRanges === null) {
+      return null
+    }
+  } else {
+    translatedRanges = ranges
   }
 
-  const rangeSuffix = headRanges.map(displayRange).join(",")
-  const lineRanges = headRanges
+  const rangeSuffix = translatedRanges.map(displayRange).join(",")
+  const fileLineRanges = translatedRanges
     .map(({ start, end }) => `-L ${start},${end}:'${filename}'`)
     .join(" ")
 
+  const label = `${basename(filename)}:${rangeSuffix}`
+
   runCommandInTerminal({
-    name: `${basename(filename)}:${rangeSuffix}`,
+    name: await suffixWithRevision(label, revision, directory),
     icon: "history",
     cwd: directory,
     command: userGitCommand({
       key: "lineHistory",
-      variables: { revision: "HEAD", lineRanges },
+      variables: { revision, fileLineRanges },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory),
     },
   })
 }
 
-function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
+async function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
   const repository = repositories.getRepository(uri)
 
   if (repository === undefined) {
@@ -240,18 +230,20 @@ function fileBlame(uri: vscode.Uri, repositories: RepositoryStore) {
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(uri, false)
+  const revision = uriRevision(uri)
+  const label = basename(filename)
 
   runCommandInTerminal({
-    name: basename(filename),
+    name: await suffixWithRevision(label, revision, directory),
     icon: "person",
     cwd: directory,
     command: userGitCommand({
       key: "fileBlame",
-      variables: { filename },
+      variables: { revision, filename },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory),
     },
   })
 }
@@ -269,50 +261,86 @@ async function lineBlame(
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(document.uri, false)
+  const revision = uriRevision(document.uri)
 
-  const unsavedDiff = await lineTranslationDiff(
-    ["--no-index", "--", filename, "-"],
-    { directory, stdin: document.getText(), ignoreNonZeroExitCode: true },
-  )
+  let translatedRanges
 
-  const translators = [LineTranslator(unsavedDiff)]
+  if (revision === "HEAD") {
+    const translators = [
+      // Unsaved
+      await LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
+        directory,
+        stdin: document.getText(),
+        ignoreNonZeroExitCode: true,
+      }),
+    ]
 
-  const savedRanges = ranges.map(({ start, end }) => ({
-    start: translateOldLine(start, "start", translators),
-    end: translateOldLine(end, "end", translators),
-  }))
+    translatedRanges = translateRanges(ranges, translators, "unsaved")
 
-  const unsavedRanges = savedRanges
-    .map(({ start, end }, i) => ({ isNew: start > end, original: ranges[i] }))
-    .filter(({ isNew }) => isNew)
-    .map(({ original }) => original)
-
-  if (unsavedRanges.length > 0) {
-    const unsavedRangesStr = unsavedRanges.map(displayRange).join(", ")
-    const message = `Can't show blame for unsaved lines: ${unsavedRangesStr}`
-
-    vscode.window.showInformationMessage(message)
-    return
+    if (translatedRanges === null) {
+      return
+    }
+  } else {
+    translatedRanges = ranges
   }
 
-  const rangeSuffix = savedRanges.map(displayRange).join(",")
-  const lineRanges = savedRanges
+  const rangeSuffix = translatedRanges.map(displayRange).join(",")
+  const lineRanges = translatedRanges
     .map(({ start, end }) => `-L ${start},${end}`)
     .join(" ")
 
+  const label = `${basename(filename)}:${rangeSuffix}`
+
   runCommandInTerminal({
-    name: `${basename(filename)}:${rangeSuffix}`,
+    name: await suffixWithRevision(label, revision, directory),
     icon: "person",
     cwd: directory,
     command: userGitCommand({
       key: "lineBlame",
-      variables: { filename, lineRanges },
+      variables: { revision, filename, lineRanges },
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory),
     },
   })
+}
+
+function uriRevision(uri: vscode.Uri): string {
+  if (uri.scheme === "file") {
+    return "HEAD"
+  } else if (["git", "git-commit"].includes(uri.scheme)) {
+    return JSON.parse(uri.query).ref
+  } else {
+    throw Error(`Cannot get revision from URI: ${uri}`)
+  }
+}
+
+function translateRanges(
+  ranges: Range[],
+  translators: LineTranslator[],
+  invalidAdjective: string,
+): Range[] | null {
+  const translatedRanges = ranges.map(({ start, end }) => ({
+    start: translateOldLine(start, "start", translators),
+    end: translateOldLine(end, "end", translators),
+  }))
+
+  const invalidRanges = translatedRanges
+    .map(({ start, end }, i) => ({ invalid: start > end, original: ranges[i] }))
+    .filter(({ invalid }) => invalid)
+    .map(({ original }) => original)
+
+  if (invalidRanges.length > 0) {
+    const newRangesStr = invalidRanges.map(displayRange).join(", ")
+    const message = `Can't show history for ${invalidAdjective} lines: ${newRangesStr}`
+
+    vscode.window.showInformationMessage(message)
+
+    return null
+  } else {
+    return translatedRanges
+  }
 }
 
 function translateOldLine(
@@ -330,4 +358,22 @@ function translateOldLine(
 
 function displayRange({ start, end }: Range): string {
   return start === end ? `${start}` : `${start}-${end}`
+}
+
+async function suffixWithRevision(
+  label: string,
+  revision: string,
+  directory: vscode.Uri,
+) {
+  if (revision === "HEAD") {
+    return label
+  }
+
+  const commit = await Commit(revision, directory)
+
+  if (commit === null) {
+    return label
+  } else {
+    return `${label} (${commit.abbreviated})`
+  }
 }

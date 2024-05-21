@@ -1,3 +1,5 @@
+import { GitCommandOptions, git } from "./util"
+
 interface LineRange {
   start: number
   end: number
@@ -78,4 +80,12 @@ function linePosition(line: number, range: LineRange): Position {
   } else {
     return Position.After
   }
+}
+
+LineTranslator.fromDiff = async function (
+  gitDiffArgs: string[],
+  gitOptions: GitCommandOptions,
+) {
+  const diff = await git("diff", ["--unified=0", ...gitDiffArgs], gitOptions)
+  return LineTranslator(diff)
 }

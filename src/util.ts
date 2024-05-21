@@ -81,7 +81,7 @@ export function streamCommand(
   readline.on("line", onLineOutput)
 }
 
-interface GitCommandOptions extends CommandOptions {
+export interface GitCommandOptions extends CommandOptions {
   directory: vscode.Uri
 }
 
@@ -130,22 +130,27 @@ export function userGitCommand(command: UserGitCommand): string {
 // Get a mapping of commits to historical filenames for every commit in which a
 // given path was changed.
 export async function commitFilenames(
+  revision: string,
   path: string,
   directory: vscode.Uri,
+  maxCount?: number,
 ): Promise<CommitFilenames | null> {
   try {
-    const args = ["--follow", "--name-only", "--format=%H", "--", path]
+    const countArgs = maxCount === undefined ? [] : [`--max-count=${maxCount}`]
+    const args = [
+      ...countArgs,
+      "--follow",
+      "--name-only",
+      "--format=%H",
+      revision,
+      "--",
+      path,
+    ]
+
     const output = await git("log", args, { directory })
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {
     return null
   }
-}
-
-export async function lineTranslationDiff(
-  args: string[],
-  options: GitCommandOptions,
-) {
-  return await git("diff", ["--unified=0", ...args], options)
 }

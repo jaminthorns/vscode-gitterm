@@ -48,7 +48,7 @@ export function commitLinkProvider(
     }): Promise<CommitTerminalLink[]> {
       const provideCommitLinks = vscode.workspace
         .getConfiguration("gitterm.terminalLinks")
-        .get("provideCommitLinks")
+        .get("provideCommitLinks") as "always" | "never"
 
       if (provideCommitLinks === "never") {
         return []
@@ -95,7 +95,7 @@ export function commitLinkProvider(
       ])
 
       const { authorDate, authorName, subject } = commitInfo
-      const commitLabel = `${commit.abbreviated} • ${truncate(subject, 36)}`
+      const commitLabel = `${commit.abbreviated} - ${truncate(subject, 36)}`
       const commitFilename = commitFilenames?.get(commit.full) ?? null
 
       const commitItems: SelectableQuickPickItem[] = excludeNulls([
@@ -106,17 +106,25 @@ export function commitLinkProvider(
         {
           label: subject,
           detail: `${authorName} • ${authorDate.toLocaleString()}`,
-          onSelected: () => {
-            runCommandInTerminal({
-              name: commitLabel,
-              icon: "git-commit",
-              cwd: repository.directory,
-              command: userGitCommand({
-                key: "showRevision",
-                variables: { revision: commit.full },
-              }),
-              context: { commit },
-            })
+          onSelected: async () => {
+            const showRevision = vscode.workspace
+              .getConfiguration("gitterm.show")
+              .get("revision") as "editor" | "terminal"
+
+            if (showRevision === "editor") {
+              await openRevisionInEditor(commit, repository)
+            } else if (showRevision === "terminal") {
+              runCommandInTerminal({
+                name: commitLabel,
+                icon: "git-commit",
+                cwd: repository.directory,
+                command: userGitCommand({
+                  key: "showRevision",
+                  variables: { revision: commit.full },
+                }),
+                context: { commit },
+              })
+            }
           },
         },
         {
@@ -170,6 +178,67 @@ export function commitLinkProvider(
   })
 }
 
+async function openRevisionInEditor(commit: Commit, repository: Repository) {
+  const { directory } = repository
+
+  const showCommand = git(
+    "show",
+    ["--name-status", "--format=", "--diff-filter=ADMR", commit.full],
+    { directory },
+  )
+
+  const [prevCommit, commitInfo, showOutput] = await Promise.all([
+    Commit(`${commit.full}^`, directory),
+    CommitInfo(commit.full, directory),
+    showCommand,
+  ])
+
+  const lines = showOutput.split("\n").map((line) => line.split("\t"))
+
+  const resources = lines.map(([status, ...filenames]) => {
+    switch (status[0]) {
+      case "A":
+        return {
+          originalUri: undefined,
+          modifiedUri: gitUri(filenames[0], commit, directory),
+        }
+
+      case "M":
+        return {
+          originalUri: gitUri(filenames[0], prevCommit, directory),
+          modifiedUri: gitUri(filenames[0], commit, directory),
+        }
+
+      case "D":
+        return {
+          originalUri: gitUri(filenames[0], prevCommit, directory),
+          modifiedUri: undefined,
+        }
+
+      case "R":
+        return {
+          originalUri: gitUri(filenames[0], prevCommit, directory),
+          modifiedUri: gitUri(filenames[1], commit, directory),
+        }
+    }
+  })
+
+  const multiDiffSourceUri = vscode.Uri.from({
+    scheme: "git-commit",
+    path: directory.path,
+    query: JSON.stringify({
+      path: directory.fsPath,
+      ref: commit.full,
+    }),
+  })
+
+  vscode.commands.executeCommand("_workbench.openMultiDiffEditor", {
+    multiDiffSourceUri,
+    title: `${commit.abbreviated} - ${commitInfo.subject}`,
+    resources,
+  })
+}
+
 interface ReferenceTerminalLink extends vscode.TerminalLink {
   context: RepositoryContext & ReferenceContext & Partial<TerminalContext>
 }
@@ -185,7 +254,7 @@ export function referenceLinkProvider(
     }): Promise<ReferenceTerminalLink[]> {
       const provideReferenceLinks = vscode.workspace
         .getConfiguration("gitterm.terminalLinks")
-        .get("provideReferenceLinks")
+        .get("provideReferenceLinks") as "always" | "never"
 
       if (provideReferenceLinks === "never") {
         return []
@@ -392,7 +461,7 @@ export function fileLinkProvider(
     }): Promise<FileTerminalLink[]> {
       const provideFileLinks = vscode.workspace
         .getConfiguration("gitterm.terminalLinks")
-        .get("provideFileLinks")
+        .get("provideFileLinks") as "always" | "never" | "withRevisionContext"
 
       if (provideFileLinks === "never") {
         return []
@@ -466,6 +535,7 @@ export function fileLinkProvider(
                 commit,
                 filename,
                 commitFilenames: commitFilenames(
+                  "HEAD",
                   filename,
                   repository.directory,
                 ),
@@ -525,13 +595,17 @@ function fileAtCommitItems(
   commit: Commit,
   filename: string,
 ) {
-  const fileLabel = `${basename(filename)} @ ${commit.abbreviated}`
+  const fileLabel = `${basename(filename)} (${commit.abbreviated})`
   const variables = { revision: commit.full, filename }
 
   const getContext = () => ({
     commit,
     filename,
-    commitFilenames: commitFilenames(filename, repository.directory),
+    commitFilenames: commitFilenames(
+      commit.full,
+      filename,
+      repository.directory,
+    ),
   })
 
   return excludeNulls([
@@ -542,31 +616,49 @@ function fileAtCommitItems(
     {
       label: "$(file) Show File",
       onSelected: () => {
-        runCommandInTerminal({
-          name: fileLabel,
-          icon: "file",
-          cwd: repository.directory,
-          command: userGitCommand({
-            key: "showFileContentsAtRevision",
-            variables,
-          }),
-          context: getContext(),
-        })
+        const showFileAtRevision = vscode.workspace
+          .getConfiguration("gitterm.show")
+          .get("fileAtRevision") as "editor" | "terminal"
+
+        if (showFileAtRevision === "editor") {
+          const uri = gitUri(filename, commit, repository.directory)
+
+          vscode.window.showTextDocument(uri)
+        } else if (showFileAtRevision === "terminal") {
+          runCommandInTerminal({
+            name: fileLabel,
+            icon: "file",
+            cwd: repository.directory,
+            command: userGitCommand({
+              key: "showFileAtRevision",
+              variables,
+            }),
+            context: getContext(),
+          })
+        }
       },
     },
     {
       label: "$(git-compare) Show Diff",
-      onSelected: () => {
-        runCommandInTerminal({
-          name: fileLabel,
-          icon: "git-compare",
-          cwd: repository.directory,
-          command: userGitCommand({
-            key: "showFileDiffAtRevision",
-            variables,
-          }),
-          context: getContext(),
-        })
+      onSelected: async () => {
+        const showFileDiffAtRevision = vscode.workspace
+          .getConfiguration("gitterm.show")
+          .get("fileDiffAtRevision") as "editor" | "terminal"
+
+        if (showFileDiffAtRevision === "editor") {
+          await showFileAtCommitInEditor(filename, commit, repository)
+        } else if (showFileDiffAtRevision === "terminal") {
+          runCommandInTerminal({
+            name: fileLabel,
+            icon: "git-compare",
+            cwd: repository.directory,
+            command: userGitCommand({
+              key: "showFileDiffAtRevision",
+              variables,
+            }),
+            context: getContext(),
+          })
+        }
       },
     },
     {
@@ -595,6 +687,76 @@ function fileAtCommitItems(
       }),
     },
   ])
+}
+
+async function showFileAtCommitInEditor(
+  filename: string,
+  commit: Commit,
+  repository: Repository,
+) {
+  const previous = await previousInfo(commit, filename, repository.directory)
+  const prevCommit = previous?.commit ?? null
+  const prevFilename = previous?.filename ?? filename
+
+  let title
+
+  if (prevCommit === null) {
+    title = `${basename(filename)} (added in ${commit.abbreviated})`
+  } else {
+    const left = `${basename(prevFilename)} (${prevCommit.abbreviated})`
+    const right = `${basename(filename)} (${commit.abbreviated})`
+
+    title = `${left} ↔ ${right}`
+  }
+
+  vscode.commands.executeCommand(
+    "vscode.diff",
+    gitUri(prevFilename, prevCommit, repository.directory),
+    gitUri(filename, commit, repository.directory),
+    title,
+  )
+}
+
+async function previousInfo(
+  commit: Commit,
+  filename: string,
+  directory: vscode.Uri,
+): Promise<{ commit: Commit; filename: string } | null> {
+  const result = await commitFilenames(commit.full, filename, directory, 2)
+
+  if (result === null) {
+    return null
+  }
+
+  const entries = Array.from(result)
+
+  if (entries.length !== 2) {
+    return null
+  }
+
+  const [prevCommitRaw, prevFilename] = entries[1]
+  const prevCommit = await Commit(prevCommitRaw, directory)
+
+  if (prevCommit === null) {
+    return null
+  } else {
+    return { commit: prevCommit, filename: prevFilename }
+  }
+}
+
+function gitUri(
+  filename: string,
+  commit: Commit | null,
+  directory: vscode.Uri,
+): vscode.Uri {
+  const uri = vscode.Uri.joinPath(directory, filename)
+  const ref = commit?.full ?? "0000000000000000000000000000000000000000"
+
+  return vscode.Uri.from({
+    scheme: "git",
+    path: uri.path,
+    query: JSON.stringify({ path: uri.fsPath, ref }),
+  })
 }
 
 function pickRemote(

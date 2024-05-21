@@ -93,19 +93,19 @@
         },
         {
           "command": "gitterm.activeFileHistory",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.activeFileBlame",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.selectionHistory",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.selectionBlame",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         }
       ],
       "explorer/context": [
@@ -129,46 +129,46 @@
         {
           "command": "gitterm.fileHistory",
           "group": "10_gitterm_file@0",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$$/"
         },
         {
           "command": "gitterm.fileBlame",
           "group": "10_gitterm_file@1",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$/"
         }
       ],
       "editor/context": [
         {
           "command": "gitterm.selectionHistory",
           "group": "10_gitterm_selection@0",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.selectionBlame",
           "group": "10_gitterm_selection@1",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.activeFileHistory",
           "group": "11_gitterm_file@0",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.activeFileBlame",
           "group": "11_gitterm_file@1",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         }
       ],
       "editor/lineNumber/context": [
         {
           "command": "gitterm.lineHistory",
           "group": "00_gitterm_line@0",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
           "command": "gitterm.lineBlame",
           "group": "00_gitterm_line@1",
-          "when": "resourceScheme == file"
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         }
       ]
     },
@@ -176,22 +176,22 @@
       {
         "command": "gitterm.activeFileHistory",
         "key": "alt+shift+h",
-        "when": "editorFocus"
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit$/"
       },
       {
         "command": "gitterm.activeFileBlame",
         "key": "alt+shift+b",
-        "when": "editorFocus"
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit$/"
       },
       {
         "command": "gitterm.selectionHistory",
         "key": "alt+h",
-        "when": "editorTextFocus"
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit$/"
       },
       {
         "command": "gitterm.selectionBlame",
         "key": "alt+b",
-        "when": "editorTextFocus"
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit$/"
       }
     ],
     "configuration": {
@@ -251,6 +251,45 @@
           "default": "always",
           "description": "Whether to provide file links in the terminal"
         },
+        "gitterm.show.revision": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Editor",
+            "Terminal"
+          ],
+          "default": "editor",
+          "description": "How to show a revision"
+        },
+        "gitterm.show.fileDiffAtRevision": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Editor",
+            "Terminal"
+          ],
+          "default": "editor",
+          "description": "How to show a diff for a file at a revision"
+        },
+        "gitterm.show.fileAtRevision": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Editor",
+            "Terminal"
+          ],
+          "default": "editor",
+          "description": "How to show a file at a revision"
+        },
         "gitterm.gitCommands.folderHistory": {
           "type": "string",
           "default": "git log --stat ${revision} -- '${folder}'",
@@ -263,17 +302,17 @@
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
-          "default": "git blame -- '${filename}'",
+          "default": "git blame ${revision} -- '${filename}'",
           "description": "Git command for showing file blame"
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log ${revision} ${lineRanges}",
+          "default": "git log ${revision} ${fileLineRanges}",
           "description": "Git command for showing history for ranges of lines in a file"
         },
         "gitterm.gitCommands.lineBlame": {
           "type": "string",
-          "default": "git blame ${lineRanges} -- '${filename}'",
+          "default": "git blame ${revision} ${lineRanges} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file"
         },
         "gitterm.gitCommands.revisionHistory": {
@@ -289,12 +328,12 @@
         "gitterm.gitCommands.showFileDiffAtRevision": {
           "type": "string",
           "default": "git show -m ${revision} -- '${filename}'",
-          "description": "Git command for showing a file's diff at a revision"
+          "description": "Git command for showing a diff for a file at a revision"
         },
-        "gitterm.gitCommands.showFileContentsAtRevision": {
+        "gitterm.gitCommands.showFileAtRevision": {
           "type": "string",
           "default": "git show ${revision}:'${filename}'",
-          "description": "Git command for showing a file's contents at a revision"
+          "description": "Git command for showing a file at a revision"
         }
       }
     }

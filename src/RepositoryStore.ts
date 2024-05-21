@@ -21,7 +21,9 @@ export default function RepositoryStore(): RepositoryStore {
     },
 
     getRepository(uri) {
-      const folder = vscode.workspace.getWorkspaceFolder(uri)
+      const fileUri = vscode.Uri.file(uri.path) // Account for non-file URIs
+      const folder = vscode.workspace.getWorkspaceFolder(fileUri)
+
       return folder && repositories.get(folder.uri)
     },
 

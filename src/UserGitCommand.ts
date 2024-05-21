@@ -1,32 +1,27 @@
 interface FolderHistory {
   key: "folderHistory"
-  variables: { folder: string; revision: string }
+  variables: { revision: string; folder: string }
 }
 
 interface FileHistory {
   key: "fileHistory"
-  variables: { filename: string; revision: string }
+  variables: { revision: string; filename: string }
 }
 
 interface LineHistory {
   key: "lineHistory"
-  variables: {
-    revision: string
-    lineRanges: string
-  }
+  variables: { revision: string; fileLineRanges: string }
 }
 
+// TODO: Consider consolidating into single Blame command.
 interface FileBlame {
   key: "fileBlame"
-  variables: { filename: string }
+  variables: { revision: string; filename: string }
 }
 
 interface LineBlame {
   key: "lineBlame"
-  variables: {
-    filename: string
-    lineRanges: string
-  }
+  variables: { revision: string; filename: string; lineRanges: string }
 }
 
 interface RevisionHistory {
@@ -41,12 +36,12 @@ interface ShowRevision {
 
 interface ShowFileDiffAtRevision {
   key: "showFileDiffAtRevision"
-  variables: { filename: string; revision: string }
+  variables: { revision: string; filename: string }
 }
 
-interface ShowFileContentsAtRevision {
-  key: "showFileContentsAtRevision"
-  variables: { filename: string; revision: string }
+interface ShowFileAtRevision {
+  key: "showFileAtRevision"
+  variables: { revision: string; filename: string }
 }
 
 type UserGitCommand =
@@ -58,6 +53,6 @@ type UserGitCommand =
   | RevisionHistory
   | ShowRevision
   | ShowFileDiffAtRevision
-  | ShowFileContentsAtRevision
+  | ShowFileAtRevision
 
 export default UserGitCommand
