@@ -148,3 +148,10 @@ Alternatively, we could use a less reliable but more "static" approach:
 
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
+
+# Editor Title Buttons in Git Editors ❗
+
+In editors opened by GitTerm (file at commit, file diff, commit), there should
+be a button in the editor title that opens the quick pick menu for the editor.
+This would be the same as the menu opened for clicking terminal links. The menu
+contribution point is `editor/title`.
