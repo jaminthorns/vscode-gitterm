@@ -1,8 +1,6 @@
 import { resolve } from "path"
 import * as vscode from "vscode"
-import FilenameStore from "./FilenameStore"
-import ReferenceStore from "./ReferenceStore"
-import RemoteProviderStore from "./RemoteProviderStore"
+import { FilenameStore, ReferenceStore, RemoteProviderStore } from "./stores"
 import { git } from "./util"
 
 export default interface Repository extends vscode.Disposable {

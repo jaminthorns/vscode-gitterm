@@ -9,8 +9,7 @@ import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { ReferenceType, referenceInfo, referenceValid } from "../Reference"
 import RemoteProvider from "../RemoteProvider"
 import Repository from "../Repository"
-import RepositoryStore from "../RepositoryStore"
-import TerminalFolderStore from "../TerminalFolderStore"
+import { RepositoryStore, TerminalFolderStore } from "../stores"
 import {
   excludeNulls,
   git,

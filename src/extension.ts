@@ -16,8 +16,7 @@ import {
   fileLinkProvider,
   referenceLinkProvider,
 } from "./linkProviders"
-import RepositoryStore from "./RepositoryStore"
-import TerminalFolderStore from "./TerminalFolderStore"
+import { RepositoryStore, TerminalFolderStore } from "./stores"
 
 export function activate(context: vscode.ExtensionContext) {
   const { workspaceFolders } = vscode.workspace

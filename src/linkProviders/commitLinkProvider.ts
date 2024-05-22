@@ -3,8 +3,7 @@ import { Commit, CommitInfo } from "../Commit"
 import { CommitContext, RepositoryContext, TerminalContext } from "../context"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import Repository from "../Repository"
-import RepositoryStore from "../RepositoryStore"
-import TerminalFolderStore from "../TerminalFolderStore"
+import { RepositoryStore, TerminalFolderStore } from "../stores"
 import {
   excludeNulls,
   git,

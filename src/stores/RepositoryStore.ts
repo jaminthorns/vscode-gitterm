@@ -1,14 +1,14 @@
 import * as vscode from "vscode"
-import Repository from "./Repository"
+import Repository from "../Repository"
 
-export default interface RepositoryStore {
+export interface RepositoryStore {
   addRepository(folder: vscode.WorkspaceFolder): Promise<void>
   removeRepository(folder: vscode.WorkspaceFolder): void
   getRepository(uri: vscode.Uri): Repository | undefined
   allRepositories(): Repository[]
 }
 
-export default function RepositoryStore(): RepositoryStore {
+export function RepositoryStore(): RepositoryStore {
   const repositories: Map<vscode.Uri, Repository> = new Map()
 
   return {

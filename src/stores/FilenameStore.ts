@@ -1,17 +1,17 @@
 import { writeFile } from "fs"
 import * as vscode from "vscode"
-import { ignoreReferenceFile } from "./Reference"
-import Trie from "./Trie"
-import { git, isDirectory, streamCommand } from "./util"
+import { ignoreReferenceFile } from "../Reference"
+import Trie from "../Trie"
+import { git, isDirectory, streamCommand } from "../util"
 
 type FilenameTrie = Trie<null>
 
-export default interface FilenameStore extends vscode.Disposable {
+export interface FilenameStore extends vscode.Disposable {
   findMatches: FilenameTrie["findMatches"]
   writeToFile(): void
 }
 
-export default async function FilenameStore(
+export async function FilenameStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
 ): Promise<FilenameStore> {

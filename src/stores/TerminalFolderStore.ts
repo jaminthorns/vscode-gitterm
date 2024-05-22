@@ -1,8 +1,8 @@
 import { lookpath } from "lookpath"
 import * as vscode from "vscode"
-import { run } from "./util"
+import { run } from "../util"
 
-export default interface TerminalFolderStore {
+export interface TerminalFolderStore {
   addFolder(terminal: vscode.Terminal): Promise<void>
   removeFolder(terminal: vscode.Terminal): Promise<void>
   getFolder(
@@ -10,7 +10,7 @@ export default interface TerminalFolderStore {
   ): Promise<vscode.WorkspaceFolder | undefined>
 }
 
-export default function TerminalFolderStore(): TerminalFolderStore {
+export function TerminalFolderStore(): TerminalFolderStore {
   const workspaceFolders: Map<number, vscode.WorkspaceFolder> = new Map()
 
   return {

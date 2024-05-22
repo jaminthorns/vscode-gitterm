@@ -6,18 +6,18 @@ import {
   ignoreReferenceFile,
   referenceInfo,
   referenceValid,
-} from "./Reference"
-import Trie from "./Trie"
-import { isDirectory, streamCommand } from "./util"
+} from "../Reference"
+import Trie from "../Trie"
+import { isDirectory, streamCommand } from "../util"
 
 type ReferenceTrie = Trie<Set<ReferenceType>>
 
-export default interface ReferenceStore extends vscode.Disposable {
+export interface ReferenceStore extends vscode.Disposable {
   findMatches: ReferenceTrie["findMatches"]
   writeToFile(): void
 }
 
-export default function ReferenceStore(
+export function ReferenceStore(
   directory: vscode.Uri,
   gitDirectory: vscode.Uri,
 ): ReferenceStore {

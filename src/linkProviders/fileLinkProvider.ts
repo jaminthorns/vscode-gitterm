@@ -3,8 +3,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { FileContext, RepositoryContext, TerminalContext } from "../context"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
-import RepositoryStore from "../RepositoryStore"
-import TerminalFolderStore from "../TerminalFolderStore"
+import { RepositoryStore, TerminalFolderStore } from "../stores"
 import {
   commitFilenames,
   excludeNulls,

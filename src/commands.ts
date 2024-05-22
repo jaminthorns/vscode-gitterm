@@ -2,7 +2,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
 import { LineTranslator } from "./LineTranslator"
-import RepositoryStore from "./RepositoryStore"
+import { RepositoryStore } from "./stores"
 import { commitFilenames, runCommandInTerminal, userGitCommand } from "./util"
 
 interface LineNumberHandlerArgs {

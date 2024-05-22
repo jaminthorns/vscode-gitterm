@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import RepositoryStore from "./RepositoryStore"
+import { RepositoryStore } from "./stores"
 
 export function debugFilenames(repositories: RepositoryStore) {
   return vscode.commands.registerCommand("gitterm.debugFilenames", () => {
