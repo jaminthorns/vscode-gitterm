@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { Commit, CommitInfo } from "../Commit"
 import { CommitContext, RepositoryContext, TerminalContext } from "../context"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
-import Repository from "../Repository"
+import { Repository } from "../Repository"
 import { RepositoryStore, TerminalFolderStore } from "../stores"
 import {
   excludeNulls,

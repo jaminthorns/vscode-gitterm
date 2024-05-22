@@ -44,7 +44,7 @@ interface ShowFileAtRevision {
   variables: { revision: string; filename: string }
 }
 
-type UserGitCommand =
+export type UserGitCommand =
   | FolderHistory
   | FileHistory
   | LineHistory
@@ -54,5 +54,3 @@ type UserGitCommand =
   | ShowRevision
   | ShowFileDiffAtRevision
   | ShowFileAtRevision
-
-export default UserGitCommand

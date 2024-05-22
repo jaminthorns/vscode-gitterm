@@ -3,14 +3,14 @@ import * as vscode from "vscode"
 import { FilenameStore, ReferenceStore, RemoteProviderStore } from "./stores"
 import { git } from "./util"
 
-export default interface Repository extends vscode.Disposable {
+export interface Repository extends vscode.Disposable {
   directory: vscode.Uri
   remoteProviders: RemoteProviderStore
   filenames: FilenameStore
   references: ReferenceStore
 }
 
-export default async function Repository(
+export async function Repository(
   folder: vscode.WorkspaceFolder,
 ): Promise<Repository> {
   const directory = folder.uri

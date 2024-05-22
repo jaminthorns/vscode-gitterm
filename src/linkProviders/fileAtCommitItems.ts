@@ -1,8 +1,8 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
-import RemoteProvider from "../RemoteProvider"
-import Repository from "../Repository"
+import { RemoteProvider } from "../RemoteProvider"
+import { Repository } from "../Repository"
 import {
   commitFilenames,
   excludeNulls,

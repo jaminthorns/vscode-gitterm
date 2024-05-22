@@ -7,7 +7,7 @@ import {
   referenceInfo,
   referenceValid,
 } from "../Reference"
-import Trie from "../Trie"
+import { Trie } from "../Trie"
 import { isDirectory, streamCommand } from "../util"
 
 type ReferenceTrie = Trie<Set<ReferenceType>>

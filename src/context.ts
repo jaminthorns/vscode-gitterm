@@ -1,6 +1,6 @@
 import { Commit, RawCommit } from "./Commit"
 import { ReferenceType } from "./Reference"
-import Repository from "./Repository"
+import { Repository } from "./Repository"
 
 export type CommitFilenames = Map<RawCommit, string>
 

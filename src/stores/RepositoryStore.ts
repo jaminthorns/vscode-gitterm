@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import Repository from "../Repository"
+import { Repository } from "../Repository"
 
 export interface RepositoryStore {
   addRepository(folder: vscode.WorkspaceFolder): Promise<void>

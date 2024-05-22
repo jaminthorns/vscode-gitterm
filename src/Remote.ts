@@ -6,13 +6,13 @@ type Server =
   | { protocol: "http"; host: string }
   | { protocol: "https"; host: string }
 
-export default interface Remote {
+export interface Remote {
   name: string
   server: Server
   path: string
 }
 
-export default async function Remote(
+export async function Remote(
   name: string,
   directory: vscode.Uri,
 ): Promise<Remote | null> {

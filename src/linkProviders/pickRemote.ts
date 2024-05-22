@@ -4,7 +4,7 @@ import {
   SelectableQuickPickButton,
   showSelectableQuickPick,
 } from "../quickPick"
-import RemoteProvider from "../RemoteProvider"
+import { RemoteProvider } from "../RemoteProvider"
 
 export function pickRemote(
   remotes: RemoteProvider[],

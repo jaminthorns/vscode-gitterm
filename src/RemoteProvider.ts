@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
-import Remote from "./Remote"
+import { Remote } from "./Remote"
 
-export default interface RemoteProvider {
+export interface RemoteProvider {
   remote: Remote
   label: string
   commitUrl(commit: Commit): vscode.Uri | null
@@ -10,7 +10,7 @@ export default interface RemoteProvider {
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri | null
 }
 
-export default function RemoteProvider(remote: Remote): RemoteProvider {
+export function RemoteProvider(remote: Remote): RemoteProvider {
   switch (remote.server.host) {
     case "github.com":
       return GitHubProvider(remote)

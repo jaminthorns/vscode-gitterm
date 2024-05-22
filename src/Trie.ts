@@ -23,7 +23,7 @@ type Match<Value> = {
 
 type Updater<Value> = (value: Value | undefined) => Value
 
-export default interface Trie<Value> {
+export interface Trie<Value> {
   entries(prefix?: string): Entry<Value>[]
   set(key: string, value: Value): void
   update(key: string, updater: Updater<Value>): Value
@@ -31,7 +31,7 @@ export default interface Trie<Value> {
   findMatches(text: string): Match<Value>[]
 }
 
-export default function Trie<Value>(): Trie<Value> {
+export function Trie<Value>(): Trie<Value> {
   const root: Node<Value> = { terminal: false, children: new Map() }
 
   return {

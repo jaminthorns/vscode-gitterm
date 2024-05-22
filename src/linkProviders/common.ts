@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { TerminalContext } from "../context"
-import RemoteProvider from "../RemoteProvider"
-import Repository from "../Repository"
+import { RemoteProvider } from "../RemoteProvider"
+import { Repository } from "../Repository"
 import { git } from "../util"
 
 export interface TerminalOptions extends vscode.TerminalOptions {
