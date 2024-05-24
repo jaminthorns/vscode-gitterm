@@ -1,6 +1,7 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
+import { SelectableQuickPickItem } from "../quickPick"
 import { RemoteProvider } from "../RemoteProvider"
 import { Repository } from "../Repository"
 import {
@@ -17,7 +18,7 @@ export function fileAtCommitItems(
   remotes: Promise<RemoteProvider[]>,
   commit: Commit,
   filename: string,
-) {
+): SelectableQuickPickItem[] {
   const fileLabel = `${basename(filename)} (${commit.abbreviated})`
   const variables = { revision: commit.full, filename }
 

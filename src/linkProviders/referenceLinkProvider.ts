@@ -26,7 +26,7 @@ interface ReferenceTerminalLink extends vscode.TerminalLink {
 export function referenceLinkProvider(
   repositories: RepositoryStore,
   terminalFolders: TerminalFolderStore,
-) {
+): vscode.Disposable {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,

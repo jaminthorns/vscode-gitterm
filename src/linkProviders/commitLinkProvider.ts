@@ -22,7 +22,7 @@ interface CommitTerminalLink extends vscode.TerminalLink {
 export function commitLinkProvider(
   repositories: RepositoryStore,
   terminalFolders: TerminalFolderStore,
-) {
+): vscode.Disposable {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,

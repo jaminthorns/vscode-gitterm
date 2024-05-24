@@ -20,7 +20,7 @@ interface FileTerminalLink extends vscode.TerminalLink {
 export function fileLinkProvider(
   repositories: RepositoryStore,
   terminalFolders: TerminalFolderStore,
-) {
+): vscode.Disposable {
   return vscode.window.registerTerminalLinkProvider({
     async provideTerminalLinks({
       line,
