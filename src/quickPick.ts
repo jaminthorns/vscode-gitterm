@@ -1,14 +1,14 @@
 import * as vscode from "vscode"
 
-export type SelectableQuickPickButton = vscode.QuickInputButton & {
+export interface SelectableQuickPickButton extends vscode.QuickInputButton {
   onSelected?: () => void
 }
 
-export type ConcreteQuickPickItem = vscode.QuickPickItem & {
+export interface ConcreteQuickPickItem extends vscode.QuickPickItem {
   onSelected?: () => void
 }
 
-export interface PendingQuickPickItem {
+interface PendingQuickPickItem {
   placeholder: ConcreteQuickPickItem
   pending: Promise<ConcreteQuickPickItem | null>
 }
