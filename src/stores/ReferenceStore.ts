@@ -6,7 +6,7 @@ import {
   ignoreReferenceFile,
   referenceInfo,
   referenceValid,
-} from "../Reference"
+} from "../references"
 import { Trie } from "../Trie"
 import { isDirectory, streamCommand } from "../util"
 
