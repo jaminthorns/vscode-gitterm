@@ -2,7 +2,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
-import { RemoteProvider } from "../RemoteProvider"
+import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
 import {
   commitFilenames,

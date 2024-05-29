@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { TerminalContext } from "../context"
-import { RemoteProvider } from "../RemoteProvider"
+import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
 import { git } from "../util"
 

@@ -1,7 +1,7 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { Remote } from "../Remote"
-import { RemoteProvider } from "../RemoteProvider"
+import { RemoteProvider } from "../remoteProviders"
 import { excludeNulls, git } from "../util"
 
 export interface RemoteProviderStore extends vscode.Disposable {

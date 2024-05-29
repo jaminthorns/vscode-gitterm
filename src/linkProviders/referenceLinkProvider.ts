@@ -7,7 +7,7 @@ import {
 } from "../context"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { ReferenceType, referenceInfo, referenceValid } from "../references"
-import { RemoteProvider } from "../RemoteProvider"
+import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
 import { RepositoryStore, TerminalFolderStore } from "../stores"
 import {
