@@ -21,7 +21,7 @@ export async function suffixWithRevision(
   label: string,
   revision: string,
   directory: vscode.Uri,
-) {
+): Promise<string> {
   if (revision === "HEAD") {
     return label
   }
@@ -66,7 +66,7 @@ function translateOldLine(
   line: number,
   bound: "start" | "end",
   translators: LineTranslator[],
-) {
+): number {
   return translators.reduce((translated, t) => {
     const range = t.oldLine(translated)
     const newOffset = range.span === 0 && bound === "start" ? 1 : 0

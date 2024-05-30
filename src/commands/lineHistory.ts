@@ -45,7 +45,7 @@ export async function lineHistory(
     translatedRanges = translateRanges(ranges, translators, "newly added")
 
     if (translatedRanges === null) {
-      return null
+      return
     }
   } else {
     translatedRanges = ranges

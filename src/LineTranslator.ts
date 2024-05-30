@@ -85,7 +85,7 @@ function linePosition(line: number, range: LineRange): Position {
 LineTranslator.fromDiff = async function (
   gitDiffArgs: string[],
   gitOptions: GitCommandOptions,
-) {
+): Promise<LineTranslator> {
   const diff = await git("diff", ["--unified=0", ...gitDiffArgs], gitOptions)
   return LineTranslator(diff)
 }
