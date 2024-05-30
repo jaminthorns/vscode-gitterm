@@ -9,6 +9,7 @@ import {
   lineHistoryCommand,
   selectionBlameCommand,
   selectionHistoryCommand,
+  showCommitActionsCommand,
 } from "./commands"
 import { debugFilenames, debugReferences } from "./debugging"
 import {
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
     activeFileBlameCommand(repositories),
     selectionHistoryCommand(repositories),
     selectionBlameCommand(repositories),
+    showCommitActionsCommand(repositories),
 
     // Link providers
     commitLinkProvider(repositories, terminalFolders),

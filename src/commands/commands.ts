@@ -1,4 +1,6 @@
 import * as vscode from "vscode"
+import { showCommitActions } from "../actions"
+import { Commit } from "../Commit"
 import { RepositoryStore } from "../stores"
 import { Range } from "./common"
 import { fileBlame } from "./fileBlame"
@@ -105,4 +107,32 @@ export function selectionBlameCommand(repositories: RepositoryStore) {
 
 function selectionToRange({ start, end }: vscode.Selection): Range {
   return { start: start.line + 1, end: end.line + 1 }
+}
+
+export function showCommitActionsCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand(
+    "gitterm.showCommitActions",
+    async (uri: vscode.Uri) => {
+      const repository = repositories.getRepository(uri)
+
+      if (repository === undefined) {
+        return
+      }
+
+      const { ref } = JSON.parse(uri.query) as { ref: string }
+      const commit = await Commit(ref, repository.directory)
+
+      if (commit === null) {
+        return
+      }
+
+      const fileUri = vscode.Uri.file(uri.path)
+      const filename =
+        uri.scheme === "git"
+          ? vscode.workspace.asRelativePath(fileUri, false)
+          : undefined
+
+      await showCommitActions(repository, commit, filename)
+    },
+  )
 }

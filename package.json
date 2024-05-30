@@ -67,6 +67,11 @@
       {
         "command": "gitterm.debugReferences",
         "title": "GitTerm: Debug References"
+      },
+      {
+        "command": "gitterm.showCommitActions",
+        "title": "GitTerm: Show Commit Actions",
+        "icon": "$(git-commit)"
       }
     ],
     "menus": {
@@ -123,6 +128,13 @@
           "command": "gitterm.fileBlame",
           "group": "40_gitterm_file@1",
           "when": "!explorerResourceIsFolder"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "gitterm.showCommitActions",
+          "group": "navigation",
+          "when": "resourceScheme =~ /^git$|^git-commit$/"
         }
       ],
       "editor/title/context": [
