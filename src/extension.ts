@@ -2,6 +2,8 @@ import * as vscode from "vscode"
 import {
   activeFileBlameCommand,
   activeFileHistoryCommand,
+  debugFilenamesCommand,
+  debugReferencesCommand,
   fileBlameCommand,
   fileHistoryCommand,
   folderHistoryCommand,
@@ -11,7 +13,6 @@ import {
   selectionHistoryCommand,
   showCommitActionsCommand,
 } from "./commands"
-import { debugFilenames, debugReferences } from "./debugging"
 import {
   commitLinkProvider,
   fileLinkProvider,
@@ -41,15 +42,13 @@ export function activate(context: vscode.ExtensionContext) {
     selectionHistoryCommand(repositories),
     selectionBlameCommand(repositories),
     showCommitActionsCommand(repositories),
+    debugFilenamesCommand(repositories),
+    debugReferencesCommand(repositories),
 
     // Link providers
     commitLinkProvider(repositories, terminalFolders),
     referenceLinkProvider(repositories, terminalFolders),
     fileLinkProvider(repositories, terminalFolders),
-
-    // Debugging
-    debugFilenames(repositories),
-    debugReferences(repositories),
   )
 }
 

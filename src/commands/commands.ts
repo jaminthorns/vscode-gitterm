@@ -136,3 +136,19 @@ export function showCommitActionsCommand(repositories: RepositoryStore) {
     },
   )
 }
+
+export function debugFilenamesCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand("gitterm.debugFilenames", () => {
+    repositories.allRepositories().forEach((repository) => {
+      repository.filenames.writeToFile()
+    })
+  })
+}
+
+export function debugReferencesCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand("gitterm.debugReferences", () => {
+    repositories.allRepositories().forEach((repository) => {
+      repository.references.writeToFile()
+    })
+  })
+}
