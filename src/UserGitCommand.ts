@@ -13,7 +13,6 @@ interface LineHistory {
   variables: { revision: string; fileLineRanges: string }
 }
 
-// TODO: Consider consolidating into single Blame command.
 interface FileBlame {
   key: "fileBlame"
   variables: { revision: string; filename: string }
