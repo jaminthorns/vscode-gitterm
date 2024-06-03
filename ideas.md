@@ -46,7 +46,12 @@ Command: `git shortlog --all --summary --numbered --email`
 ### Stash Links ❗
 
 - Actions
+
   - Show Stash
+
+    The `stashView` function in `extensions/git/src/commands.ts` in the VS Code
+    repo gives an example of how to show a stash in a multi-diff editor.
+
   - Copy Stash Name
 
 ### Issue Links 🤔
