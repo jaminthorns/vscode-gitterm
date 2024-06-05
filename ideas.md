@@ -153,3 +153,9 @@ Alternatively, we could use a less reliable but more "static" approach:
 
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
+
+# Editor Title Buttons per File in Commit Editors ❗
+
+In commit editors, we can add buttons using the `multiDiffEditor/resource/title`
+menu contribution point. This could be used to open a menu per file or put some
+relevant actions.
