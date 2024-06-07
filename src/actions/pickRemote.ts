@@ -5,6 +5,7 @@ import {
   showSelectableQuickPick,
 } from "../quickPick"
 import { RemoteProvider } from "../remoteProviders"
+import { openUrl } from "../util"
 
 export function pickRemote(
   remotes: RemoteProvider[],
@@ -15,7 +16,7 @@ export function pickRemote(
     const url = getRemoteUrl(provider)
 
     if (url !== null) {
-      vscode.env.openExternal(url)
+      openUrl(url)
     }
   }
 

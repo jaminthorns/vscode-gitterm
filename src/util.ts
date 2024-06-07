@@ -34,6 +34,14 @@ export async function isDirectory(uri: vscode.Uri): Promise<boolean> {
   return type === vscode.FileType.Directory
 }
 
+// Needed for opening URLs without encoding issues.
+// https://github.com/microsoft/vscode/issues/85930
+export async function openUrl(url: vscode.Uri): Promise<Boolean> {
+  return await (
+    vscode.env.openExternal as unknown as (target: string) => Thenable<boolean>
+  )(url.toString())
+}
+
 interface CommandOptions {
   directory?: vscode.Uri
   stdin?: string
