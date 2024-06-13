@@ -314,7 +314,7 @@
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
-          "default": "git blame ${revision} -- '${filename}'",
+          "default": "git blame -C ${revision} -- '${filename}'",
           "description": "Git command for showing file blame"
         },
         "gitterm.gitCommands.lineHistory": {
@@ -324,7 +324,7 @@
         },
         "gitterm.gitCommands.lineBlame": {
           "type": "string",
-          "default": "git blame ${revision} ${lineRanges} -- '${filename}'",
+          "default": "git blame -C ${revision} ${lineRanges} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file"
         },
         "gitterm.gitCommands.revisionHistory": {
