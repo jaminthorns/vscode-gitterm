@@ -33,9 +33,14 @@ type FileAtCommitContext = CommitContext & FileContext
 
 type FileAtCommitHistoryContext = CommitContext & FileHistoryContext
 
+export interface StashContext {
+  stash: string
+}
+
 export type TerminalContext =
   | CommitContext // Showing a commit
   | FileAtCommitContext // Showing a file at a commit
   | FolderContext // Showing folder history
   | FileHistoryContext // Showing file/line history
   | FileAtCommitHistoryContext // Showing file/line history from a commit
+  | StashContext // Showing a stash
