@@ -159,3 +159,13 @@ workspace.
 In commit editors, we can add buttons using the `multiDiffEditor/resource/title`
 menu contribution point. This could be used to open a menu per file or put some
 relevant actions.
+
+
+# View File from Another Reference ❗
+
+When working on a file in some feature branch, I often want to view the file as
+it is in `main` or some other branch to compare side-by-side. This is easy to do
+with `git show <REF>:<FILE>`.
+
+There should be a command (with a default keybinding) that lets you select a
+reference (branch/tag/commit) to view the active file at.
