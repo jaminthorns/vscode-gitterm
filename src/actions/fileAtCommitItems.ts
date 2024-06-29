@@ -19,7 +19,7 @@ export function fileAtCommitItems(
   commit: Commit,
   filename: string,
 ): SelectableQuickPickItem[] {
-  const fileLabel = `${basename(filename)} (${commit.abbreviated})`
+  const fileLabel = `${basename(filename)} (${commit.short})`
   const variables = { revision: commit.full, filename }
 
   const getContext = () => ({
@@ -125,10 +125,10 @@ async function showFileAtCommitInEditor(
   let title
 
   if (prevCommit === null) {
-    title = `${basename(filename)} (added in ${commit.abbreviated})`
+    title = `${basename(filename)} (added in ${commit.short})`
   } else {
-    const left = `${basename(prevFilename)} (${prevCommit.abbreviated})`
-    const right = `${basename(filename)} (${commit.abbreviated})`
+    const left = `${basename(prevFilename)} (${prevCommit.short})`
+    const right = `${basename(filename)} (${commit.short})`
 
     title = `${left} ↔ ${right}`
   }

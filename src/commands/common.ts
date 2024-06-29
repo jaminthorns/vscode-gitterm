@@ -31,7 +31,7 @@ export async function suffixWithRevision(
   if (commit === null) {
     return label
   } else {
-    return `${label} (${commit.abbreviated})`
+    return `${label} (${commit.short})`
   }
 }
 

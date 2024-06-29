@@ -1,24 +1,21 @@
 import * as vscode from "vscode"
 import { git } from "./util"
 
-export type RawCommit = string
-
 export interface Commit {
-  full: RawCommit
-  abbreviated: RawCommit
+  full: string
+  short: string
 }
 
 export async function Commit(
-  commit: RawCommit,
+  revision: string,
   directory: vscode.Uri,
 ): Promise<Commit | null> {
   try {
-    const [full, abbreviated] = await Promise.all([
-      git("rev-parse", [`${commit}^{commit}`], { directory }),
-      git("rev-parse", ["--short", `${commit}^{commit}`], { directory }),
-    ])
+    const arg = `${revision}^{commit}`
+    const commits = await git("rev-parse", [arg, "--short", arg], { directory })
+    const [full, short] = commits.split("\n")
 
-    return { full, abbreviated }
+    return { full, short }
   } catch (error) {
     return null
   }
@@ -31,10 +28,10 @@ export interface CommitInfo {
 }
 
 export async function CommitInfo(
-  commit: RawCommit,
+  revision: string,
   directory: vscode.Uri,
 ): Promise<CommitInfo> {
-  const args = ["--format=%aI\t%an\t%s", "--max-count=1", commit]
+  const args = ["--format=%aI\t%an\t%s", "--max-count=1", revision]
   const rawInfo = await git("log", args, { directory })
 
   const [rawAuthorDate, authorName, subject] = rawInfo.split("\t")

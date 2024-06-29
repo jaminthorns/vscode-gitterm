@@ -22,11 +22,11 @@ export async function showCommitActions(
   const commitInfo = await CommitInfo(commit.full, repository.directory)
 
   const { authorDate, authorName, subject } = commitInfo
-  const commitLabel = `${commit.abbreviated} - ${truncate(subject, 36)}`
+  const commitLabel = `${commit.short} - ${truncate(subject, 36)}`
 
   const commitItems: SelectableQuickPickItem[] = excludeNulls([
     {
-      label: commit.abbreviated,
+      label: commit.short,
       kind: vscode.QuickPickItemKind.Separator,
     },
     {
@@ -153,7 +153,7 @@ async function openRevisionInEditor(commit: Commit, repository: Repository) {
 
   vscode.commands.executeCommand("_workbench.openMultiDiffEditor", {
     multiDiffSourceUri,
-    title: `${commit.abbreviated} - ${commitInfo.subject}`,
+    title: `${commit.short} - ${commitInfo.subject}`,
     resources,
   })
 }
