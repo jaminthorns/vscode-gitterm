@@ -1,5 +1,5 @@
 import { deepEqual } from "assert/strict"
-import { LineTranslator } from "../../LineTranslator"
+import { LineTranslator } from "../LineTranslator"
 
 const deletionDiff = `diff --git a/test b/test
 index ac3c48e..af1a584 100644

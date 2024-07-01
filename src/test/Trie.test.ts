@@ -1,5 +1,5 @@
 import { deepEqual } from "assert/strict"
-import { Trie } from "../../Trie"
+import { Trie } from "../Trie"
 
 suite("StringTrie adding/removing", () => {
   test("add a string", () => {
