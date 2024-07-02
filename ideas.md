@@ -154,12 +154,14 @@ Alternatively, we could use a less reliable but more "static" approach:
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
 
-# Editor Title Buttons per File in Commit Editors ❗
+# Editor Title Buttons per File in Commit Editors 🤔
 
 In commit editors, we can add buttons using the `multiDiffEditor/resource/title`
 menu contribution point. This could be used to open a menu per file or put some
 relevant actions.
 
+I'd like for this to be a ❗, but it's currently only a proposed API, available
+by enabling `contribMultiDiffEditorMenus`.
 
 # View File from Another Reference ❗
 
@@ -169,3 +171,11 @@ with `git show <REF>:<FILE>`.
 
 There should be a command (with a default keybinding) that lets you select a
 reference (branch/tag/commit) to view the active file at.
+
+# Non-default Open Action for Revision/Diff/File ❗
+
+The `gitterm.show.*` config settings allow the user to specify whether they'd
+like a revision/diff/file to be opened in an editor or a terminal, but sometimes
+it still makes sense to open in the other choice. The config should be changed
+to indicate that it's a default preference, and an action should be added to
+open in the other option.
