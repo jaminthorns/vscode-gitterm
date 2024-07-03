@@ -61,6 +61,10 @@
         "title": "GitTerm: Selection Blame"
       },
       {
+        "command": "gitterm.selectionSearch",
+        "title": "GitTerm: Selection Search (Pickaxe)"
+      },
+      {
         "command": "gitterm.debugFilenames",
         "title": "GitTerm: Debug Filenames"
       },
@@ -111,6 +115,10 @@
         {
           "command": "gitterm.selectionBlame",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
+        },
+        {
+          "command": "gitterm.selectionSearch",
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/ && editorHasSelection"
         }
       ],
       "explorer/context": [
@@ -161,6 +169,11 @@
           "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
         },
         {
+          "command": "gitterm.selectionSearch",
+          "group": "10_gitterm_selection@2",
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit$/ && editorHasSelection"
+        },
+        {
           "command": "gitterm.activeFileHistory",
           "group": "11_gitterm_file@0",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit$/"
@@ -204,6 +217,11 @@
         "command": "gitterm.selectionBlame",
         "key": "alt+b",
         "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit$/"
+      },
+      {
+        "command": "gitterm.selectionSearch",
+        "key": "alt+s",
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit$/ && editorHasSelection"
       }
     ],
     "configuration": {
@@ -374,6 +392,11 @@
           "type": "string",
           "default": "git show ${revision}:'${filename}'",
           "description": "Git command for showing a file at a revision"
+        },
+        "gitterm.gitCommands.stringSearch": {
+          "type": "string",
+          "default": "git log --patch ${revision} ${searches}",
+          "description": "Git command for searching for a string across commits"
         }
       }
     }

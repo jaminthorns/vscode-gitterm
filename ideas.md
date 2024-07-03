@@ -179,8 +179,3 @@ like a revision/diff/file to be opened in an editor or a terminal, but sometimes
 it still makes sense to open in the other choice. The config should be changed
 to indicate that it's a default preference, and an action should be added to
 open in the other option.
-
-# Pickaxe (`git log -S`) support
-
-Users should be able to select text and use `git log -S` to search for changes
-to that text in history with a keyboard shortcut.

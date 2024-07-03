@@ -52,6 +52,11 @@ interface ShowFileAtRevision {
   variables: { revision: string; filename: string }
 }
 
+interface StringSearch {
+  key: "stringSearch"
+  variables: { revision: string; searches: string }
+}
+
 export type UserGitCommand =
   | FolderHistory
   | FileHistory
@@ -62,3 +67,4 @@ export type UserGitCommand =
   | ShowRevision
   | ShowFileDiffAtRevision
   | ShowFileAtRevision
+  | StringSearch

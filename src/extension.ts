@@ -11,6 +11,7 @@ import {
   lineHistoryCommand,
   selectionBlameCommand,
   selectionHistoryCommand,
+  selectionSearchCommand,
   showCommitActionsCommand,
 } from "./commands"
 import { linkProvider } from "./linkProvider"
@@ -38,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
     selectionHistoryCommand(repositories),
     selectionBlameCommand(repositories),
     showCommitActionsCommand(repositories),
+    selectionSearchCommand(repositories),
     debugFilenamesCommand(repositories),
     debugReferencesCommand(repositories),
 

@@ -8,6 +8,7 @@ import { fileHistory } from "./fileHistory"
 import { folderHistory } from "./folderHistory"
 import { lineBlame } from "./lineBlame"
 import { lineHistory } from "./lineHistory"
+import { stringSearch } from "./stringSearch"
 
 interface LineNumberHandlerArgs {
   uri: vscode.Uri
@@ -101,6 +102,15 @@ export function selectionBlameCommand(repositories: RepositoryStore) {
       const ranges = selections.map(selectionToRange)
 
       lineBlame(document, ranges, repositories)
+    },
+  )
+}
+
+export function selectionSearchCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerTextEditorCommand(
+    "gitterm.selectionSearch",
+    ({ document, selections }: vscode.TextEditor) => {
+      stringSearch(document, selections, repositories)
     },
   )
 }

@@ -34,6 +34,7 @@ type FileAtCommitContext = CommitContext & FileContext
 type FileAtCommitHistoryContext = CommitContext & FileHistoryContext
 
 export type TerminalContext =
+  | {} // Showing something without any context
   | CommitContext // Showing a commit
   | FileAtCommitContext // Showing a file at a commit
   | FolderContext // Showing folder history

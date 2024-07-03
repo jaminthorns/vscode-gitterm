@@ -107,16 +107,27 @@ export function runCommandInTerminal({
   cwd,
   command,
   context,
+  onClose,
 }: {
   name: string
   icon: string
   cwd: vscode.Uri
   command: string
   context?: TerminalContext
+  onClose?: Function
 }) {
   const iconPath = new vscode.ThemeIcon(icon)
   const options = { name, iconPath, cwd, context }
   const terminal = vscode.window.createTerminal(options)
+
+  if (onClose !== undefined) {
+    const listener = vscode.window.onDidCloseTerminal((t) => {
+      if (t === terminal) {
+        onClose()
+        listener.dispose()
+      }
+    })
+  }
 
   terminal.show()
   terminal.sendText(command)
