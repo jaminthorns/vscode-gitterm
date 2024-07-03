@@ -1,13 +1,22 @@
 import { resolve } from "path"
 import * as vscode from "vscode"
-import { FilenameStore, ReferenceStore, RemoteProviderStore } from "./stores"
+import {
+  FilenameStore,
+  LocalBranchStore,
+  ReferenceStore,
+  RemoteBranchStore,
+  RemoteProviderStore,
+  TagStore,
+} from "./stores"
 import { git } from "./util"
 
 export interface Repository extends vscode.Disposable {
   directory: vscode.Uri
   remoteProviders: RemoteProviderStore
   filenames: FilenameStore
-  references: ReferenceStore
+  localBranches: ReferenceStore
+  remoteBranches: ReferenceStore
+  tags: ReferenceStore
 }
 
 export async function Repository(
@@ -21,18 +30,24 @@ export async function Repository(
 
   const remoteProviders = RemoteProviderStore(directory, gitDirectory)
   const filenames = await FilenameStore(directory, gitDirectory)
-  const references = ReferenceStore(directory, gitDirectory)
+  const localBranches = LocalBranchStore(directory, gitDirectory)
+  const remoteBranches = RemoteBranchStore(directory, gitDirectory)
+  const tags = TagStore(directory, gitDirectory)
 
   return {
     directory,
     remoteProviders,
     filenames,
-    references,
+    localBranches,
+    remoteBranches,
+    tags,
 
     dispose() {
       remoteProviders.dispose()
       filenames.dispose()
-      references.dispose()
+      localBranches.dispose()
+      remoteBranches.dispose()
+      tags.dispose()
     },
   }
 }

@@ -1,7 +1,7 @@
 import { spawn } from "child_process"
 import { createInterface } from "readline"
 import * as vscode from "vscode"
-import { CommitFilenames, TerminalContext } from "./context"
+import { CommitFilenames, TerminalContext } from "./TerminalContext"
 import { UserGitCommand } from "./UserGitCommand"
 
 export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {

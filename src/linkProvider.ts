@@ -1,26 +1,40 @@
 import * as vscode from "vscode"
-import { TerminalContext } from "./context"
 import {
   CommitLinkMatcher,
   FileLinkMatcher,
-  MatcherLink,
-  ReferenceLinkMatcher,
+  LinkMatch,
+  LocalBranchLinkMatcher,
+  RemoteBranchLinkMatcher,
+  TagLinkMatcher,
 } from "./linkMatchers"
+import { showSelectableQuickPick } from "./quickPick"
 import { Repository } from "./Repository"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
+import { TerminalContext } from "./TerminalContext"
 
 interface TerminalOptions extends vscode.TerminalOptions {
   context?: TerminalContext
 }
 
 const matchers = {
-  commit: { rank: 1, matcher: CommitLinkMatcher },
-  file: { rank: 2, matcher: FileLinkMatcher },
-  reference: { rank: 3, matcher: ReferenceLinkMatcher },
+  commit: CommitLinkMatcher,
+  file: FileLinkMatcher,
+  localBranch: LocalBranchLinkMatcher,
+  remoteBranch: RemoteBranchLinkMatcher,
+  tag: TagLinkMatcher,
 }
 
-interface TerminalLink extends MatcherLink<any> {
-  type: keyof typeof matchers
+export type LinkMatcherType = keyof typeof matchers
+
+export interface LinkMatchWithType<Context> extends LinkMatch<Context> {
+  type: LinkMatcherType
+}
+
+interface TerminalLinkWithMatches extends vscode.TerminalLink {
+  matches: LinkMatchWithType<any>[]
+}
+
+interface TerminalLink extends TerminalLinkWithMatches {
   repository: Repository
   terminalContext: Partial<TerminalContext>
 }
@@ -43,28 +57,95 @@ export function linkProvider(
 
       const matchesByType = await Promise.all(
         Object.entries(matchers)
-          .filter(([, { matcher }]) => matcher.shouldProvide(terminalContext))
-          .map(async ([type, { matcher }]) => ({
-            type,
-            links: await matcher.findLinks(line, repository),
+          .filter(([, matcher]) => matcher.shouldProvide(terminalContext))
+          .map(async ([type, matcher]) => ({
+            type: type as LinkMatcherType,
+            matches: await matcher.findMatches(line, repository),
           })),
       )
 
-      const matches = matchesByType.flatMap(({ type, links }) =>
-        links.map((link) => ({ type, repository, terminalContext, ...link })),
+      const matches: LinkMatchWithType<unknown>[] = matchesByType.flatMap(
+        ({ type, matches }) => matches.map((match) => ({ ...match, type })),
       )
 
-      return matches as TerminalLink[]
+      return matchesToLinks(matches).map((link) => ({
+        ...link,
+        repository,
+        terminalContext,
+      }))
     },
 
-    async handleTerminalLink({
-      type,
-      repository,
-      linkContext,
-      terminalContext,
-    }: TerminalLink) {
-      const { matcher } = matchers[type]
-      await matcher.handleLink(linkContext, terminalContext, repository)
+    handleTerminalLink({ repository, terminalContext, matches }: TerminalLink) {
+      const items = matches.map(({ type, context }) => {
+        const { label, icon, handleMatch } = matchers[type]
+
+        return {
+          label: `$(${icon}) ${label}`,
+          onSelected: () => handleMatch(context, terminalContext, repository),
+        }
+      })
+
+      if (items.length === 1) {
+        items[0].onSelected()
+      } else {
+        showSelectableQuickPick({
+          placeholder: "Multiple objects with the same name, select a type",
+          items,
+        })
+      }
     },
   })
+}
+
+export function matchesToLinks(
+  matches: LinkMatchWithType<unknown>[],
+): TerminalLinkWithMatches[] {
+  return matches
+    .filter((match) => !someOther(match, matches, overlapsEarlier))
+    .reduce((links, match) => {
+      const existing = links.find((link) => equal(link, match))
+
+      if (existing === undefined) {
+        links.push({
+          startIndex: match.startIndex,
+          length: match.length,
+          matches: [match],
+        })
+      } else {
+        existing.matches.push(match)
+      }
+
+      return links
+    }, [] as TerminalLinkWithMatches[])
+    .map((link) => {
+      const labels = link.matches.map(({ type }) => matchers[type].label)
+      const choices = labels.map((l) => l.toLocaleLowerCase()).join("/")
+      const tooltip = `Pick a ${choices} action`
+
+      return { ...link, tooltip }
+    })
+}
+
+function someOther<T>(
+  item: T,
+  items: T[],
+  predicate: (a: T, b: T) => boolean,
+): boolean {
+  return items
+    .filter((other) => other !== item)
+    .some((other) => predicate(other, item))
+}
+
+function overlapsEarlier(
+  a: vscode.TerminalLink,
+  b: vscode.TerminalLink,
+): boolean {
+  const aEarlier = a.startIndex < b.startIndex
+  const bOverlaps = b.startIndex <= a.startIndex + a.length - 1
+
+  return !equal(a, b) && aEarlier && bOverlaps
+}
+
+function equal(a: vscode.TerminalLink, b: vscode.TerminalLink): boolean {
+  return a.startIndex === b.startIndex && a.length === b.length
 }

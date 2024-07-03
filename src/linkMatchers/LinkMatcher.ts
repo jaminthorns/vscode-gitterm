@@ -1,23 +1,27 @@
-import * as vscode from "vscode"
-import { TerminalContext } from "../context"
 import { Repository } from "../Repository"
+import { TerminalContext } from "../TerminalContext"
 
-export interface MatcherLink<LinkContext> extends vscode.TerminalLink {
-  linkContext: LinkContext
+export interface LinkMatch<MatchContext> {
+  startIndex: number
+  length: number
+  context: MatchContext
 }
 
 type MaybePromise<T> = T | Promise<T>
 
-export interface LinkMatcher<LinkContext> {
+export interface LinkMatcher<MatchContext> {
+  label: string
+  icon: string
+
   shouldProvide(terminalContext: Partial<TerminalContext>): boolean
 
-  findLinks(
+  findMatches(
     line: string,
     repository: Repository,
-  ): MaybePromise<MatcherLink<LinkContext>[]>
+  ): MaybePromise<LinkMatch<MatchContext>[]>
 
-  handleLink(
-    linkContext: LinkContext,
+  handleMatch(
+    matchContext: MatchContext,
     terminalContext: Partial<TerminalContext>,
     repository: Repository,
   ): MaybePromise<void>

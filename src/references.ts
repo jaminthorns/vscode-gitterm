@@ -2,34 +2,34 @@ import { basename, extname } from "path"
 import * as vscode from "vscode"
 import { git } from "./util"
 
-export type ReferenceType = "branch" | "remote" | "tag"
+export type ReferenceType = "localBranch" | "remoteBranch" | "tag"
 
 export const referenceInfo: Record<
   ReferenceType,
   {
     label: string
+    icon: string
     remoteLabel: string
     directory: string
-    disambiguate: { label: string; icon: string }
   }
 > = {
-  branch: {
+  localBranch: {
     label: "Branch",
     remoteLabel: "Upstream Branch",
+    icon: "git-branch",
     directory: "heads",
-    disambiguate: { icon: "git-branch", label: "Local Branch" },
   },
-  remote: {
+  remoteBranch: {
     label: "Remote Branch",
     remoteLabel: "Branch",
+    icon: "cloud",
     directory: "remotes",
-    disambiguate: { icon: "cloud", label: "Remote Branch" },
   },
   tag: {
     label: "Tag",
     remoteLabel: "Tag",
+    icon: "tag",
     directory: "tags",
-    disambiguate: { icon: "tag", label: "Tag" },
   },
 }
 

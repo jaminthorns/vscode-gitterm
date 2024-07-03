@@ -65,12 +65,8 @@
         "title": "GitTerm: Selection Search (Pickaxe)"
       },
       {
-        "command": "gitterm.debugFilenames",
-        "title": "GitTerm: Debug Filenames"
-      },
-      {
-        "command": "gitterm.debugReferences",
-        "title": "GitTerm: Debug References"
+        "command": "gitterm.debugStores",
+        "title": "GitTerm: Debug Stores"
       },
       {
         "command": "gitterm.showCommitActions",

@@ -12,32 +12,11 @@ import {
 } from "../util"
 import { pickRemote } from "./pickRemote"
 
-export async function showReferenceActions(
+export function showReferenceActions(
   repository: Repository,
+  type: ReferenceType,
   reference: string,
-  types: Set<ReferenceType>,
 ) {
-  let type: ReferenceType | undefined
-
-  if (types.size > 1) {
-    const items = Array.from(types).map((type) => {
-      const { icon, label } = referenceInfo[type].disambiguate
-      return { type, label: `$(${icon}) ${label}` }
-    })
-
-    const selected = await vscode.window.showQuickPick(items, {
-      placeHolder: "Ambiguous reference name, select a type",
-    })
-
-    type = selected?.type
-  } else {
-    type = Array.from(types)[0]
-  }
-
-  if (type === undefined) {
-    return
-  }
-
   const getOpenOnRemoteItem = async (type: ReferenceType) => {
     const { directory, remoteLabel } = referenceInfo[type]
     const info = await remoteReferenceInfo(
@@ -71,7 +50,7 @@ export async function showReferenceActions(
       label: `$(history) History from ${label}`,
       onSelected: () => {
         runCommandInTerminal({
-          name: reference,
+          name: `${reference} (${label})`,
           icon: "history",
           cwd: repository.directory,
           command: userGitCommand({
@@ -94,7 +73,7 @@ export async function showReferenceActions(
   ]
 
   showSelectableQuickPick({
-    placeholder: "Select an action",
+    placeholder: `Select a ${label.toLowerCase()} action`,
     items,
   })
 }
@@ -117,11 +96,11 @@ async function remoteReferenceInfo(
   }
 
   switch (type) {
-    case "remote": {
+    case "remoteBranch": {
       return remoteBranchInfo(reference, remoteProviders)
     }
 
-    case "branch": {
+    case "localBranch": {
       const fullReference = await git(
         "rev-parse",
         ["--symbolic-full-name", reference],
@@ -134,7 +113,9 @@ async function remoteReferenceInfo(
         { directory: repository.directory },
       )
 
-      if (await referenceValid(remoteBranch, "remote", repository.directory)) {
+      if (
+        await referenceValid(remoteBranch, "remoteBranch", repository.directory)
+      ) {
         return remoteBranchInfo(remoteBranch, remoteProviders)
       } else {
         return null

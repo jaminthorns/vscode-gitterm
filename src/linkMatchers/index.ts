@@ -1,4 +1,6 @@
-export { MatcherLink } from "./LinkMatcher"
+export { LinkMatch } from "./LinkMatcher"
 export { CommitLinkMatcher } from "./CommitLinkMatcher"
 export { FileLinkMatcher } from "./FileLinkMatcher"
-export { ReferenceLinkMatcher } from "./ReferenceLinkMatcher"
+export { LocalBranchLinkMatcher } from "./LocalBranchLinkMatcher"
+export { RemoteBranchLinkMatcher } from "./RemoteBranchLinkMatcher"
+export { TagLinkMatcher } from "./TagLinkMatcher"

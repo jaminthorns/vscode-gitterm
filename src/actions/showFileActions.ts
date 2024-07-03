@@ -77,7 +77,7 @@ export function showFileActions(
   }
 
   showSelectableQuickPick({
-    placeholder: "Select an action",
+    placeholder: "Select a file action",
     items: [...fileItems, ...fileCommitItems],
   })
 }

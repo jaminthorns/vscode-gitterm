@@ -147,18 +147,30 @@ export function showCommitActionsCommand(repositories: RepositoryStore) {
   )
 }
 
-export function debugFilenamesCommand(repositories: RepositoryStore) {
-  return vscode.commands.registerCommand("gitterm.debugFilenames", () => {
-    repositories.allRepositories().forEach((repository) => {
-      repository.filenames.writeToFile()
-    })
-  })
+interface StoreItem extends vscode.QuickPickItem {
+  value: "filenames" | "localBranches" | "remoteBranches" | "tags"
 }
 
-export function debugReferencesCommand(repositories: RepositoryStore) {
-  return vscode.commands.registerCommand("gitterm.debugReferences", () => {
+export function debugStoresCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand("gitterm.debugStores", async () => {
+    const selected = await vscode.window.showQuickPick<StoreItem>(
+      [
+        { value: "filenames", label: "Filenames" },
+        { value: "localBranches", label: "Local Branches" },
+        { value: "remoteBranches", label: "Remote Branches" },
+        { value: "tags", label: "Tags" },
+      ],
+      { placeHolder: "Select stores to debug", canPickMany: true },
+    )
+
+    if (selected === undefined) {
+      return
+    }
+
     repositories.allRepositories().forEach((repository) => {
-      repository.references.writeToFile()
+      selected.forEach(({ value }) => {
+        repository[value].writeToFile()
+      })
     })
   })
 }

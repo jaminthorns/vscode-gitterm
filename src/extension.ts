@@ -2,8 +2,7 @@ import * as vscode from "vscode"
 import {
   activeFileBlameCommand,
   activeFileHistoryCommand,
-  debugFilenamesCommand,
-  debugReferencesCommand,
+  debugStoresCommand,
   fileBlameCommand,
   fileHistoryCommand,
   folderHistoryCommand,
@@ -40,8 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
     selectionBlameCommand(repositories),
     showCommitActionsCommand(repositories),
     selectionSearchCommand(repositories),
-    debugFilenamesCommand(repositories),
-    debugReferencesCommand(repositories),
+    debugStoresCommand(repositories),
 
     // Link provider
     linkProvider(repositories, terminalFolders),

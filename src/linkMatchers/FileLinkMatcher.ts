@@ -1,9 +1,11 @@
 import * as vscode from "vscode"
 import { showFileActions } from "../actions"
-import { FileContext } from "../context"
 import { LinkMatcher } from "./LinkMatcher"
 
-export const FileLinkMatcher: LinkMatcher<FileContext> = {
+export const FileLinkMatcher: LinkMatcher<{ filename: string }> = {
+  label: "File",
+  icon: "file",
+
   shouldProvide(terminalContext) {
     const provideFileLinks = vscode.workspace
       .getConfiguration("gitterm.terminalLinks")
@@ -19,18 +21,17 @@ export const FileLinkMatcher: LinkMatcher<FileContext> = {
     }
   },
 
-  findLinks(line, repository) {
+  findMatches(line, repository) {
     return repository.filenames
       .findMatches(line)
       .map(({ startIndex, text: filename }) => ({
         startIndex,
         length: filename.length,
-        tooltip: "Pick a file action",
-        linkContext: { filename },
+        context: { filename },
       }))
   },
 
-  handleLink({ filename }, terminalContext, repository) {
+  handleMatch({ filename }, terminalContext, repository) {
     const commit =
       "commit" in terminalContext ? terminalContext.commit : undefined
 

@@ -1,11 +1,13 @@
 import * as vscode from "vscode"
 import { showCommitActions } from "../actions"
 import { Commit } from "../Commit"
-import { CommitContext } from "../context"
 import { excludeNulls } from "../util"
 import { LinkMatcher } from "./LinkMatcher"
 
-export const CommitLinkMatcher: LinkMatcher<CommitContext> = {
+export const CommitLinkMatcher: LinkMatcher<{ commit: Commit }> = {
+  label: "Commit",
+  icon: "git-commit",
+
   shouldProvide() {
     const provideCommitLinks = vscode.workspace
       .getConfiguration("gitterm.terminalLinks")
@@ -19,7 +21,7 @@ export const CommitLinkMatcher: LinkMatcher<CommitContext> = {
     }
   },
 
-  async findLinks(line, repository) {
+  async findMatches(line, repository) {
     const lineMatches = Array.from(line.matchAll(/([0-9a-f]{7,40})/g))
 
     return excludeNulls(
@@ -34,8 +36,7 @@ export const CommitLinkMatcher: LinkMatcher<CommitContext> = {
             return {
               startIndex: match.index,
               length: rawCommit.length,
-              tooltip: "Pick a commit action",
-              linkContext: { commit },
+              context: { commit },
             }
           }
         }),
@@ -43,7 +44,7 @@ export const CommitLinkMatcher: LinkMatcher<CommitContext> = {
     )
   },
 
-  async handleLink({ commit }, terminalContext, repository) {
+  async handleMatch({ commit }, terminalContext, repository) {
     const commitFilenames = await ("commitFilenames" in terminalContext
       ? terminalContext.commitFilenames
       : undefined)

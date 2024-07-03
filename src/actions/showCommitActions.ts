@@ -92,7 +92,7 @@ export async function showCommitActions(
   }
 
   showSelectableQuickPick({
-    placeholder: "Select an action",
+    placeholder: "Select a commit action",
     items: [...commitItems, ...fileCommitItems],
   })
 }
