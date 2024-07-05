@@ -78,3 +78,31 @@ function translateOldLine(
 export function displayRange({ start, end }: Range): string {
   return start === end ? `${start}` : `${start}-${end}`
 }
+
+export function blameMoveCopyDetectionFlags() {
+  const sameFile = vscode.workspace
+    .getConfiguration("gitterm.blame")
+    .get("sameFileMoveCopyDetection") as "on" | "off"
+
+  const otherFiles = vscode.workspace
+    .getConfiguration("gitterm.blame")
+    .get("otherFilesMoveCopyDetection") as
+    | "off"
+    | "sameCommit"
+    | "sameAndFileCreationCommit"
+    | "anyCommit"
+
+  const sameFileFlags = {
+    off: [],
+    on: ["-M"],
+  }
+
+  const otherFilesFlags = {
+    off: [],
+    sameCommit: ["-C"],
+    sameAndFileCreationCommit: ["-C", "-C"],
+    anyCommit: ["-C", "-C", "-C"],
+  }
+
+  return [...sameFileFlags[sameFile], ...otherFilesFlags[otherFiles]].join(" ")
+}

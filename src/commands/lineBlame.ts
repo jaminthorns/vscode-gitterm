@@ -5,6 +5,7 @@ import { RepositoryStore } from "../stores"
 import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
 import {
   Range,
+  blameMoveCopyDetectionFlags,
   displayRange,
   suffixWithRevision,
   translateRanges,
@@ -60,7 +61,12 @@ export async function lineBlame(
     cwd: directory,
     command: userGitCommand({
       key: "lineBlame",
-      variables: { revision, filename, lineRanges },
+      variables: {
+        revision,
+        filename,
+        lineRanges,
+        moveCopyDetectionFlags: blameMoveCopyDetectionFlags(),
+      },
     }),
     context: {
       filename,

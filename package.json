@@ -302,6 +302,34 @@
           "default": "editor",
           "description": "How to show a file at a revision"
         },
+        "gitterm.blame.sameFileMoveCopyDetection": {
+          "enum": [
+            "off",
+            "on"
+          ],
+          "enumDescriptions": [
+            "Do not detect moved/copied lines",
+            "Detect moved/copied lines"
+          ],
+          "default": "on",
+          "description": "In blame commands, detect moved/copied lines within a file"
+        },
+        "gitterm.blame.otherFilesMoveCopyDetection": {
+          "enum": [
+            "off",
+            "sameCommit",
+            "sameAndFileCreationCommit",
+            "anyCommit"
+          ],
+          "enumDescriptions": [
+            "Do not detect moved/copied lines",
+            "Detect moved/copied lines in the same commit that the line was modified",
+            "Detect moved/copied lines in the same commit that the line was modified and the commit that creates the file",
+            "Detect moved/copied lines in any commit"
+          ],
+          "default": "sameCommit",
+          "description": "In blame commands, detect moved/copied lines from other files"
+        },
         "gitterm.gitCommands.folderHistory": {
           "type": "string",
           "default": "git log --stat ${revision} -- '${folder}'",
@@ -314,7 +342,7 @@
         },
         "gitterm.gitCommands.fileBlame": {
           "type": "string",
-          "default": "git blame -M -C ${revision} -- '${filename}'",
+          "default": "git blame ${moveCopyDetectionFlags} ${revision} -- '${filename}'",
           "description": "Git command for showing file blame"
         },
         "gitterm.gitCommands.lineHistory": {
@@ -324,7 +352,7 @@
         },
         "gitterm.gitCommands.lineBlame": {
           "type": "string",
-          "default": "git blame -M -C ${revision} ${lineRanges} -- '${filename}'",
+          "default": "git blame ${moveCopyDetectionFlags} ${revision} ${lineRanges} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file"
         },
         "gitterm.gitCommands.revisionHistory": {

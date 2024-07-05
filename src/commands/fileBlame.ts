@@ -2,7 +2,11 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
 import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
-import { suffixWithRevision, uriRevision } from "./common"
+import {
+  blameMoveCopyDetectionFlags,
+  suffixWithRevision,
+  uriRevision,
+} from "./common"
 
 export async function fileBlame(
   uri: vscode.Uri,
@@ -25,7 +29,11 @@ export async function fileBlame(
     cwd: directory,
     command: userGitCommand({
       key: "fileBlame",
-      variables: { revision, filename },
+      variables: {
+        revision,
+        filename,
+        moveCopyDetectionFlags: blameMoveCopyDetectionFlags(),
+      },
     }),
     context: {
       filename,

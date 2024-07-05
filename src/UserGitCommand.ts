@@ -15,12 +15,21 @@ interface LineHistory {
 
 interface FileBlame {
   key: "fileBlame"
-  variables: { revision: string; filename: string }
+  variables: {
+    revision: string
+    filename: string
+    moveCopyDetectionFlags: string
+  }
 }
 
 interface LineBlame {
   key: "lineBlame"
-  variables: { revision: string; filename: string; lineRanges: string }
+  variables: {
+    revision: string
+    filename: string
+    lineRanges: string
+    moveCopyDetectionFlags: string
+  }
 }
 
 interface RevisionHistory {
