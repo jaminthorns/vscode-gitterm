@@ -17,7 +17,7 @@ import {
   commitLinkProvider,
   fileLinkProvider,
   referenceLinkProvider,
-  stashLinkProvider,
+  reflogLinkProvider,
 } from "./linkProviders"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
 
@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
     commitLinkProvider(repositories, terminalFolders),
     fileLinkProvider(repositories, terminalFolders),
     referenceLinkProvider(repositories, terminalFolders),
-    stashLinkProvider(repositories, terminalFolders),
+    reflogLinkProvider(repositories, terminalFolders),
   )
 }
 

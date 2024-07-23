@@ -26,7 +26,7 @@ export async function showCommitActions(
 
   const commitItems: SelectableQuickPickItem[] = excludeNulls([
     {
-      label: commit.abbreviated,
+      label: commit.revision,
       kind: vscode.QuickPickItemKind.Separator,
     },
     {

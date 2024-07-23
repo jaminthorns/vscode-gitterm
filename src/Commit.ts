@@ -6,19 +6,20 @@ export type RawCommit = string
 export interface Commit {
   full: RawCommit
   abbreviated: RawCommit
+  revision: string
 }
 
 export async function Commit(
-  commit: RawCommit,
+  revision: string,
   directory: vscode.Uri,
 ): Promise<Commit | null> {
   try {
     const [full, abbreviated] = await Promise.all([
-      git("rev-parse", [`${commit}^{commit}`], { directory }),
-      git("rev-parse", ["--short", `${commit}^{commit}`], { directory }),
+      git("rev-parse", [`${revision}^{commit}`], { directory }),
+      git("rev-parse", ["--short", `${revision}^{commit}`], { directory }),
     ])
 
-    return { full, abbreviated }
+    return { full, abbreviated, revision }
   } catch (error) {
     return null
   }

@@ -1,8 +1,8 @@
-import { Commit, RawCommit } from "./Commit"
+import { Commit } from "./Commit"
 import { ReferenceType } from "./references"
 import { Repository } from "./Repository"
 
-export type CommitFilenames = Map<RawCommit, string>
+export type CommitFilenames = Map<string, string>
 
 export interface RepositoryContext {
   repository: Repository
@@ -33,8 +33,9 @@ type FileAtCommitContext = CommitContext & FileContext
 
 type FileAtCommitHistoryContext = CommitContext & FileHistoryContext
 
-export interface StashContext {
-  stash: string
+export interface ReflogContext {
+  reference: string
+  index: number
 }
 
 export type TerminalContext =
@@ -43,4 +44,4 @@ export type TerminalContext =
   | FolderContext // Showing folder history
   | FileHistoryContext // Showing file/line history
   | FileAtCommitHistoryContext // Showing file/line history from a commit
-  | StashContext // Showing a stash
+  | ReflogContext // Showing a reflog entry
