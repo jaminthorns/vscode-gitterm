@@ -51,7 +51,7 @@ export function pickRemote(
         showSelectableQuickPick({
           placeholder: "Select a remote",
           items: remotes.map((provider) => ({
-            label: `$(globe) ${provider.label}`,
+            label: `$(cloud) ${provider.label}`,
             onSelected: () => openRemoteUrl(provider),
             buttons: [copyUrlButton(provider)],
           })),

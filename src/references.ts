@@ -23,7 +23,7 @@ export const referenceInfo: Record<
     label: "Remote Branch",
     remoteLabel: "Branch",
     directory: "remotes",
-    disambiguate: { icon: "globe", label: "Remote Branch" },
+    disambiguate: { icon: "cloud", label: "Remote Branch" },
   },
   tag: {
     label: "Tag",

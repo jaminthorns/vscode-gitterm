@@ -31,7 +31,7 @@ export async function showCommitActions(
     },
     {
       label: subject,
-      detail: `${authorName} • ${authorDate.toLocaleString()}`,
+      detail: `$(account) ${authorName}, $(history) ${authorDate.toLocaleString()}`,
       onSelected: async () => {
         const showRevision = vscode.workspace
           .getConfiguration("gitterm.show")
