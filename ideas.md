@@ -179,3 +179,11 @@ like a revision/diff/file to be opened in an editor or a terminal, but sometimes
 it still makes sense to open in the other choice. The config should be changed
 to indicate that it's a default preference, and an action should be added to
 open in the other option.
+
+# Use `Pseudoterminal` for running commands 🤔
+
+Using a `Pseudoterminal` could provide a cleaner experience when running
+commands. The user wouldn't be able to reuse the terminal by exiting to the
+shell, which could be benefit or a drawback depending on the situation. A
+benefit would be that Git commands could be specified in a shell-agnostic way.
+This might make more sense architecturally and alleviate string-escaping issues.
