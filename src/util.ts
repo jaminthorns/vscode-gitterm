@@ -107,6 +107,7 @@ export function runCommandInTerminal({
   cwd,
   command,
   context,
+  env,
   onClose,
 }: {
   name: string
@@ -114,10 +115,11 @@ export function runCommandInTerminal({
   cwd: vscode.Uri
   command: string
   context?: TerminalContext
+  env?: Record<string, string>
   onClose?: Function
 }) {
   const iconPath = new vscode.ThemeIcon(icon)
-  const options = { name, iconPath, cwd, context }
+  const options = { name, iconPath, cwd, context, env }
   const terminal = vscode.window.createTerminal(options)
 
   if (onClose !== undefined) {

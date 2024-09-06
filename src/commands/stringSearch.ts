@@ -34,6 +34,9 @@ export async function stringSearch(
 
   const searches = files.map((file) => `-S "$(cat ${file.fsPath})"`).join(" ")
 
+  const firstSelection = document.getText(selections[0])
+  const setSearchEnv = selections.length === 1 && !firstSelection.includes("\n")
+
   runCommandInTerminal({
     name: await suffixWithRevision("String Search", revision, directory),
     icon: "search",
@@ -42,6 +45,7 @@ export async function stringSearch(
       key: "stringSearch",
       variables: { revision, searches },
     }),
+    env: setSearchEnv ? { GITTERM_SEARCH: firstSelection } : undefined,
     onClose: () => files.forEach((file) => vscode.workspace.fs.delete(file)),
   })
 }
