@@ -21,7 +21,7 @@
       "warn",
       { "selector": ["function"], "format": ["camelCase", "PascalCase"] }
     ],
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "caughtErrors": "none" }],
     "@typescript-eslint/require-await": "error"
   },
   "ignorePatterns": ["out", "dist", "**/*.d.ts"]
