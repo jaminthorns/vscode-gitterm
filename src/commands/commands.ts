@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { showCommitActions } from "../actions"
 import { Commit } from "../Commit"
 import { RepositoryStore } from "../stores"
-import { Range } from "./common"
+import { Range, uriRevision } from "./common"
 import { fileBlame } from "./fileBlame"
 import { fileHistory } from "./fileHistory"
 import { folderHistory } from "./folderHistory"
@@ -129,8 +129,8 @@ export function showCommitActionsCommand(repositories: RepositoryStore) {
         return
       }
 
-      const { ref } = JSON.parse(uri.query) as { ref: string }
-      const commit = await Commit(ref, repository.directory)
+      const revision = uriRevision(uri)
+      const commit = await Commit(revision, repository.directory)
 
       if (commit === null) {
         return

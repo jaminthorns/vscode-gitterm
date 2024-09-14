@@ -1,3 +1,4 @@
+import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { LineTranslator } from "../LineTranslator"
@@ -8,12 +9,24 @@ export interface Range {
 }
 
 export function uriRevision(uri: vscode.Uri): string {
-  if (uri.scheme === "file") {
-    return "HEAD"
-  } else if (["git", "git-commit"].includes(uri.scheme)) {
-    return JSON.parse(uri.query).ref
-  } else {
-    throw Error(`Cannot get revision from URI: ${uri}`)
+  switch (uri.scheme) {
+    case "file": {
+      return "HEAD"
+    }
+
+    case "git":
+    case "git-commit": {
+      return JSON.parse(uri.query).ref
+    }
+
+    case "scm-history-item": {
+      const range = basename(uri.path)
+      return range.split("..")[1]
+    }
+
+    default: {
+      throw Error(`Cannot get revision from URI: ${uri}`)
+    }
   }
 }
 
