@@ -10,7 +10,7 @@ import {
   runCommandInTerminal,
   userGitCommand,
 } from "../util"
-import { gitUri } from "./common"
+import { gitUri, showItem } from "./common"
 import { pickRemote } from "./pickRemote"
 
 export function fileAtCommitItems(
@@ -37,54 +37,62 @@ export function fileAtCommitItems(
       label: fileLabel,
       kind: vscode.QuickPickItemKind.Separator,
     },
-    {
-      label: "$(file) Show File",
-      onSelected: () => {
-        const showFileAtRevision = vscode.workspace
-          .getConfiguration("gitterm.show")
-          .get("fileAtRevision") as "editor" | "terminal"
+    showItem({
+      item: { label: "$(file) Show File" },
+      configKey: "fileAtRevision",
+      showOptions: {
+        editor: {
+          tooltip: "Show File in Editor",
+          onSelected: () => {
+            const uri = gitUri(filename, commit, repository.directory)
 
-        if (showFileAtRevision === "editor") {
-          const uri = gitUri(filename, commit, repository.directory)
-
-          vscode.window.showTextDocument(uri)
-        } else if (showFileAtRevision === "terminal") {
-          runCommandInTerminal({
-            name: fileLabel,
-            icon: "file",
-            cwd: repository.directory,
-            command: userGitCommand({
-              key: "showFileAtRevision",
-              variables,
-            }),
-            context: getContext(),
-          })
-        }
+            vscode.window.showTextDocument(uri)
+          },
+        },
+        terminal: {
+          tooltip: "Show File in Terminal",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: fileLabel,
+              icon: "file",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "showFileAtRevision",
+                variables,
+              }),
+              context: getContext(),
+            })
+          },
+        },
       },
-    },
-    {
-      label: "$(git-compare) Show Diff",
-      onSelected: async () => {
-        const showFileDiffAtRevision = vscode.workspace
-          .getConfiguration("gitterm.show")
-          .get("fileDiffAtRevision") as "editor" | "terminal"
-
-        if (showFileDiffAtRevision === "editor") {
-          await showFileAtCommitInEditor(filename, commit, repository)
-        } else if (showFileDiffAtRevision === "terminal") {
-          runCommandInTerminal({
-            name: fileLabel,
-            icon: "git-compare",
-            cwd: repository.directory,
-            command: userGitCommand({
-              key: "showFileDiffAtRevision",
-              variables,
-            }),
-            context: getContext(),
-          })
-        }
+    }),
+    showItem({
+      item: { label: "$(git-compare) Show Diff" },
+      configKey: "fileDiffAtRevision",
+      showOptions: {
+        editor: {
+          tooltip: "Show Diff in Editor",
+          onSelected: async () => {
+            await showFileAtCommitInEditor(filename, commit, repository)
+          },
+        },
+        terminal: {
+          tooltip: "Show Diff in Terminal",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: fileLabel,
+              icon: "git-compare",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "showFileDiffAtRevision",
+                variables,
+              }),
+              context: getContext(),
+            })
+          },
+        },
       },
-    },
+    }),
     {
       label: "$(history) File History from Commit",
       onSelected: () => {

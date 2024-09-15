@@ -9,7 +9,7 @@ import {
   truncate,
   userGitCommand,
 } from "../util"
-import { commitRemotes, gitUri } from "./common"
+import { commitRemotes, gitUri, showItem } from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
 import { pickRemote } from "./pickRemote"
 
@@ -29,30 +29,36 @@ export async function showCommitActions(
       label: commit.short,
       kind: vscode.QuickPickItemKind.Separator,
     },
-    {
-      label: subject,
-      detail: `$(account) ${authorName}, $(history) ${authorDate.toLocaleString()}`,
-      onSelected: async () => {
-        const showRevision = vscode.workspace
-          .getConfiguration("gitterm.show")
-          .get("revision") as "editor" | "terminal"
-
-        if (showRevision === "editor") {
-          await openRevisionInEditor(commit, repository)
-        } else if (showRevision === "terminal") {
-          runCommandInTerminal({
-            name: commitLabel,
-            icon: "git-commit",
-            cwd: repository.directory,
-            command: userGitCommand({
-              key: "showRevision",
-              variables: { revision: commit.full },
-            }),
-            context: { commit },
-          })
-        }
+    showItem({
+      item: {
+        label: subject,
+        detail: `$(account) ${authorName}, $(history) ${authorDate.toLocaleString()}`,
       },
-    },
+      configKey: "revision",
+      showOptions: {
+        editor: {
+          tooltip: "Show Commit in Editor",
+          onSelected: async () => {
+            await openRevisionInEditor(commit, repository)
+          },
+        },
+        terminal: {
+          tooltip: "Show Commit in Terminal",
+          onSelected: () => {
+            runCommandInTerminal({
+              name: commitLabel,
+              icon: "git-commit",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "showRevision",
+                variables: { revision: commit.full },
+              }),
+              context: { commit },
+            })
+          },
+        },
+      },
+    }),
     {
       label: "$(clippy) Copy Commit ID",
       onSelected: () => {

@@ -275,9 +275,9 @@
             "Only provide file links when terminal has revision context."
           ],
           "default": "always",
-          "description": "Whether to provide file links in the terminal."
+          "description": "Whether to provide file links in the terminal by default."
         },
-        "gitterm.show.revision": {
+        "gitterm.showDefault.revision": {
           "type": "string",
           "enum": [
             "editor",
@@ -288,9 +288,9 @@
             "Terminal"
           ],
           "default": "editor",
-          "description": "How to show a revision."
+          "description": "How to show a revision by default."
         },
-        "gitterm.show.fileDiffAtRevision": {
+        "gitterm.showDefault.fileDiffAtRevision": {
           "type": "string",
           "enum": [
             "editor",
@@ -301,9 +301,9 @@
             "Terminal"
           ],
           "default": "editor",
-          "description": "How to show a diff for a file at a revision."
+          "description": "How to show a diff for a file at a revision by default."
         },
-        "gitterm.show.fileAtRevision": {
+        "gitterm.showDefault.fileAtRevision": {
           "type": "string",
           "enum": [
             "editor",
