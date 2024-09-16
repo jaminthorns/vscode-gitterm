@@ -5,7 +5,7 @@ interface FolderHistory {
 
 interface FileHistory {
   key: "fileHistory"
-  variables: { revision: string; filename: string }
+  variables: { revision: string; filename: string; reverseFlags?: string }
 }
 
 interface LineHistory {
@@ -34,7 +34,7 @@ interface LineBlame {
 
 interface RevisionHistory {
   key: "revisionHistory"
-  variables: { revision: string }
+  variables: { revision: string; reverseFlags?: string }
 }
 
 interface ShowRevision {
@@ -68,3 +68,13 @@ export type UserGitCommand =
   | ShowFileDiffAtRevision
   | ShowFileAtRevision
   | StringSearch
+
+export function reverseHistory<T extends { revision: string }>(
+  variables: T,
+): T & { reverseFlags: string } {
+  return {
+    ...variables,
+    revision: `${variables.revision}..HEAD`,
+    reverseFlags: "--reverse --ancestry-path",
+  }
+}

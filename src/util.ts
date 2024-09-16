@@ -140,12 +140,22 @@ export function userGitCommand(command: UserGitCommand): string {
     .getConfiguration("gitterm.gitCommands")
     .get(command.key) as string
 
-  const matches = Array.from(commandStr.matchAll(/\${(\w+)}/g))
+  const matches = Array.from(commandStr.matchAll(/( *)\${(\w+)}( *)/g))
   const variables = command.variables as Record<string, any>
 
-  return matches.reduce((commandStr, [substitution, variableName]) => {
-    return commandStr.replace(substitution, variables[variableName])
+  return matches.reduce((commandStr, [substitution, lPad, name, rPad]) => {
+    if (name in variables) {
+      return commandStr.replace(substitution, lPad + variables[name] + rPad)
+    } else {
+      const noPad = (lPad + rPad).length === 0
+      return commandStr.replace(substitution, noPad ? "" : " ")
+    }
   }, commandStr)
+}
+
+export interface CommitFilenamesOptions {
+  reverse?: boolean
+  maxCount?: number
 }
 
 // Get a mapping of commits to historical filenames for every commit in which a
@@ -154,16 +164,23 @@ export async function commitFilenames(
   revision: string,
   path: string,
   directory: vscode.Uri,
-  maxCount?: number,
+  options: CommitFilenamesOptions = {},
 ): Promise<CommitFilenames | null> {
   try {
-    const countArgs = maxCount === undefined ? [] : [`--max-count=${maxCount}`]
+    const maxCount = options.maxCount
+    const reverse = options.reverse ?? false
+
+    const countArgs = maxCount !== undefined ? [`--max-count=${maxCount}`] : []
+    const revisionArgs = reverse
+      ? ["--reverse", "--ancestry-path", `${revision}..HEAD`]
+      : [revision]
+
     const args = [
-      ...countArgs,
       "--follow",
       "--name-only",
       "--format=%H",
-      revision,
+      ...countArgs,
+      ...revisionArgs,
       "--",
       path,
     ]

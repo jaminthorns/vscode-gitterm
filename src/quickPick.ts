@@ -6,6 +6,7 @@ export interface SelectableQuickPickButton extends vscode.QuickInputButton {
 
 export interface ConcreteQuickPickItem extends vscode.QuickPickItem {
   onSelected?: () => void
+  buttons?: SelectableQuickPickButton[]
 }
 
 interface PendingQuickPickItem {

@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import { Commit, CommitInfo } from "../Commit"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
+import { reverseHistory } from "../UserGitCommand"
 import {
   excludeNulls,
   git,
@@ -76,8 +77,27 @@ export async function showCommitActions(
             key: "revisionHistory",
             variables: { revision: commit.full },
           }),
+          context: { commit },
         })
       },
+      buttons: [
+        {
+          tooltip: "History (Reverse) from Commit",
+          iconPath: new vscode.ThemeIcon("history"),
+          onSelected: () => {
+            runCommandInTerminal({
+              name: `${commitLabel} (Reverse)`,
+              icon: "history",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "revisionHistory",
+                variables: reverseHistory({ revision: commit.full }),
+              }),
+              context: { commit },
+            })
+          },
+        },
+      ],
     },
     {
       placeholder: { label: "$(loading~spin) Loading remotes..." },

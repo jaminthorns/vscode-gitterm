@@ -9,7 +9,7 @@ import { openUrl } from "../util"
 
 export function pickRemote(
   remotes: RemoteProvider[],
-  item: vscode.QuickPickItem,
+  item: ConcreteQuickPickItem,
   getRemoteUrl: (provider: RemoteProvider) => vscode.Uri | null,
 ): ConcreteQuickPickItem | null {
   const openRemoteUrl = (provider: RemoteProvider) => {

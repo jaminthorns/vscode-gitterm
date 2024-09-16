@@ -4,7 +4,9 @@ import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
+import { reverseHistory } from "../UserGitCommand"
 import {
+  CommitFilenamesOptions,
   commitFilenames,
   excludeNulls,
   runCommandInTerminal,
@@ -22,13 +24,14 @@ export function fileAtCommitItems(
   const fileLabel = `${basename(filename)} (${commit.short})`
   const variables = { revision: commit.full, filename }
 
-  const getContext = () => ({
+  const getContext = (commitFilenamesOptions: CommitFilenamesOptions = {}) => ({
     commit,
     filename,
     commitFilenames: commitFilenames(
       commit.full,
       filename,
       repository.directory,
+      commitFilenamesOptions,
     ),
   })
 
@@ -107,6 +110,24 @@ export function fileAtCommitItems(
           context: getContext(),
         })
       },
+      buttons: [
+        {
+          tooltip: "File History (Reverse) from Commit",
+          iconPath: new vscode.ThemeIcon("history"),
+          onSelected: () => {
+            runCommandInTerminal({
+              name: `${fileLabel} (Reverse)`,
+              icon: "history",
+              cwd: repository.directory,
+              command: userGitCommand({
+                key: "fileHistory",
+                variables: reverseHistory(variables),
+              }),
+              context: getContext({ reverse: true }),
+            })
+          },
+        },
+      ],
     },
     {
       placeholder: { label: "$(loading~spin) Loading remotes..." },
@@ -154,7 +175,9 @@ async function previousInfo(
   filename: string,
   directory: vscode.Uri,
 ): Promise<{ commit: Commit; filename: string } | null> {
-  const result = await commitFilenames(commit.full, filename, directory, 2)
+  const result = await commitFilenames(commit.full, filename, directory, {
+    maxCount: 2,
+  })
 
   if (result === null) {
     return null
