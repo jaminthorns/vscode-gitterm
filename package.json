@@ -145,7 +145,7 @@
         {
           "command": "gitterm.fileHistory",
           "group": "10_gitterm_file@0",
-          "when": "resourceScheme =~ /^file$|^git$$/"
+          "when": "resourceScheme =~ /^file$|^git$/"
         },
         {
           "command": "gitterm.fileBlame",
