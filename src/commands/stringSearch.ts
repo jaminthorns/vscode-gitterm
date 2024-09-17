@@ -32,7 +32,7 @@ export async function stringSearch(
     return uri
   })
 
-  const searches = files.map((file) => `-S "$(cat ${file.fsPath})"`).join(" ")
+  const searches = files.map((file) => `-S "$(cat ${file.fsPath})"`)
 
   const firstSelection = document.getText(selections[0])
   const setSearchEnv = selections.length === 1 && !firstSelection.includes("\n")

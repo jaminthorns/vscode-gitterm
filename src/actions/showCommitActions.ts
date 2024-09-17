@@ -2,10 +2,10 @@ import * as vscode from "vscode"
 import { Commit, CommitInfo } from "../Commit"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
-import { reverseHistory } from "../UserGitCommand"
 import {
   excludeNulls,
   git,
+  reverseHistoryArgs,
   runCommandInTerminal,
   truncate,
   userGitCommand,
@@ -91,7 +91,7 @@ export async function showCommitActions(
               cwd: repository.directory,
               command: userGitCommand({
                 key: "revisionHistory",
-                variables: reverseHistory({ revision: commit.full }),
+                variables: reverseHistoryArgs(commit.full),
               }),
               context: { commit },
             })

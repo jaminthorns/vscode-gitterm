@@ -177,7 +177,7 @@ function longestMatch<Value>(
   }
 }
 
-function overlaps<Value>(a: Match<Value>, b: Match<Value>) {
+function overlaps<Value>(a: Match<Value>, b: Match<Value>): boolean {
   const aEndIndex = a.startIndex + a.text.length - 1
   const bEndIndex = b.startIndex + b.text.length - 1
 

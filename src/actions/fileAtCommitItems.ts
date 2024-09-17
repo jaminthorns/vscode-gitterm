@@ -4,11 +4,11 @@ import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
-import { reverseHistory } from "../UserGitCommand"
 import {
   CommitFilenamesOptions,
   commitFilenames,
   excludeNulls,
+  reverseHistoryArgs,
   runCommandInTerminal,
   userGitCommand,
 } from "../util"
@@ -121,7 +121,7 @@ export function fileAtCommitItems(
               cwd: repository.directory,
               command: userGitCommand({
                 key: "fileHistory",
-                variables: reverseHistory(variables),
+                variables: { ...reverseHistoryArgs(commit.full), filename },
               }),
               context: getContext({ reverse: true }),
             })

@@ -52,9 +52,9 @@ export async function lineHistory(
   }
 
   const rangeSuffix = translatedRanges.map(displayRange).join(",")
-  const fileLineRanges = translatedRanges
-    .map(({ start, end }) => `-L ${start},${end}:'${filename}'`)
-    .join(" ")
+  const fileLineRanges = translatedRanges.map(
+    ({ start, end }) => `-L ${start},${end}:'${filename}'`,
+  )
 
   const label = `${basename(filename)}:${rangeSuffix}`
 

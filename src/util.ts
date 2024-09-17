@@ -141,13 +141,21 @@ export function userGitCommand(command: UserGitCommand): string {
     .get(command.key) as string
 
   const matches = Array.from(commandStr.matchAll(/( *)\${(\w+)}( *)/g))
-  const variables = command.variables as Record<string, any>
+  const variables = command.variables as Record<string, string | string[]>
 
   return matches.reduce((commandStr, [substitution, lPad, name, rPad]) => {
-    if (name in variables) {
-      return commandStr.replace(substitution, lPad + variables[name] + rPad)
+    let variable = variables[name]
+    const isString = typeof variable === "string"
+    const isNonEmptyArray = Array.isArray(variable) && variable.length > 0
+
+    if (isString || isNonEmptyArray) {
+      if (Array.isArray(variable)) {
+        variable = variable.join(" ")
+      }
+
+      return commandStr.replace(substitution, `${lPad}${variable}${rPad}`)
     } else {
-      const noPad = (lPad + rPad).length === 0
+      const noPad = `${lPad}${rPad}`.length === 0
       return commandStr.replace(substitution, noPad ? "" : " ")
     }
   }, commandStr)
@@ -171,16 +179,17 @@ export async function commitFilenames(
     const reverse = options.reverse ?? false
 
     const countArgs = maxCount !== undefined ? [`--max-count=${maxCount}`] : []
-    const revisionArgs = reverse
-      ? ["--reverse", "--ancestry-path", `${revision}..HEAD`]
-      : [revision]
+    const { revision: revisionArg, reverseFlags } = reverse
+      ? reverseHistoryArgs(revision)
+      : { revision, reverseFlags: [] }
 
     const args = [
       "--follow",
       "--name-only",
       "--format=%H",
       ...countArgs,
-      ...revisionArgs,
+      ...reverseFlags,
+      revisionArg,
       "--",
       path,
     ]
@@ -190,5 +199,15 @@ export async function commitFilenames(
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {
     return null
+  }
+}
+
+export function reverseHistoryArgs(revision: string): {
+  revision: string
+  reverseFlags: string[]
+} {
+  return {
+    revision: `${revision}..HEAD`,
+    reverseFlags: ["--reverse", "--ancestry-path"],
   }
 }

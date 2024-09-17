@@ -92,7 +92,7 @@ export function displayRange({ start, end }: Range): string {
   return start === end ? `${start}` : `${start}-${end}`
 }
 
-export function blameMoveCopyDetectionFlags() {
+export function blameMoveCopyDetectionFlags(): string[] {
   const sameFile = vscode.workspace
     .getConfiguration("gitterm.blame")
     .get("sameFileMoveCopyDetection") as "on" | "off"
@@ -117,5 +117,5 @@ export function blameMoveCopyDetectionFlags() {
     anyCommit: ["-C", "-C", "-C"],
   }
 
-  return [...sameFileFlags[sameFile], ...otherFilesFlags[otherFiles]].join(" ")
+  return [...sameFileFlags[sameFile], ...otherFilesFlags[otherFiles]]
 }

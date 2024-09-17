@@ -1,16 +1,26 @@
 interface FolderHistory {
   key: "folderHistory"
-  variables: { revision: string; folder: string }
+  variables: {
+    revision: string
+    folder: string
+  }
 }
 
 interface FileHistory {
   key: "fileHistory"
-  variables: { revision: string; filename: string; reverseFlags?: string }
+  variables: {
+    revision: string
+    filename: string
+    reverseFlags?: string[]
+  }
 }
 
 interface LineHistory {
   key: "lineHistory"
-  variables: { revision: string; fileLineRanges: string }
+  variables: {
+    revision: string
+    fileLineRanges: string[]
+  }
 }
 
 interface FileBlame {
@@ -18,7 +28,7 @@ interface FileBlame {
   variables: {
     revision: string
     filename: string
-    moveCopyDetectionFlags: string
+    moveCopyDetectionFlags: string[]
   }
 }
 
@@ -28,33 +38,47 @@ interface LineBlame {
     revision: string
     filename: string
     lineRanges: string
-    moveCopyDetectionFlags: string
+    moveCopyDetectionFlags: string[]
   }
 }
 
 interface RevisionHistory {
   key: "revisionHistory"
-  variables: { revision: string; reverseFlags?: string }
+  variables: {
+    revision: string
+    reverseFlags?: string[]
+  }
 }
 
 interface ShowRevision {
   key: "showRevision"
-  variables: { revision: string }
+  variables: {
+    revision: string
+  }
 }
 
 interface ShowFileDiffAtRevision {
   key: "showFileDiffAtRevision"
-  variables: { revision: string; filename: string }
+  variables: {
+    revision: string
+    filename: string
+  }
 }
 
 interface ShowFileAtRevision {
   key: "showFileAtRevision"
-  variables: { revision: string; filename: string }
+  variables: {
+    revision: string
+    filename: string
+  }
 }
 
 interface StringSearch {
   key: "stringSearch"
-  variables: { revision: string; searches: string }
+  variables: {
+    revision: string
+    searches: string[]
+  }
 }
 
 export type UserGitCommand =
@@ -68,13 +92,3 @@ export type UserGitCommand =
   | ShowFileDiffAtRevision
   | ShowFileAtRevision
   | StringSearch
-
-export function reverseHistory<T extends { revision: string }>(
-  variables: T,
-): T & { reverseFlags: string } {
-  return {
-    ...variables,
-    revision: `${variables.revision}..HEAD`,
-    reverseFlags: "--reverse --ancestry-path",
-  }
-}
