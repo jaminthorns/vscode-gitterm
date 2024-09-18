@@ -97,6 +97,10 @@
           "when": "false"
         },
         {
+          "command": "gitterm.showCommitActions",
+          "when": "false"
+        },
+        {
           "command": "gitterm.activeFileHistory",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
