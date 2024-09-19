@@ -41,28 +41,56 @@
         "title": "GitTerm: Line History"
       },
       {
+        "command": "gitterm.lineHistoryReverse",
+        "title": "GitTerm: Line History (Reverse)"
+      },
+      {
         "command": "gitterm.lineBlame",
         "title": "GitTerm: Line Blame"
+      },
+      {
+        "command": "gitterm.lineBlameReverse",
+        "title": "GitTerm: Line Blame (Reverse)"
       },
       {
         "command": "gitterm.activeFileHistory",
         "title": "GitTerm: Active File History"
       },
       {
+        "command": "gitterm.activeFileHistoryReverse",
+        "title": "GitTerm: Active File History (Reverse)"
+      },
+      {
         "command": "gitterm.activeFileBlame",
         "title": "GitTerm: Active File Blame"
+      },
+      {
+        "command": "gitterm.activeFileBlameReverse",
+        "title": "GitTerm: Active File Blame (Reverse)"
       },
       {
         "command": "gitterm.selectionHistory",
         "title": "GitTerm: Selection History"
       },
       {
+        "command": "gitterm.selectionHistoryReverse",
+        "title": "GitTerm: Selection History (Reverse)"
+      },
+      {
         "command": "gitterm.selectionBlame",
         "title": "GitTerm: Selection Blame"
       },
       {
+        "command": "gitterm.selectionBlameReverse",
+        "title": "GitTerm: Selection Blame (Reverse)"
+      },
+      {
         "command": "gitterm.selectionSearch",
-        "title": "GitTerm: Selection Search (Pickaxe)"
+        "title": "GitTerm: Selection Search"
+      },
+      {
+        "command": "gitterm.selectionSearchReverse",
+        "title": "GitTerm: Selection Search (Reverse)"
       },
       {
         "command": "gitterm.debugStores",
@@ -93,7 +121,15 @@
           "when": "false"
         },
         {
+          "command": "gitterm.lineHistoryReverse",
+          "when": "false"
+        },
+        {
           "command": "gitterm.lineBlame",
+          "when": "false"
+        },
+        {
+          "command": "gitterm.lineBlameReverse",
           "when": "false"
         },
         {
@@ -105,20 +141,40 @@
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
+          "command": "gitterm.activeFileHistoryReverse",
+          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
+        },
+        {
           "command": "gitterm.activeFileBlame",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        },
+        {
+          "command": "gitterm.activeFileBlameReverse",
+          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
         },
         {
           "command": "gitterm.selectionHistory",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
+          "command": "gitterm.selectionHistoryReverse",
+          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
+        },
+        {
           "command": "gitterm.selectionBlame",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
+          "command": "gitterm.selectionBlameReverse",
+          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
+        },
+        {
           "command": "gitterm.selectionSearch",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+        },
+        {
+          "command": "gitterm.selectionSearchReverse",
+          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
         }
       ],
       "explorer/context": [
