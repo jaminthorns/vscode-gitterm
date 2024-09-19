@@ -46,11 +46,11 @@
       },
       {
         "command": "gitterm.activeFileHistory",
-        "title": "GitTerm: Active File History"
+        "title": "GitTerm: File History"
       },
       {
         "command": "gitterm.activeFileBlame",
-        "title": "GitTerm: Active File Blame"
+        "title": "GitTerm: File Blame"
       },
       {
         "command": "gitterm.selectionHistory",

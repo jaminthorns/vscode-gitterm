@@ -82,7 +82,7 @@ export async function showCommitActions(
       },
       buttons: [
         {
-          tooltip: "History (Reverse) from Commit",
+          tooltip: "History from Commit (Reverse)",
           iconPath: new vscode.ThemeIcon("history"),
           onSelected: () => {
             runCommandInTerminal({

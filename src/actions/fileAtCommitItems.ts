@@ -112,7 +112,7 @@ export function fileAtCommitItems(
       },
       buttons: [
         {
-          tooltip: "File History (Reverse) from Commit",
+          tooltip: "File History from Commit (Reverse)",
           iconPath: new vscode.ThemeIcon("history"),
           onSelected: () => {
             runCommandInTerminal({
