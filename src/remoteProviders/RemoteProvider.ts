@@ -12,6 +12,7 @@ export interface RemoteProvider {
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri | null
 }
 
+// TODO: Implement more providers.
 export function RemoteProvider(remote: Remote): RemoteProvider {
   switch (remote.server.host) {
     case "github.com":
