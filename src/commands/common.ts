@@ -2,29 +2,42 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { LineTranslator } from "../LineTranslator"
+import { Repository } from "../Repository"
 
 export interface Range {
   start: number
   end: number
 }
 
-export function uriRevision(uri: vscode.Uri): string {
+export function uriRevision(uri: vscode.Uri, repository: Repository): string {
   switch (uri.scheme) {
+    // Normal file resource.
     case "file": {
       return "HEAD"
     }
 
+    // Resource opened from source control changes or timeline.
     case "git":
     case "git-commit": {
       return JSON.parse(uri.query).ref
     }
 
+    // Resource opened from source control graph.
     case "scm-history-item": {
       const range = basename(uri.path)
       return range.split("..")[1]
     }
 
+    // Resource opened from a URI specific to a remote provider.
     default: {
+      for (const provider of repository.remoteProviders.sorted()) {
+        const revision = provider.uriRevision(uri)
+
+        if (revision !== null) {
+          return revision
+        }
+      }
+
       throw Error(`Cannot get revision from URI: ${uri}`)
     }
   }

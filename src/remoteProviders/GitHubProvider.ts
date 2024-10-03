@@ -40,5 +40,18 @@ export function GitHubProvider(remote: Remote): RemoteProvider {
     fileAtCommitUrl(commit, filename) {
       return url(`/blob/${commit.full}/${filename}`)
     },
+
+    uriRevision(uri) {
+      switch (uri.scheme) {
+        // Opened from the GitHub Pull Requests extension.
+        case "review": {
+          return JSON.parse(uri.query).commit
+        }
+
+        default: {
+          return null
+        }
+      }
+    },
   }
 }

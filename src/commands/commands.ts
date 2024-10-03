@@ -129,7 +129,7 @@ export function showCommitActionsCommand(repositories: RepositoryStore) {
         return
       }
 
-      const revision = uriRevision(uri)
+      const revision = uriRevision(uri, repository)
       const commit = await Commit(revision, repository.directory)
 
       if (commit === null) {

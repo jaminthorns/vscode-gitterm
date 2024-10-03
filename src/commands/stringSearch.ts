@@ -17,7 +17,7 @@ export async function stringSearch(
   }
 
   const { directory } = repository
-  const revision = uriRevision(document.uri)
+  const revision = uriRevision(document.uri, repository)
   const time = new Date().getTime()
 
   const files = selections.map((selection, index) => {

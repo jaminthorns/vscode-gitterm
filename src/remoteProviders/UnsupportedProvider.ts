@@ -26,5 +26,9 @@ export function UnsupportedProvider(remote: Remote): RemoteProvider {
       showNotSupportedMessage()
       return null
     },
+
+    uriRevision() {
+      return null
+    },
   }
 }

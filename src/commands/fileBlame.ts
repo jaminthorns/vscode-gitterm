@@ -20,7 +20,7 @@ export async function fileBlame(
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(uri, false)
-  const revision = uriRevision(uri)
+  const revision = uriRevision(uri, repository)
   const label = basename(filename)
 
   runCommandInTerminal({

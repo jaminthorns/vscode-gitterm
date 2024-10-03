@@ -25,7 +25,7 @@ export async function lineBlame(
 
   const { directory } = repository
   const filename = vscode.workspace.asRelativePath(document.uri, false)
-  const revision = uriRevision(document.uri)
+  const revision = uriRevision(document.uri, repository)
 
   let translatedRanges
 
