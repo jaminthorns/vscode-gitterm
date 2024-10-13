@@ -15,15 +15,16 @@ import {
 } from "./commands"
 import { linkProvider } from "./linkProvider"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
+import { filterAsync, git } from "./util"
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const { workspaceFolders } = vscode.workspace
 
   if (workspaceFolders === undefined) {
     return
   }
 
-  const repositories = setupRepositories(workspaceFolders)
+  const repositories = await setupRepositories(workspaceFolders)
   const terminalFolders = setupTerminalFolders()
 
   context.subscriptions.push(
@@ -46,20 +47,37 @@ export function activate(context: vscode.ExtensionContext) {
   )
 }
 
-// TODO: Account for workspace folders without Git repositories.
-function setupRepositories(
+async function setupRepositories(
   workspaceFolders: readonly vscode.WorkspaceFolder[],
-): RepositoryStore {
+): Promise<RepositoryStore> {
   const repositories = RepositoryStore()
 
-  workspaceFolders.forEach(repositories.addRepository)
+  vscode.workspace.onDidChangeWorkspaceFolders(async ({ added, removed }) => {
+    const [addedWithRepo, removedWithRepo] = await Promise.all([
+      filterAsync(added, inRepository),
+      filterAsync(removed, inRepository),
+    ])
 
-  vscode.workspace.onDidChangeWorkspaceFolders(({ added, removed }) => {
-    added.forEach(repositories.addRepository)
-    removed.forEach(repositories.removeRepository)
+    addedWithRepo.forEach(repositories.addRepository)
+    removedWithRepo.forEach(repositories.removeRepository)
   })
 
+  const foldersWithRepo = await filterAsync(workspaceFolders, inRepository)
+  foldersWithRepo.forEach(repositories.addRepository)
+
   return repositories
+}
+
+async function inRepository(workspaceFolder: vscode.WorkspaceFolder) {
+  try {
+    const result = await git("rev-parse", ["--is-inside-work-tree"], {
+      directory: workspaceFolder.uri,
+    })
+
+    return result === "true"
+  } catch (error) {
+    return false
+  }
 }
 
 function setupTerminalFolders(): TerminalFolderStore {

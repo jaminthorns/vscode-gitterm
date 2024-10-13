@@ -8,6 +8,17 @@ export function excludeNulls<T>(items: T[]): Exclude<T, null>[] {
   return items.filter((item) => item !== null) as Exclude<T, null>[]
 }
 
+export async function filterAsync<T>(
+  items: T[] | readonly T[],
+  predicate: (item: T) => Promise<boolean>,
+): Promise<T[]> {
+  const itemsAndConditions = await Promise.all(
+    items.map(async (item) => ({ item, keep: await predicate(item) })),
+  )
+
+  return itemsAndConditions.filter(({ keep }) => keep).map(({ item }) => item)
+}
+
 export function chunk<T>(array: T[], count: number): T[][] {
   return array.reduce((chunks: T[][], value, index) => {
     const chunkIndex = Math.floor(index / count)

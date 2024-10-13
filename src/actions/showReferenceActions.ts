@@ -4,12 +4,7 @@ import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { ReferenceType, referenceInfo, referenceValid } from "../references"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
-import {
-  excludeNulls,
-  git,
-  runCommandInTerminal,
-  userGitCommand,
-} from "../util"
+import { filterAsync, git, runCommandInTerminal, userGitCommand } from "../util"
 import { pickRemote } from "./pickRemote"
 
 export function showReferenceActions(
@@ -123,20 +118,14 @@ async function remoteReferenceInfo(
     }
 
     case "tag": {
-      const providers = excludeNulls(
-        await Promise.all(
-          remoteProviders.map(async (provider) => {
-            const pattern = join("refs", refDirectory, reference)
-            const output = await git(
-              "ls-remote",
-              [provider.remote.name, pattern],
-              { directory: repository.directory },
-            )
+      const providers = await filterAsync(remoteProviders, async (provider) => {
+        const pattern = join("refs", refDirectory, reference)
+        const output = await git("ls-remote", [provider.remote.name, pattern], {
+          directory: repository.directory,
+        })
 
-            return output === "" ? null : provider
-          }),
-        ),
-      )
+        return output !== ""
+      })
 
       return { remoteReference: reference, remoteProviders: providers }
     }
