@@ -25,20 +25,24 @@ export interface CommitInfo {
   authorDate: Date
   authorName: string
   subject: string
+  message: string
 }
 
 export async function CommitInfo(
   revision: string,
   directory: vscode.Uri,
 ): Promise<CommitInfo> {
-  const args = ["--format=%aI\t%an\t%s", "--max-count=1", revision]
+  const sep = "\u001f"
+  const format = `%aI${sep}%an${sep}%s${sep}%B`
+  const args = [`--format=${format}`, "--max-count=1", revision]
   const rawInfo = await git("log", args, { directory })
 
-  const [rawAuthorDate, authorName, subject] = rawInfo.split("\t")
+  const [rawAuthorDate, authorName, subject, message] = rawInfo.split(sep)
 
   return {
     authorDate: new Date(rawAuthorDate),
     authorName,
     subject,
+    message,
   }
 }

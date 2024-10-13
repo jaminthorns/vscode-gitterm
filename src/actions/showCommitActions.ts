@@ -66,7 +66,12 @@ export async function showCommitActions(
         vscode.env.clipboard.writeText(commit.full)
       },
     },
-    // TODO: Add "Copy Commit Message" command.
+    {
+      label: "$(clippy) Copy Commit Message",
+      onSelected: () => {
+        vscode.env.clipboard.writeText(commitInfo.message)
+      },
+    },
     {
       label: "$(history) History from Commit",
       onSelected: () => {
