@@ -195,6 +195,7 @@ export async function commitFilenames(
       : { revision, reverseFlags: [] }
 
     const args = [
+      "--diff-merges=on",
       "--follow",
       "--name-only",
       "--format=%H",

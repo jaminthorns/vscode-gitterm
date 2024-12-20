@@ -355,7 +355,7 @@
         },
         "gitterm.gitCommands.fileHistory": {
           "type": "string",
-          "default": "git log --follow --patch ${reverseFlags} ${revision} -- '${filename}'",
+          "default": "git log --follow --patch --diff-merges=on ${reverseFlags} ${revision} -- '${filename}'",
           "description": "Git command for showing file history."
         },
         "gitterm.gitCommands.fileBlame": {
@@ -365,7 +365,7 @@
         },
         "gitterm.gitCommands.lineHistory": {
           "type": "string",
-          "default": "git log ${revision} ${fileLineRanges}",
+          "default": "git log --diff-merges=on ${revision} ${fileLineRanges}",
           "description": "Git command for showing history for ranges of lines in a file."
         },
         "gitterm.gitCommands.lineBlame": {
@@ -375,27 +375,27 @@
         },
         "gitterm.gitCommands.revisionHistory": {
           "type": "string",
-          "default": "git log ${reverseFlags} ${revision}",
+          "default": "git log --diff-merges=on ${reverseFlags} ${revision}",
           "description": "Git command for showing history from a revision."
         },
         "gitterm.gitCommands.showRevision": {
           "type": "string",
-          "default": "git show -m ${revision}",
+          "default": "git show --diff-merges=on ${revision}",
           "description": "Git command for showing a revision."
         },
         "gitterm.gitCommands.showFileDiffAtRevision": {
           "type": "string",
-          "default": "git show -m ${revision} -- '${filename}'",
+          "default": "git show --diff-merges=on ${revision} -- '${filename}'",
           "description": "Git command for showing a diff for a file at a revision."
         },
         "gitterm.gitCommands.showFileAtRevision": {
           "type": "string",
-          "default": "git show ${revision}:'${filename}'",
+          "default": "git show --diff-merges=on ${revision}:'${filename}'",
           "description": "Git command for showing a file at a revision."
         },
         "gitterm.gitCommands.stringSearch": {
           "type": "string",
-          "default": "git log --patch ${revision} ${searches}",
+          "default": "git log --diff-merges=on --patch ${revision} ${searches}",
           "markdownDescription": "Git command for searching for a string across commits.\n\nIn terminals created with this command, the `GITTERM_SEARCH` environment variable will be set under the following conditions:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
         }
       }
