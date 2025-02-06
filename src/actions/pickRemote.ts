@@ -24,7 +24,7 @@ export function pickRemote(
     provider: RemoteProvider,
   ): SelectableQuickPickButton => ({
     tooltip: "Copy Remote URL",
-    iconPath: new vscode.ThemeIcon("clippy"),
+    iconPath: new vscode.ThemeIcon("copy"),
     onSelected: () => {
       const url = getRemoteUrl(provider)
 

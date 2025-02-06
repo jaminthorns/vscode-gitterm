@@ -38,7 +38,7 @@ export function showFileActions(
     },
     openItem,
     {
-      label: "$(clippy) Copy File Path",
+      label: "$(copy) Copy File Path",
       onSelected: () => {
         vscode.env.clipboard.writeText(filename)
       },

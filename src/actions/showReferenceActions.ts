@@ -56,7 +56,7 @@ export function showReferenceActions(
       },
     },
     {
-      label: `$(clippy) Copy ${label} Name`,
+      label: `$(copy) Copy ${label} Name`,
       onSelected: () => {
         vscode.env.clipboard.writeText(reference)
       },

@@ -61,13 +61,13 @@ export async function showCommitActions(
       },
     }),
     {
-      label: "$(clippy) Copy Commit ID",
+      label: "$(copy) Copy Commit ID",
       onSelected: () => {
         vscode.env.clipboard.writeText(commit.full)
       },
     },
     {
-      label: "$(clippy) Copy Commit Message",
+      label: "$(copy) Copy Commit Message",
       onSelected: () => {
         vscode.env.clipboard.writeText(commitInfo.message)
       },
