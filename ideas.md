@@ -11,7 +11,7 @@ Legend:
 
 ## Link Types
 
-### File Links ❗
+### File Links 🤔
 
 - Actions
 
@@ -35,7 +35,11 @@ Legend:
     default branch (running `git remote set-head ...` if necessary), and offer
     to open the file only if it exists on that branch.
 
-### Person Links ❗
+For GitHub at least, this is covered by the "Copy GitHub Link" commands. It
+could be nice to have, but does it really fall under the responsibility of
+GitTerm?
+
+### Person Links 🤔
 
 Command: `git shortlog --all --summary --numbered --email`
 
@@ -43,7 +47,10 @@ Command: `git shortlog --all --summary --numbered --email`
   - History of Authored Commits
   - History of Committed Commits
 
-### Stash Links ❗
+I'm not sure how useful this would actually be in practice. I've only ever used
+committer/author filtering in conjuction with other `git log` filters.
+
+### Stash Links 🤔
 
 - Actions
 
@@ -54,17 +61,23 @@ Command: `git shortlog --all --summary --numbered --email`
 
   - Copy Stash Name
 
-### Issue Links 🤔
+This would be nice to have for parity with commit links, but it's not nearly as
+useful since VS Code already has stash listing functionality built-in.
+
+### Issue Links ❗
 
 Most remotes support something like GitHub's issues and usually have some syntax
 (like `#123`) that automatically creates links to those issues. It would be nice
-to support this on a per-remote basis.
+to support this on a per-remote basis. If multiple remotes match an issue link,
+show the remote picker.
 
-### Commit Range Links 🤔
+### Commit Range Links ❗
 
 When pulling, you get a message in the form of `Updating <commit>..<commit>`. It
 would be nice if you could click the commit range and get the history for that
 range.
+
+Every time I pull and get some new commits, I end up wanting this!
 
 ## Link Detection Methods 📝
 
