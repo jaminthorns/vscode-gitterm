@@ -3,7 +3,7 @@
   "displayName": "GitTerm",
   "description": "Rich integration between Git CLI and VS Code",
   "publisher": "jaminthorns",
-  "icon": "assets/icon.png",
+  "icon": "assets/extension_icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/jaminthorns/vscode-gitterm.git"
@@ -71,7 +71,10 @@
       {
         "command": "gitterm.showCommitActions",
         "title": "GitTerm: Show Commit Actions",
-        "icon": "$(git-commit)"
+        "icon": {
+          "light": "assets/icons/gitterm_light.svg",
+          "dark": "assets/icons/gitterm_dark.svg"
+        }
       }
     ],
     "menus": {
