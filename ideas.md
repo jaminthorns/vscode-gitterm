@@ -185,6 +185,8 @@ with `git show <REF>:<FILE>`.
 There should be a command (with a default keybinding) that lets you select a
 reference (branch/tag/commit) to view the active file at.
 
+This should also be available as a context menu command when viewing diffs.
+
 # Use `Pseudoterminal` for running commands 🤔
 
 Using a `Pseudoterminal` could provide a cleaner experience when running
