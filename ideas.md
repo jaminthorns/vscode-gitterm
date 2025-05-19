@@ -201,3 +201,8 @@ I tried to see the file history on a file that wasn't in the repo that I had
 opened. When I pressed the hotkeys, nothing happened, but it would have been
 more informative if a notification was shown. I'm not sure what should happen if
 a file is from another repo.
+
+# Add "Open File" command when viewing file at a commit ❗
+
+Whenever a file at a commit is opened, it's not straightforward to get back to
+the working copy version of that file (if it exists).
