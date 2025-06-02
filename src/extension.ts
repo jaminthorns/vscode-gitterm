@@ -15,6 +15,7 @@ import {
 } from "./commands"
 import { linkProvider } from "./linkProvider"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
+import { uriHandler } from "./uriHandler"
 import { filterAsync, git } from "./util"
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -44,6 +45,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Link provider
     linkProvider(repositories, terminalFolders),
+
+    // URI handler
+    uriHandler(),
   )
 }
 
