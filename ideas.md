@@ -206,3 +206,10 @@ a file is from another repo.
 
 Whenever a file at a commit is opened, it's not straightforward to get back to
 the working copy version of that file (if it exists).
+
+# Add code lens for files at a commit 🤔
+
+There's not much indication that you're viewing a file at a commit besides the
+read-only icon and the commit actions button. It might be nice to have a code
+lens at the top of the file that shows some commit info. The command for it
+would just be commit actions.
