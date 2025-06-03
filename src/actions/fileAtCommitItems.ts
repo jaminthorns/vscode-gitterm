@@ -41,11 +41,11 @@ export function fileAtCommitItems(
       kind: vscode.QuickPickItemKind.Separator,
     },
     showItem({
-      item: { label: "$(file) Show File" },
+      item: { label: "$(file) Show File at Commit" },
       configKey: "fileAtRevision",
       showOptions: {
         editor: {
-          tooltip: "Show File in Editor",
+          tooltip: "Show File at Commit (Editor)",
           onSelected: () => {
             const uri = gitUri(filename, commit, repository.directory)
 
@@ -53,7 +53,7 @@ export function fileAtCommitItems(
           },
         },
         terminal: {
-          tooltip: "Show File in Terminal",
+          tooltip: "Show File at Commit (Terminal)",
           onSelected: () => {
             runCommandInTerminal({
               name: fileLabel,
@@ -70,17 +70,17 @@ export function fileAtCommitItems(
       },
     }),
     showItem({
-      item: { label: "$(git-compare) Show Diff" },
+      item: { label: "$(git-compare) Show File Diff" },
       configKey: "fileDiffAtRevision",
       showOptions: {
         editor: {
-          tooltip: "Show Diff in Editor",
+          tooltip: "Show Diff (Editor)",
           onSelected: async () => {
             await showFileAtCommitInEditor(filename, commit, repository)
           },
         },
         terminal: {
-          tooltip: "Show Diff in Terminal",
+          tooltip: "Show Diff (Terminal)",
           onSelected: () => {
             runCommandInTerminal({
               name: fileLabel,

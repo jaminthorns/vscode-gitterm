@@ -38,13 +38,13 @@ export async function showCommitActions(
       configKey: "revision",
       showOptions: {
         editor: {
-          tooltip: "Show Commit in Editor",
+          tooltip: "Show Commit (Editor)",
           onSelected: async () => {
             await openRevisionInEditor(commit, repository)
           },
         },
         terminal: {
-          tooltip: "Show Commit in Terminal",
+          tooltip: "Show Commit (Terminal)",
           onSelected: () => {
             runCommandInTerminal({
               name: commitLabel,
