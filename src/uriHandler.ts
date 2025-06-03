@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 export function uriHandler(): vscode.Disposable {
   return vscode.window.registerUriHandler({
     handleUri: async (uri: vscode.Uri): Promise<void> => {
-      const match = uri.path.match(/\/(.*):(.*):(.*)/)
+      const match = uri.path.match(/^\/(.*?):(.*?)(?::(\d*))?$/)
 
       if (match === null) {
         const uriFormat = `vscode://${uri.authority}/<COMMIT>:<PATH>:<LINE>`
@@ -13,7 +13,7 @@ export function uriHandler(): vscode.Disposable {
         return
       }
 
-      const [, ref, path, line] = match
+      const [, ref, path, line = ""] = match
       const lineNumber = line === "" ? null : parseInt(line) - 1
 
       const gitUri = vscode.Uri.from({
