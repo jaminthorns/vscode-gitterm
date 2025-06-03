@@ -55,6 +55,7 @@ export async function showCommitActions(
                 variables: { revision: commit.full },
               }),
               context: { commit },
+              env: { GITTERM_REVISION: commit.full },
             })
           },
         },
