@@ -12,7 +12,7 @@ import {
   runCommandInTerminal,
   userGitCommand,
 } from "../util"
-import { gitUri, showItem } from "./common"
+import { relativeGitUri, showItem } from "./common"
 import { pickRemote } from "./pickRemote"
 
 export function fileAtCommitItems(
@@ -47,7 +47,7 @@ export function fileAtCommitItems(
         editor: {
           tooltip: "Show File at Commit (Editor)",
           onSelected: () => {
-            const uri = gitUri(filename, commit, repository.directory)
+            const uri = relativeGitUri(filename, commit, repository.directory)
 
             vscode.window.showTextDocument(uri)
           },
@@ -164,8 +164,8 @@ async function showFileAtCommitInEditor(
 
   vscode.commands.executeCommand(
     "vscode.diff",
-    gitUri(prevFilename, prevCommit, repository.directory),
-    gitUri(filename, commit, repository.directory),
+    relativeGitUri(prevFilename, prevCommit, repository.directory),
+    relativeGitUri(filename, commit, repository.directory),
     title,
   )
 }

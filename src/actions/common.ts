@@ -5,7 +5,7 @@ import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
 import { git } from "../util"
 
-export function gitUri(
+export function relativeGitUri(
   filename: string,
   commit: Commit | null,
   directory: vscode.Uri,

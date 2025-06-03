@@ -10,7 +10,7 @@ import {
   truncate,
   userGitCommand,
 } from "../util"
-import { commitRemotes, gitUri, showItem } from "./common"
+import { commitRemotes, relativeGitUri, showItem } from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
 import { pickRemote } from "./pickRemote"
 
@@ -151,25 +151,25 @@ async function openRevisionInEditor(commit: Commit, repository: Repository) {
       case "A":
         return {
           originalUri: undefined,
-          modifiedUri: gitUri(filenames[0], commit, directory),
+          modifiedUri: relativeGitUri(filenames[0], commit, directory),
         }
 
       case "M":
         return {
-          originalUri: gitUri(filenames[0], prevCommit, directory),
-          modifiedUri: gitUri(filenames[0], commit, directory),
+          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
+          modifiedUri: relativeGitUri(filenames[0], commit, directory),
         }
 
       case "D":
         return {
-          originalUri: gitUri(filenames[0], prevCommit, directory),
+          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
           modifiedUri: undefined,
         }
 
       case "R":
         return {
-          originalUri: gitUri(filenames[0], prevCommit, directory),
-          modifiedUri: gitUri(filenames[1], commit, directory),
+          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
+          modifiedUri: relativeGitUri(filenames[1], commit, directory),
         }
     }
   })
