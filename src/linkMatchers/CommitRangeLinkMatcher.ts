@@ -1,11 +1,12 @@
 import * as vscode from "vscode"
+import { showCommitRangeActions } from "../actions"
 import { Commit } from "../Commit"
 import { excludeNulls } from "../util"
 import { LinkMatcher } from "./LinkMatcher"
 
 export const CommitRangeLinkMatcher: LinkMatcher<{
-  startCommit: Commit
-  endCommit: Commit
+  fromCommit: Commit
+  toCommit: Commit
 }> = {
   label: "Commit Range",
   icon: "git-compare",
@@ -13,7 +14,7 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
   shouldProvide() {
     const provideCommitLinks = vscode.workspace
       .getConfiguration("gitterm.terminalLinks")
-      .get("provideCommitLinks") as "always" | "never"
+      .get("provideCommitRangeLinks") as "always" | "never"
 
     switch (provideCommitLinks) {
       case "always":
@@ -31,19 +32,17 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
     return excludeNulls(
       await Promise.all(
         lineMatches.map(async (match) => {
-          const rawStartCommit = match[1]
-          const rawEndCommit = match[2]
+          const commitRange = match[0]
+          const fromCommit = await Commit(match[1], repository.directory)
+          const toCommit = await Commit(match[2], repository.directory)
 
-          const startCommit = await Commit(rawStartCommit, repository.directory)
-          const endCommit = await Commit(rawEndCommit, repository.directory)
-
-          if (startCommit === null || endCommit === null) {
+          if (fromCommit === null || toCommit === null) {
             return null
           } else {
             return {
               startIndex: match.index,
-              length: match[0].length,
-              context: { startCommit, endCommit },
+              length: commitRange.length,
+              context: { fromCommit, toCommit },
             }
           }
         }),
@@ -51,22 +50,7 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
     )
   },
 
-  handleMatch({ startCommit, endCommit }, terminalContext, repository) {
-    const rangeHistoryCommand = vscode.workspace
-      .getConfiguration("gitterm.gitCommands")
-      .get("rangeHistory") as string
-
-    const command = rangeHistoryCommand
-      .replace("${startCommit}", startCommit.full)
-      .replace("${endCommit}", endCommit.full)
-      .replace("${range}", `${startCommit.short}..${endCommit.short}`)
-
-    const terminal = vscode.window.createTerminal({
-      name: `GitTerm: ${startCommit.short}..${endCommit.short}`,
-      cwd: repository.directory,
-    })
-
-    terminal.sendText(command)
-    terminal.show()
+  handleMatch({ fromCommit, toCommit }, terminalContext, repository) {
+    showCommitRangeActions(repository, fromCommit, toCommit)
   },
 }

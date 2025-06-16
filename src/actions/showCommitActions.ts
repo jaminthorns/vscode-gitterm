@@ -10,7 +10,7 @@ import {
   truncate,
   userGitCommand,
 } from "../util"
-import { commitRemotes, relativeGitUri, showItem } from "./common"
+import { commitRemotes, openDiffInEditor, showItem } from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
 import { pickRemote } from "./pickRemote"
 
@@ -40,7 +40,22 @@ export async function showCommitActions(
         editor: {
           tooltip: "Show Commit (Editor)",
           onSelected: async () => {
-            await openRevisionInEditor(commit, repository)
+            const { directory } = repository
+
+            const flags = ["--name-status", "--diff-filter=ADMR", "--format="]
+
+            const [prevCommit, fileStatuses] = await Promise.all([
+              Commit(`${commit.full}^`, directory),
+              git("show", [...flags, commit.full], { directory }),
+            ])
+
+            openDiffInEditor(
+              prevCommit,
+              commit,
+              commitLabel,
+              fileStatuses,
+              repository,
+            )
           },
         },
         terminal: {
@@ -127,66 +142,5 @@ export async function showCommitActions(
   showSelectableQuickPick({
     placeholder: "Select a commit action",
     items: [...commitItems, ...fileCommitItems],
-  })
-}
-
-async function openRevisionInEditor(commit: Commit, repository: Repository) {
-  const { directory } = repository
-
-  const showCommand = git(
-    "show",
-    ["--name-status", "--format=", "--diff-filter=ADMR", commit.full],
-    { directory },
-  )
-
-  const [prevCommit, commitInfo, showOutput] = await Promise.all([
-    Commit(`${commit.full}^`, directory),
-    CommitInfo(commit.full, directory),
-    showCommand,
-  ])
-
-  const lines = showOutput.split("\n").map((line) => line.split("\t"))
-
-  const resources = lines.map(([status, ...filenames]) => {
-    switch (status[0]) {
-      case "A":
-        return {
-          originalUri: undefined,
-          modifiedUri: relativeGitUri(filenames[0], commit, directory),
-        }
-
-      case "M":
-        return {
-          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
-          modifiedUri: relativeGitUri(filenames[0], commit, directory),
-        }
-
-      case "D":
-        return {
-          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
-          modifiedUri: undefined,
-        }
-
-      case "R":
-        return {
-          originalUri: relativeGitUri(filenames[0], prevCommit, directory),
-          modifiedUri: relativeGitUri(filenames[1], commit, directory),
-        }
-    }
-  })
-
-  const multiDiffSourceUri = vscode.Uri.from({
-    scheme: "git-commit",
-    path: directory.path,
-    query: JSON.stringify({
-      path: directory.fsPath,
-      ref: commit.full,
-    }),
-  })
-
-  vscode.commands.executeCommand("_workbench.openMultiDiffEditor", {
-    multiDiffSourceUri,
-    title: `${commit.short} - ${commitInfo.subject}`,
-    resources,
   })
 }

@@ -41,11 +41,11 @@ export function fileAtCommitItems(
       kind: vscode.QuickPickItemKind.Separator,
     },
     showItem({
-      item: { label: "$(file) Show File at Commit" },
+      item: { label: "$(file) Open File at Commit" },
       configKey: "fileAtRevision",
       showOptions: {
         editor: {
-          tooltip: "Show File at Commit (Editor)",
+          tooltip: "Open File at Commit (Editor)",
           onSelected: () => {
             const uri = relativeGitUri(filename, commit, repository.directory)
 
@@ -53,14 +53,14 @@ export function fileAtCommitItems(
           },
         },
         terminal: {
-          tooltip: "Show File at Commit (Terminal)",
+          tooltip: "Open File at Commit (Terminal)",
           onSelected: () => {
             runCommandInTerminal({
               name: fileLabel,
               icon: "file",
               cwd: repository.directory,
               command: userGitCommand({
-                key: "showFileAtRevision",
+                key: "openFileAtRevision",
                 variables,
               }),
               context: getContext(),
@@ -70,24 +70,24 @@ export function fileAtCommitItems(
       },
     }),
     showItem({
-      item: { label: "$(git-compare) Show File Diff" },
+      item: { label: "$(git-compare) File Diff at Commit" },
       configKey: "fileDiffAtRevision",
       showOptions: {
         editor: {
-          tooltip: "Show Diff (Editor)",
+          tooltip: "File Diff at Commit (Editor)",
           onSelected: async () => {
-            await showFileAtCommitInEditor(filename, commit, repository)
+            await openFileDiffInEditor(filename, commit, repository)
           },
         },
         terminal: {
-          tooltip: "Show Diff (Terminal)",
+          tooltip: "File Diff at Commit (Terminal)",
           onSelected: () => {
             runCommandInTerminal({
               name: fileLabel,
               icon: "git-compare",
               cwd: repository.directory,
               command: userGitCommand({
-                key: "showFileDiffAtRevision",
+                key: "fileDiffAtRevision",
                 variables,
               }),
               context: getContext(),
@@ -142,7 +142,7 @@ export function fileAtCommitItems(
   ])
 }
 
-async function showFileAtCommitInEditor(
+async function openFileDiffInEditor(
   filename: string,
   commit: Commit,
   repository: Repository,

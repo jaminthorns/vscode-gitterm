@@ -104,6 +104,7 @@ export function matchesToLinks(
 ): TerminalLinkWithMatches[] {
   return matches
     .filter((match) => !someOther(match, matches, overlapsEarlier))
+    .filter((match) => !someOther(match, matches, sameStartLonger))
     .reduce((links, match) => {
       const existing = links.find((link) => equal(link, match))
 
@@ -142,10 +143,14 @@ function overlapsEarlier(
   a: vscode.TerminalLink,
   b: vscode.TerminalLink,
 ): boolean {
-  const aEarlier = a.startIndex < b.startIndex
-  const bOverlaps = b.startIndex <= a.startIndex + a.length - 1
+  return a.startIndex < b.startIndex && b.startIndex < a.startIndex + a.length
+}
 
-  return !equal(a, b) && aEarlier && bOverlaps
+function sameStartLonger(
+  a: vscode.TerminalLink,
+  b: vscode.TerminalLink,
+): boolean {
+  return a.startIndex === b.startIndex && a.length > b.length
 }
 
 function equal(a: vscode.TerminalLink, b: vscode.TerminalLink): boolean {

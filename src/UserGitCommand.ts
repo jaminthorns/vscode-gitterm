@@ -50,6 +50,21 @@ interface RevisionHistory {
   }
 }
 
+interface RevisionRangeHistory {
+  key: "revisionRangeHistory"
+  variables: {
+    revisionRange: string
+  }
+}
+
+interface RevisionDiff {
+  key: "revisionDiff"
+  variables: {
+    fromRevision: string
+    toRevision: string
+  }
+}
+
 interface ShowRevision {
   key: "showRevision"
   variables: {
@@ -57,16 +72,16 @@ interface ShowRevision {
   }
 }
 
-interface ShowFileDiffAtRevision {
-  key: "showFileDiffAtRevision"
+interface FileDiffAtRevision {
+  key: "fileDiffAtRevision"
   variables: {
     revision: string
     filename: string
   }
 }
 
-interface ShowFileAtRevision {
-  key: "showFileAtRevision"
+interface OpenFileAtRevision {
+  key: "openFileAtRevision"
   variables: {
     revision: string
     filename: string
@@ -88,7 +103,9 @@ export type UserGitCommand =
   | FileBlame
   | LineBlame
   | RevisionHistory
+  | RevisionRangeHistory
+  | RevisionDiff
   | ShowRevision
-  | ShowFileDiffAtRevision
-  | ShowFileAtRevision
+  | FileDiffAtRevision
+  | OpenFileAtRevision
   | StringSearch

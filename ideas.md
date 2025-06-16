@@ -71,14 +71,6 @@ Most remotes support something like GitHub's issues and usually have some syntax
 to support this on a per-remote basis. If multiple remotes match an issue link,
 show the remote picker.
 
-### Commit Range Links ❗
-
-When pulling, you get a message in the form of `Updating <commit>..<commit>`. It
-would be nice if you could click the commit range and get the history for that
-range.
-
-Every time I pull and get some new commits, I end up wanting this!
-
 ## Link Detection Methods 📝
 
 - Parsing

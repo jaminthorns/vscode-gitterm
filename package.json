@@ -244,6 +244,23 @@
           "default": "always",
           "description": "Whether to provide commit links in the terminal."
         },
+        "gitterm.terminalLinks.provideCommitRangeLinks": {
+          "type": "string",
+          "enum": [
+            "always",
+            "never"
+          ],
+          "enumItemLabels": [
+            "Always",
+            "Never"
+          ],
+          "enumDescriptions": [
+            "Always provide commit range links.",
+            "Never provide commit range links."
+          ],
+          "default": "always",
+          "description": "Whether to provide commit range links in the terminal."
+        },
         "gitterm.terminalLinks.provideReferenceLinks": {
           "type": "string",
           "enum": [
@@ -293,6 +310,19 @@
           ],
           "default": "editor",
           "description": "How to show a revision by default."
+        },
+        "gitterm.showDefault.revisionRangeDiff": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Editor",
+            "Terminal"
+          ],
+          "default": "editor",
+          "description": "How to show a revision range diff by default."
         },
         "gitterm.showDefault.fileDiffAtRevision": {
           "type": "string",
@@ -378,17 +408,27 @@
           "default": "git log ${reverseFlags} ${revision}",
           "description": "Git command for showing history from a revision."
         },
+        "gitterm.gitCommands.revisionRangeHistory": {
+          "type": "string",
+          "default": "git log ${revisionRange}",
+          "description": "Git command for showing history for a revision range."
+        },
+        "gitterm.gitCommands.revisionDiff": {
+          "type": "string",
+          "default": "git diff ${fromRevision} ${toRevision}",
+          "description": "Git command for showing a diff between 2 revisions."
+        },
         "gitterm.gitCommands.showRevision": {
           "type": "string",
           "default": "git show -m ${revision}",
           "description": "Git command for showing a revision.\n\nIn terminals created with this command, the `GITTERM_REVISION` environment variable will be set."
         },
-        "gitterm.gitCommands.showFileDiffAtRevision": {
+        "gitterm.gitCommands.fileDiffAtRevision": {
           "type": "string",
           "default": "git show -m ${revision} -- '${filename}'",
           "description": "Git command for showing a diff for a file at a revision."
         },
-        "gitterm.gitCommands.showFileAtRevision": {
+        "gitterm.gitCommands.openFileAtRevision": {
           "type": "string",
           "default": "git show ${revision}:'${filename}'",
           "description": "Git command for showing a file at a revision."
@@ -397,11 +437,6 @@
           "type": "string",
           "default": "git log --patch ${revision} ${searches}",
           "markdownDescription": "Git command for searching for a string across commits.\n\nIn terminals created with this command, the `GITTERM_SEARCH` environment variable will be set under the following conditions:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
-        },
-        "gitterm.gitCommands.rangeHistory": {
-          "type": "string",
-          "default": "git log --patch ${range}",
-          "description": "Git command for showing history for a commit range."
         }
       }
     }

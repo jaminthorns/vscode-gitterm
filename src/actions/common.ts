@@ -83,3 +83,58 @@ export function showItem({
     ],
   }
 }
+
+export function openDiffInEditor(
+  fromCommit: Commit | null,
+  toCommit: Commit,
+  title: string,
+  fileStatuses: string,
+  repository: Repository,
+) {
+  const { directory } = repository
+
+  const lines = fileStatuses.split("\n").map((line) => line.split("\t"))
+
+  const resources = lines.map(([status, ...filenames]) => {
+    switch (status[0]) {
+      case "A":
+        return {
+          originalUri: undefined,
+          modifiedUri: relativeGitUri(filenames[0], toCommit, directory),
+        }
+
+      case "M":
+        return {
+          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
+          modifiedUri: relativeGitUri(filenames[0], toCommit, directory),
+        }
+
+      case "D":
+        return {
+          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
+          modifiedUri: undefined,
+        }
+
+      case "R":
+        return {
+          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
+          modifiedUri: relativeGitUri(filenames[1], toCommit, directory),
+        }
+    }
+  })
+
+  const multiDiffSourceUri = vscode.Uri.from({
+    scheme: "git-commit",
+    path: directory.path,
+    query: JSON.stringify({
+      path: directory.fsPath,
+      ref: toCommit.full,
+    }),
+  })
+
+  vscode.commands.executeCommand("_workbench.openMultiDiffEditor", {
+    multiDiffSourceUri,
+    title,
+    resources,
+  })
+}
