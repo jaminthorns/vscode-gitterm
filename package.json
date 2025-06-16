@@ -397,6 +397,11 @@
           "type": "string",
           "default": "git log --patch ${revision} ${searches}",
           "markdownDescription": "Git command for searching for a string across commits.\n\nIn terminals created with this command, the `GITTERM_SEARCH` environment variable will be set under the following conditions:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
+        },
+        "gitterm.gitCommands.rangeHistory": {
+          "type": "string",
+          "default": "git log --patch ${range}",
+          "description": "Git command for showing history for a commit range."
         }
       }
     }

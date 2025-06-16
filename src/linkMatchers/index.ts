@@ -1,5 +1,6 @@
 export { LinkMatch } from "./LinkMatcher"
 export { CommitLinkMatcher } from "./CommitLinkMatcher"
+export { CommitRangeLinkMatcher } from "./CommitRangeLinkMatcher"
 export { FileLinkMatcher } from "./FileLinkMatcher"
 export { LocalBranchLinkMatcher } from "./LocalBranchLinkMatcher"
 export { RemoteBranchLinkMatcher } from "./RemoteBranchLinkMatcher"

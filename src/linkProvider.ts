@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import {
   CommitLinkMatcher,
+  CommitRangeLinkMatcher,
   FileLinkMatcher,
   LinkMatch,
   LocalBranchLinkMatcher,
@@ -18,6 +19,7 @@ interface TerminalOptions extends vscode.TerminalOptions {
 
 const matchers = {
   commit: CommitLinkMatcher,
+  commitRange: CommitRangeLinkMatcher,
   file: FileLinkMatcher,
   localBranch: LocalBranchLinkMatcher,
   remoteBranch: RemoteBranchLinkMatcher,
