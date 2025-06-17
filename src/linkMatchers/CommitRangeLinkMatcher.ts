@@ -32,11 +32,17 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
     return excludeNulls(
       await Promise.all(
         lineMatches.map(async (match) => {
-          const commitRange = match[0]
-          const fromCommit = await Commit(match[1], repository.directory)
-          const toCommit = await Commit(match[2], repository.directory)
+          const [commitRange, fromCommitRaw, toCommitRaw] = match
+          const fromCommit = await Commit(fromCommitRaw, repository.directory)
+          const toCommit = await Commit(toCommitRaw, repository.directory)
 
-          if (fromCommit === null || toCommit === null) {
+          if (
+            fromCommit === null ||
+            toCommit === null ||
+            // Prevent commit-looking references from being matched.
+            !fromCommit.full.includes(fromCommitRaw) ||
+            !toCommit.full.includes(toCommitRaw)
+          ) {
             return null
           } else {
             return {

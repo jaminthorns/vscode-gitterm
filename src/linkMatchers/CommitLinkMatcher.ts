@@ -27,10 +27,14 @@ export const CommitLinkMatcher: LinkMatcher<{ commit: Commit }> = {
     return excludeNulls(
       await Promise.all(
         lineMatches.map(async (match) => {
-          const rawCommit = match[0]
+          const [rawCommit] = match
           const commit = await Commit(rawCommit, repository.directory)
 
-          if (commit === null) {
+          if (
+            commit === null ||
+            // Prevent commit-looking references from being matched.
+            !commit.full.includes(rawCommit)
+          ) {
             return null
           } else {
             return {
