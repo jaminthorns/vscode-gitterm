@@ -170,6 +170,9 @@ async function openFileDiffInEditor(
   )
 }
 
+// TODO: This gets the previous commit in the context of the file, instead of
+// just getting the commit's parent. It should just be changed to get the parent
+// commit instead.
 async function previousInfo(
   commit: Commit,
   filename: string,
