@@ -1,4 +1,3 @@
-import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { LineTranslator } from "../LineTranslator"
@@ -20,8 +19,7 @@ export function uriRevision(uri: vscode.Uri): string {
     }
 
     case "scm-history-item": {
-      const range = basename(uri.path)
-      return range.split("..")[1]
+      return JSON.parse(uri.query).historyItemId
     }
 
     default: {
