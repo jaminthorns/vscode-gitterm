@@ -41,21 +41,9 @@ export async function showCommitActions(
           tooltip: "Show Commit (Editor)",
           onSelected: async () => {
             const { directory } = repository
+            const prevCommit = await previousCommit(commit.full, directory)
 
-            const flags = ["--name-status", "--diff-filter=ADMR", "--format="]
-
-            const [prevCommit, fileStatuses] = await Promise.all([
-              Commit(`${commit.full}^`, directory),
-              git("show", [...flags, commit.full], { directory }),
-            ])
-
-            openDiffInEditor(
-              prevCommit,
-              commit,
-              commitLabel,
-              fileStatuses,
-              repository,
-            )
+            await openDiffInEditor(prevCommit, commit, commitLabel, repository)
           },
         },
         terminal: {
@@ -143,4 +131,21 @@ export async function showCommitActions(
     placeholder: "Select a commit action",
     items: [...commitItems, ...fileCommitItems],
   })
+}
+
+async function previousCommit(
+  revision: string,
+  directory: vscode.Uri,
+): Promise<Commit> {
+  const previousCommit = await Commit(`${revision}^`, directory)
+
+  if (previousCommit !== null) {
+    return previousCommit
+  }
+
+  const emptyTree = await git("hash-object", ["-t", "tree", "/dev/null"], {
+    directory,
+  })
+
+  return (await Commit(emptyTree, directory)) as Commit
 }

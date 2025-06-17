@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
-import { git, runCommandInTerminal, userGitCommand } from "../util"
+import { runCommandInTerminal, userGitCommand } from "../util"
 import { openDiffInEditor, showItem } from "./common"
 
 export function showCommitRangeActions(
@@ -43,18 +43,10 @@ export function showCommitRangeActions(
           editor: {
             tooltip: "Commit Range Diff (Editor)",
             onSelected: async () => {
-              const { directory } = repository
-
-              const flags = ["--name-status", "--diff-filter=ADMR"]
-              const commits = [fromCommit.full, toCommit.full]
-              const args = [...flags, ...commits]
-              const fileStatuses = await git("diff", args, { directory })
-
-              openDiffInEditor(
+              await openDiffInEditor(
                 fromCommit,
                 toCommit,
                 rangeDiffLabel,
-                fileStatuses,
                 repository,
               )
             },

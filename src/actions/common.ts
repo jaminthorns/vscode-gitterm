@@ -84,16 +84,23 @@ export function showItem({
   }
 }
 
-export function openDiffInEditor(
-  fromCommit: Commit | null,
+export async function openDiffInEditor(
+  fromCommit: Commit,
   toCommit: Commit,
   title: string,
-  fileStatuses: string,
   repository: Repository,
 ) {
   const { directory } = repository
 
-  const lines = fileStatuses.split("\n").map((line) => line.split("\t"))
+  const args = [
+    "--name-status",
+    "--diff-filter=ADMR",
+    fromCommit.full,
+    toCommit.full,
+  ]
+
+  const output = await git("diff", args, { directory })
+  const lines = output.split("\n").map((line) => line.split("\t"))
 
   const resources = lines.map(([status, ...filenames]) => {
     switch (status[0]) {
