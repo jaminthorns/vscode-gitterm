@@ -49,7 +49,7 @@ export function fileAtCommitItems(
           onSelected: () => {
             const uri = relativeGitUri(filename, commit, repository.directory)
 
-            vscode.window.showTextDocument(uri)
+            vscode.commands.executeCommand("vscode.open", uri, {}, fileLabel)
           },
         },
         terminal: {

@@ -1,6 +1,9 @@
+import { basename } from "path"
 import * as vscode from "vscode"
+import { Commit } from "./Commit"
+import { RepositoryStore } from "./stores"
 
-export function uriHandler(): vscode.Disposable {
+export function uriHandler(repositories: RepositoryStore): vscode.Disposable {
   return vscode.window.registerUriHandler({
     handleUri: async (uri: vscode.Uri): Promise<void> => {
       const match = uri.path.match(/^\/(.*?):(.*?)(?::(\d*))?$/)
@@ -14,7 +17,20 @@ export function uriHandler(): vscode.Disposable {
       }
 
       const [, ref, path, line = ""] = match
-      const lineNumber = line === "" ? null : parseInt(line) - 1
+
+      const fileUri = vscode.Uri.file(path)
+      const repository = repositories.getRepository(fileUri)
+
+      if (repository === undefined) {
+        return
+      }
+
+      const { directory } = repository
+      const commit = await Commit(ref, directory)
+
+      if (commit === null) {
+        return
+      }
 
       const gitUri = vscode.Uri.from({
         scheme: "git",
@@ -22,14 +38,16 @@ export function uriHandler(): vscode.Disposable {
         query: JSON.stringify({ path, ref }),
       })
 
-      const editor = await vscode.window.showTextDocument(gitUri)
+      const lineNumber = line === "" ? null : parseInt(line) - 1
+      const selection =
+        lineNumber === null
+          ? undefined
+          : new vscode.Range(lineNumber, 0, lineNumber, 0)
 
-      if (lineNumber !== null) {
-        const position = new vscode.Position(lineNumber, 0)
+      const options = { selection }
+      const label = `${basename(path)} (${commit.short})`
 
-        editor.selection = new vscode.Selection(position, position)
-        editor.revealRange(new vscode.Range(position, position))
-      }
+      vscode.commands.executeCommand("vscode.open", gitUri, options, label)
     },
   })
 }

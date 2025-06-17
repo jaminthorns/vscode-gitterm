@@ -47,7 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
     linkProvider(repositories, terminalFolders),
 
     // URI handler
-    uriHandler(),
+    uriHandler(repositories),
   )
 }
 
