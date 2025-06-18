@@ -197,7 +197,10 @@ a file is from another repo.
 # Add "Open File" command when viewing file at a commit ❗
 
 Whenever a file at a commit is opened, it's not straightforward to get back to
-the working copy version of that file (if it exists).
+the working copy version of that file (if it exists). We could use
+`LineTranslator` to jump to the corresponding line in the working copy.
+Additionally, we could use a definition provider to make any line of the file
+"go-to"-able.
 
 # Add code lens for files at a commit 🤔
 
