@@ -13,6 +13,7 @@ import {
   selectionSearchCommand,
   showCommitActionsCommand,
 } from "./commands"
+import { fileAtCommitLineProvider } from "./definitionProviders/fileAtCommitLineProvider"
 import { linkProvider } from "./linkProvider"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
 import { uriHandler } from "./uriHandler"
@@ -48,6 +49,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // URI handler
     uriHandler(repositories),
+
+    // Definition providers
+    fileAtCommitLineProvider(repositories),
   )
 }
 

@@ -75,7 +75,7 @@ function translateLine(
 function linePosition(line: number, range: LineRange): Position {
   if (line < range.start) {
     return Position.Before
-  } else if (line >= range.start && line <= range.end) {
+  } else if (line >= range.start && line <= range.end && range.span > 0) {
     return Position.Inside
   } else {
     return Position.After

@@ -2,8 +2,8 @@ import { tmpdir } from "os"
 import { join } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
-import { runCommandInTerminal, userGitCommand } from "../util"
-import { suffixWithRevision, uriRevision } from "./common"
+import { runCommandInTerminal, uriRevision, userGitCommand } from "../util"
+import { suffixWithRevision } from "./common"
 
 export async function stringSearch(
   document: vscode.TextDocument,

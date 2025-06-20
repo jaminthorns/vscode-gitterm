@@ -1,12 +1,13 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
-import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
 import {
-  blameMoveCopyDetectionFlags,
-  suffixWithRevision,
+  commitFilenames,
+  runCommandInTerminal,
   uriRevision,
-} from "./common"
+  userGitCommand,
+} from "../util"
+import { blameMoveCopyDetectionFlags, suffixWithRevision } from "./common"
 
 export async function fileBlame(
   uri: vscode.Uri,

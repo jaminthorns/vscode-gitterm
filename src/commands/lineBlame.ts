@@ -2,14 +2,18 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
-import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
+import {
+  commitFilenames,
+  runCommandInTerminal,
+  uriRevision,
+  userGitCommand,
+} from "../util"
 import {
   Range,
   blameMoveCopyDetectionFlags,
   displayRange,
   suffixWithRevision,
   translateRanges,
-  uriRevision,
 } from "./common"
 
 export async function lineBlame(

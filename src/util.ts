@@ -1,4 +1,5 @@
 import { spawn } from "child_process"
+import { basename } from "path"
 import { createInterface } from "readline"
 import * as vscode from "vscode"
 import { CommitFilenames, TerminalContext } from "./TerminalContext"
@@ -220,5 +221,19 @@ export function reverseHistoryArgs(revision: string): {
   return {
     revision: `${revision}..HEAD`,
     reverseFlags: ["--reverse", "--ancestry-path"],
+  }
+}
+
+export function uriRevision(uri: vscode.Uri): string {
+  if (uri.scheme === "file") {
+    return "HEAD"
+  } else if (uri.scheme === "git" || uri.scheme === "git-commit") {
+    return JSON.parse(uri.query).ref
+  } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
+    return JSON.parse(uri.query).historyItemId
+  } else if (uri.scheme === "scm-history-item" && uri.query === "") {
+    return basename(uri.path).split("..")[1]
+  } else {
+    throw Error(`Cannot get revision from URI: ${uri}`)
   }
 }

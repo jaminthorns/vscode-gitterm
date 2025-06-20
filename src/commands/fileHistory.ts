@@ -1,8 +1,13 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
-import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
-import { suffixWithRevision, uriRevision } from "./common"
+import {
+  commitFilenames,
+  runCommandInTerminal,
+  uriRevision,
+  userGitCommand,
+} from "../util"
+import { suffixWithRevision } from "./common"
 
 export async function fileHistory(
   uri: vscode.Uri,

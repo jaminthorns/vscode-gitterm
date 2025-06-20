@@ -2,13 +2,17 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
-import { commitFilenames, runCommandInTerminal, userGitCommand } from "../util"
+import {
+  commitFilenames,
+  runCommandInTerminal,
+  uriRevision,
+  userGitCommand,
+} from "../util"
 import {
   Range,
   displayRange,
   suffixWithRevision,
   translateRanges,
-  uriRevision,
 } from "./common"
 
 export async function lineHistory(
@@ -36,10 +40,8 @@ export async function lineHistory(
         stdin: document.getText(),
         ignoreNonZeroExitCode: true,
       }),
-      // Working Tree
-      LineTranslator.fromDiff(["--", filename], { directory }),
-      // Staged
-      LineTranslator.fromDiff(["--staged", "--", filename], { directory }),
+      // Saved and committed
+      LineTranslator.fromDiff(["HEAD", "--", filename], { directory }),
     ])
 
     translatedRanges = translateRanges(ranges, translators, "newly added")
