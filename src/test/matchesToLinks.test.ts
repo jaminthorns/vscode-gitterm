@@ -3,7 +3,7 @@ import {
   LinkMatchWithType,
   LinkMatcherType,
   matchesToLinks,
-} from "../linkProvider"
+} from "../terminalLinkProvider"
 
 suite("matchesToLinks", () => {
   test("separate links (not touching)", () => {

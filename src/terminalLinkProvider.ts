@@ -41,7 +41,7 @@ interface TerminalLink extends TerminalLinkWithMatches {
   terminalContext: Partial<TerminalContext>
 }
 
-export function linkProvider(
+export function terminalLinkProvider(
   repositories: RepositoryStore,
   terminalFolders: TerminalFolderStore,
 ): vscode.Disposable {

@@ -15,8 +15,8 @@ import {
   showCommitActionsCommand,
 } from "./commands"
 import { fileAtCommitLineProvider } from "./definitionProviders/fileAtCommitLineProvider"
-import { linkProvider } from "./linkProvider"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
+import { terminalLinkProvider } from "./terminalLinkProvider"
 import { uriHandler } from "./uriHandler"
 import { filterAsync, git } from "./util"
 
@@ -46,8 +46,8 @@ export async function activate(context: vscode.ExtensionContext) {
     selectionSearchCommand(repositories),
     debugStoresCommand(repositories),
 
-    // Link provider
-    linkProvider(repositories, terminalFolders),
+    // Terminal link provider
+    terminalLinkProvider(repositories, terminalFolders),
 
     // URI handler
     uriHandler(repositories),
