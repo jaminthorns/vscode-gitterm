@@ -1,14 +1,17 @@
 import { GitCommandOptions, git } from "./util"
 
-interface LineRange {
+export interface LineRange {
   start: number
   end: number
-  span: number
+}
+
+interface LineSpan extends LineRange {
+  lines: number
 }
 
 interface LineTranslation {
-  old: LineRange
-  new: LineRange
+  old: LineSpan
+  new: LineSpan
 }
 
 enum Position {
@@ -18,31 +21,31 @@ enum Position {
 }
 
 export interface LineTranslator {
-  oldLine: (newLine: number) => LineRange
-  newLine: (oldLine: number) => LineRange
+  oldSpan: (newLine: number) => LineSpan
+  newSpan: (oldLine: number) => LineSpan
 }
 
 export function LineTranslator(diff: string): LineTranslator {
   const hunkMatches = Array.from(diff.matchAll(/^@@ (.*) @@/gm))
 
   const translations: LineTranslation[] = hunkMatches
-    .map(([, hunkSpec]) => hunkSpec.split(" ").map(parseRange))
-    .map(([oldRange, newRange]) => ({ old: oldRange, new: newRange }))
+    .map(([, hunkSpec]) => hunkSpec.split(" ").map(parseSpan))
+    .map(([oldSpan, newSpan]) => ({ old: oldSpan, new: newSpan }))
 
   return {
-    oldLine: (newLine) => translateLine(newLine, translations, "new", "old"),
-    newLine: (oldLine) => translateLine(oldLine, translations, "old", "new"),
+    oldSpan: (newLine) => translateLine(newLine, translations, "new", "old"),
+    newSpan: (oldLine) => translateLine(oldLine, translations, "old", "new"),
   }
 }
 
-function parseRange(rangeStr: string): LineRange {
-  const [start, span = "1"] = rangeStr.slice(1).split(",")
+function parseSpan(spanStr: string): LineSpan {
+  const [startStr, linesStr = "1"] = spanStr.slice(1).split(",")
 
-  return LineRange(parseInt(start), parseInt(span))
+  return LineSpan(parseInt(startStr), parseInt(linesStr))
 }
 
-function LineRange(start: number, span: number): LineRange {
-  return { start, span, end: start + Math.max(span - 1, 0) }
+function LineSpan(start: number, lines: number): LineSpan {
+  return { start, lines, end: start + Math.max(lines - 1, 0) }
 }
 
 function translateLine(
@@ -50,32 +53,32 @@ function translateLine(
   translations: LineTranslation[],
   from: "old" | "new",
   to: "old" | "new",
-): LineRange {
+): LineSpan {
   const insideTranslation = translations.find(
-    ({ [from]: range }) => linePosition(line, range) === Position.Inside,
+    ({ [from]: span }) => linePosition(line, span) === Position.Inside,
   )
 
   if (insideTranslation === undefined) {
     const beforeTranslations = translations.filter(
-      ({ [from]: range }) => linePosition(line, range) === Position.After,
+      ({ [from]: span }) => linePosition(line, span) === Position.After,
     )
 
     const beforeShift = beforeTranslations
-      .map((translation) => translation[to].span - translation[from].span)
+      .map((translation) => translation[to].lines - translation[from].lines)
       .reduce((a, b) => a + b, 0)
 
     const start = line + beforeShift
 
-    return LineRange(start, 1)
+    return LineSpan(start, 1)
   } else {
     return insideTranslation[to]
   }
 }
 
-function linePosition(line: number, range: LineRange): Position {
-  if (line < range.start) {
+function linePosition(line: number, span: LineSpan): Position {
+  if (line < span.start) {
     return Position.Before
-  } else if (line >= range.start && line <= range.end && range.span > 0) {
+  } else if (line >= span.start && line <= span.end && span.lines > 0) {
     return Position.Inside
   } else {
     return Position.After
@@ -88,4 +91,38 @@ LineTranslator.fromDiff = async function (
 ): Promise<LineTranslator> {
   const diff = await git("diff", ["--unified=0", ...gitDiffArgs], gitOptions)
   return LineTranslator(diff)
+}
+
+LineTranslator.oldRangeAcross = function (
+  { start, end }: LineRange,
+  translators: LineTranslator[],
+): LineRange {
+  return {
+    start: translateLineAcross(start, translators, "start", "oldSpan"),
+    end: translateLineAcross(end, translators, "end", "oldSpan"),
+  }
+}
+
+LineTranslator.newRangeAcross = function (
+  { start, end }: LineRange,
+  translators: LineTranslator[],
+): LineRange {
+  return {
+    start: translateLineAcross(start, translators, "start", "newSpan"),
+    end: translateLineAcross(end, translators, "end", "newSpan"),
+  }
+}
+
+function translateLineAcross(
+  line: number,
+  translators: LineTranslator[],
+  bound: "start" | "end",
+  operation: "oldSpan" | "newSpan",
+): number {
+  return translators.reduce((translated, translator) => {
+    const span = translator[operation](translated)
+    const newOffset = span.lines === 0 && bound === "start" ? 1 : 0
+
+    return span[bound] + newOffset
+  }, line)
 }

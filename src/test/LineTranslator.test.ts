@@ -30,39 +30,39 @@ suite("LineTranslator", () => {
   const dt = LineTranslator(deletionDiff)
 
   test("before deletion", () => {
-    deepEqual(dt.newLine(2), { start: 2, end: 2, span: 1 })
-    deepEqual(dt.oldLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(dt.newSpan(2), { start: 2, end: 2, lines: 1 })
+    deepEqual(dt.oldSpan(2), { start: 2, end: 2, lines: 1 })
   })
 
   test("after deletion", () => {
-    deepEqual(dt.newLine(5), { start: 4, end: 4, span: 1 })
-    deepEqual(dt.oldLine(4), { start: 5, end: 5, span: 1 })
+    deepEqual(dt.newSpan(5), { start: 4, end: 4, lines: 1 })
+    deepEqual(dt.oldSpan(4), { start: 5, end: 5, lines: 1 })
   })
 
   test("inside deletion", () => {
-    deepEqual(dt.newLine(4), { start: 3, end: 3, span: 0 })
+    deepEqual(dt.newSpan(4), { start: 3, end: 3, lines: 0 })
   })
 
   const at = LineTranslator(additionDiff)
 
   test("before addition", () => {
-    deepEqual(at.newLine(2), { start: 2, end: 2, span: 1 })
-    deepEqual(at.oldLine(2), { start: 2, end: 2, span: 1 })
+    deepEqual(at.newSpan(2), { start: 2, end: 2, lines: 1 })
+    deepEqual(at.oldSpan(2), { start: 2, end: 2, lines: 1 })
   })
 
   test("after addition", () => {
-    deepEqual(at.newLine(5), { start: 6, end: 6, span: 1 })
-    deepEqual(at.oldLine(6), { start: 5, end: 5, span: 1 })
+    deepEqual(at.newSpan(5), { start: 6, end: 6, lines: 1 })
+    deepEqual(at.oldSpan(6), { start: 5, end: 5, lines: 1 })
   })
 
   test("inside addition", () => {
-    deepEqual(at.oldLine(4), { start: 3, end: 3, span: 0 })
+    deepEqual(at.oldSpan(4), { start: 3, end: 3, lines: 0 })
   })
 
   const mt = LineTranslator(modificationDiff)
 
   test("inside modification (deletion and addition)", () => {
-    deepEqual(mt.newLine(4), { start: 4, end: 6, span: 3 })
-    deepEqual(mt.oldLine(5), { start: 4, end: 5, span: 2 })
+    deepEqual(mt.newSpan(4), { start: 4, end: 6, lines: 3 })
+    deepEqual(mt.oldSpan(5), { start: 4, end: 5, lines: 2 })
   })
 })

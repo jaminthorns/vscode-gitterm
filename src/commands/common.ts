@@ -1,11 +1,6 @@
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
-import { LineTranslator } from "../LineTranslator"
-
-export interface Range {
-  start: number
-  end: number
-}
+import { LineRange, LineTranslator } from "../LineTranslator"
 
 export async function suffixWithRevision(
   label: string,
@@ -25,15 +20,14 @@ export async function suffixWithRevision(
   }
 }
 
-export function translateRanges(
-  ranges: Range[],
+export function oldRanges(
+  ranges: LineRange[],
   translators: LineTranslator[],
   invalidAdjective: string,
-): Range[] | null {
-  const translatedRanges = ranges.map(({ start, end }) => ({
-    start: translateOldLine(start, "start", translators),
-    end: translateOldLine(end, "end", translators),
-  }))
+): LineRange[] | null {
+  const translatedRanges = ranges.map((range) =>
+    LineTranslator.oldRangeAcross(range, translators),
+  )
 
   const invalidRanges = translatedRanges
     .map(({ start, end }, i) => ({ invalid: start > end, original: ranges[i] }))
@@ -52,20 +46,7 @@ export function translateRanges(
   }
 }
 
-function translateOldLine(
-  line: number,
-  bound: "start" | "end",
-  translators: LineTranslator[],
-): number {
-  return translators.reduce((translated, t) => {
-    const range = t.oldLine(translated)
-    const newOffset = range.span === 0 && bound === "start" ? 1 : 0
-
-    return range[bound] + newOffset
-  }, line)
-}
-
-export function displayRange({ start, end }: Range): string {
+export function displayRange({ start, end }: LineRange): string {
   return start === end ? `${start}` : `${start}-${end}`
 }
 

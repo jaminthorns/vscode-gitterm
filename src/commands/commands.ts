@@ -1,9 +1,9 @@
 import * as vscode from "vscode"
 import { showCommitActions } from "../actions"
 import { Commit } from "../Commit"
+import { LineRange } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import { uriRevision } from "../util"
-import { Range } from "./common"
 import { fileBlame } from "./fileBlame"
 import { fileHistory } from "./fileHistory"
 import { folderHistory } from "./folderHistory"
@@ -116,7 +116,7 @@ export function selectionSearchCommand(repositories: RepositoryStore) {
   )
 }
 
-function selectionToRange({ start, end }: vscode.Selection): Range {
+function selectionToRange({ start, end }: vscode.Selection): LineRange {
   return { start: start.line + 1, end: end.line + 1 }
 }
 

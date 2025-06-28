@@ -1,6 +1,6 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import { LineTranslator } from "../LineTranslator"
+import { LineRange, LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import {
   commitFilenames,
@@ -9,16 +9,15 @@ import {
   userGitCommand,
 } from "../util"
 import {
-  Range,
   blameMoveCopyDetectionFlags,
   displayRange,
+  oldRanges,
   suffixWithRevision,
-  translateRanges,
 } from "./common"
 
 export async function lineBlame(
   document: vscode.TextDocument,
-  ranges: Range[],
+  ranges: LineRange[],
   repositories: RepositoryStore,
 ) {
   const repository = repositories.getRepository(document.uri)
@@ -31,11 +30,11 @@ export async function lineBlame(
   const filename = vscode.workspace.asRelativePath(document.uri, false)
   const revision = uriRevision(document.uri)
 
-  let translatedRanges
+  let workingTreeRanges
 
   if (revision === "HEAD") {
     const translators = [
-      // Unsaved
+      // Working Tree -> Document
       await LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
         directory,
         stdin: document.getText(),
@@ -43,17 +42,17 @@ export async function lineBlame(
       }),
     ]
 
-    translatedRanges = translateRanges(ranges, translators, "unsaved")
+    workingTreeRanges = oldRanges(ranges, translators, "unsaved")
 
-    if (translatedRanges === null) {
+    if (workingTreeRanges === null) {
       return
     }
   } else {
-    translatedRanges = ranges
+    workingTreeRanges = ranges
   }
 
-  const rangeSuffix = translatedRanges.map(displayRange).join(",")
-  const lineRanges = translatedRanges
+  const rangeSuffix = workingTreeRanges.map(displayRange).join(",")
+  const lineRanges = workingTreeRanges
     .map(({ start, end }) => `-L ${start},${end}`)
     .join(" ")
 

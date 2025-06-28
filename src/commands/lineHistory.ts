@@ -1,6 +1,6 @@
 import { basename } from "path"
 import * as vscode from "vscode"
-import { LineTranslator } from "../LineTranslator"
+import { LineRange, LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import {
   commitFilenames,
@@ -8,16 +8,11 @@ import {
   uriRevision,
   userGitCommand,
 } from "../util"
-import {
-  Range,
-  displayRange,
-  suffixWithRevision,
-  translateRanges,
-} from "./common"
+import { displayRange, oldRanges, suffixWithRevision } from "./common"
 
 export async function lineHistory(
   document: vscode.TextDocument,
-  ranges: Range[],
+  ranges: LineRange[],
   repositories: RepositoryStore,
 ) {
   const repository = repositories.getRepository(document.uri)
@@ -30,31 +25,31 @@ export async function lineHistory(
   const filename = vscode.workspace.asRelativePath(document.uri, false)
   const revision = uriRevision(document.uri)
 
-  let translatedRanges
+  let documentRanges
 
   if (revision === "HEAD") {
     const translators = await Promise.all([
-      // Unsaved
+      // Working Tree -> Document
       LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
         directory,
         stdin: document.getText(),
         ignoreNonZeroExitCode: true,
       }),
-      // Saved and committed
+      // HEAD -> Working Tree
       LineTranslator.fromDiff(["HEAD", "--", filename], { directory }),
     ])
 
-    translatedRanges = translateRanges(ranges, translators, "newly added")
+    documentRanges = oldRanges(ranges, translators, "newly added")
 
-    if (translatedRanges === null) {
+    if (documentRanges === null) {
       return
     }
   } else {
-    translatedRanges = ranges
+    documentRanges = ranges
   }
 
-  const rangeSuffix = translatedRanges.map(displayRange).join(",")
-  const fileLineRanges = translatedRanges.map(
+  const rangeSuffix = documentRanges.map(displayRange).join(",")
+  const fileLineRanges = documentRanges.map(
     ({ start, end }) => `-L ${start},${end}:'${filename}'`,
   )
 

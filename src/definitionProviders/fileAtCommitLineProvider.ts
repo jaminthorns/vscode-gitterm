@@ -27,15 +27,28 @@ export function fileAtCommitLineProvider(
         return null
       }
 
-      // TODO: Account for unsaved changes.
-      const translator = await LineTranslator.fromDiff(
-        [revision, "HEAD", "--", targetUri.path],
-        { directory },
-      )
-
-      const lineRange = translator.newLine(originLine.lineNumber)
-      const targetRange = new vscode.Range(lineRange.start, 0, lineRange.end, 0)
       const targetDocument = await vscode.workspace.openTextDocument(targetUri)
+
+      const translators = await Promise.all([
+        // Revision -> Working Tree
+        LineTranslator.fromDiff([revision, "--", targetUri.path], {
+          directory,
+        }),
+        // Working Tree -> Document
+        LineTranslator.fromDiff(["--no-index", "--", targetUri.path, "-"], {
+          directory,
+          stdin: targetDocument.getText(),
+          ignoreNonZeroExitCode: true,
+        }),
+      ])
+
+      const revisionRange = {
+        start: originLine.lineNumber,
+        end: originLine.lineNumber,
+      }
+
+      const docRange = LineTranslator.newRangeAcross(revisionRange, translators)
+      const targetRange = new vscode.Range(docRange.start, 0, docRange.end, 0)
 
       let targetSelectionRange
 
