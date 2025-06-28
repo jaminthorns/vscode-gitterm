@@ -38,7 +38,7 @@ export function oldRanges(
     const newRangesStr = invalidRanges.map(displayRange).join(", ")
     const message = `Can't show history for ${invalidAdjective} lines: ${newRangesStr}`
 
-    vscode.window.showInformationMessage(message)
+    vscode.window.showErrorMessage(message)
 
     return null
   } else {

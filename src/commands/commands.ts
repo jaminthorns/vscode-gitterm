@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import { showCommitActions } from "../actions"
 import { Commit } from "../Commit"
+import { fileAtCommitLink } from "../fileAtCommitLink"
 import { LineRange } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import { uriRevision } from "../util"
@@ -144,6 +145,35 @@ export function showCommitActionsCommand(repositories: RepositoryStore) {
           : undefined
 
       await showCommitActions(repository, commit, filename)
+    },
+  )
+}
+
+export function openFileFromCommitCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand(
+    "gitterm.openFileFromCommit",
+    async (uri: vscode.Uri) => {
+      const repository = repositories.getRepository(uri)
+
+      if (repository === undefined) {
+        return
+      }
+
+      const { document, selection } = await vscode.window.showTextDocument(uri)
+      const link = await fileAtCommitLink(repository, document, selection.start)
+
+      if (link === null) {
+        vscode.window.showErrorMessage("File does not exist in working tree.")
+        return
+      }
+
+      const { targetUri, targetRange, targetSelectionRange } = link
+
+      const editor = await vscode.window.showTextDocument(targetUri)
+      const position = targetSelectionRange?.start ?? targetRange.start
+
+      editor.selection = new vscode.Selection(position, position)
+      editor.revealRange(link.targetRange)
     },
   )
 }

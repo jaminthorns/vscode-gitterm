@@ -8,6 +8,7 @@ import {
   folderHistoryCommand,
   lineBlameCommand,
   lineHistoryCommand,
+  openFileFromCommitCommand,
   selectionBlameCommand,
   selectionHistoryCommand,
   selectionSearchCommand,
@@ -41,6 +42,7 @@ export async function activate(context: vscode.ExtensionContext) {
     selectionHistoryCommand(repositories),
     selectionBlameCommand(repositories),
     showCommitActionsCommand(repositories),
+    openFileFromCommitCommand(repositories),
     selectionSearchCommand(repositories),
     debugStoresCommand(repositories),
 
