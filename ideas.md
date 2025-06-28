@@ -193,18 +193,3 @@ I tried to see the file history on a file that wasn't in the repo that I had
 opened. When I pressed the hotkeys, nothing happened, but it would have been
 more informative if a notification was shown. I'm not sure what should happen if
 a file is from another repo.
-
-# Add "Open File" command when viewing file at a commit ❗
-
-Whenever a file at a commit is opened, it's not straightforward to get back to
-the working copy version of that file (if it exists). We could use
-`LineTranslator` to jump to the corresponding line in the working copy.
-Additionally, we could use a definition provider to make any line of the file
-"go-to"-able.
-
-# Add code lens for files at a commit 🤔
-
-There's not much indication that you're viewing a file at a commit besides the
-read-only icon and the commit actions button. It might be nice to have a code
-lens at the top of the file that shows some commit info. The command for it
-would just be commit actions.
