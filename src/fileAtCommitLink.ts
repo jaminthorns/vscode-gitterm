@@ -12,6 +12,7 @@ export async function fileAtCommitLink(
   const { directory } = repository
   const originLine = document.lineAt(position)
   const revision = uriRevision(document.uri)
+  // TODO: Follow rename history in reverse to get target URI.
   const targetUri = vscode.Uri.file(document.uri.path)
 
   if (!existsSync(targetUri.fsPath)) {
