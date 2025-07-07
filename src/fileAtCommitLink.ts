@@ -13,6 +13,16 @@ export async function fileAtCommitLink(
   const originLine = document.lineAt(position)
   const revision = uriRevision(document.uri)
   // TODO: Follow rename history in reverse to get target URI.
+  //
+  // My first assumption was that I could do something like this:
+  //
+  // git log --ancestry-path --follow <COMMIT>..HEAD -- <PATH>
+  //
+  // But the --ancestry-path and --follow flags seem to be incompatible. As an
+  // alternative, this will detect all renames from <COMMIT>, which can then be
+  // traversed from the old <PATH> to the new:
+  //
+  // git log --ancestry-path --name-status --diff-filter=R --format= <COMMIT>..HEAD
   const targetUri = vscode.Uri.file(document.uri.path)
 
   if (!existsSync(targetUri.fsPath)) {
