@@ -1,8 +1,9 @@
 import { existsSync } from "fs"
+import { join, relative } from "path"
 import * as vscode from "vscode"
 import { LineTranslator } from "./LineTranslator"
 import { Repository } from "./Repository"
-import { uriRevision } from "./util"
+import { git, uriRevision } from "./util"
 
 export async function fileAtCommitLink(
   repository: Repository,
@@ -11,33 +12,25 @@ export async function fileAtCommitLink(
 ): Promise<vscode.LocationLink | null> {
   const { directory } = repository
   const originLine = document.lineAt(position)
+  const originPath = relative(directory.fsPath, document.uri.path)
   const revision = uriRevision(document.uri)
-  // TODO: Follow rename history in reverse to get target URI.
-  //
-  // My first assumption was that I could do something like this:
-  //
-  // git log --ancestry-path --follow <COMMIT>..HEAD -- <PATH>
-  //
-  // But the --ancestry-path and --follow flags seem to be incompatible. As an
-  // alternative, this will detect all renames from <COMMIT>, which can then be
-  // traversed from the old <PATH> to the new:
-  //
-  // git log --ancestry-path --name-status --diff-filter=R --format= <COMMIT>..HEAD
-  const targetUri = vscode.Uri.file(document.uri.path)
+
+  const targetPath = await latestPath(originPath, revision, "HEAD", directory)
+  const targetUri = vscode.Uri.file(join(directory.fsPath, targetPath))
 
   if (!existsSync(targetUri.fsPath)) {
     return null
   }
 
+  const originBlob = `${revision}:${originPath}`
+  const targetBlob = `HEAD:${targetPath}`
   const targetDocument = await vscode.workspace.openTextDocument(targetUri)
 
   const translators = await Promise.all([
     // Revision -> Working Tree
-    LineTranslator.fromDiff([revision, "--", targetUri.path], {
-      directory,
-    }),
+    LineTranslator.fromDiff([originBlob, targetBlob], { directory }),
     // Working Tree -> Document
-    LineTranslator.fromDiff(["--no-index", "--", targetUri.path, "-"], {
+    LineTranslator.fromDiff(["--no-index", "--", targetPath, "-"], {
       directory,
       stdin: targetDocument.getText(),
       ignoreNonZeroExitCode: true,
@@ -70,5 +63,48 @@ export async function fileAtCommitLink(
     targetUri,
     targetRange,
     targetSelectionRange,
+  }
+}
+
+// Find the latest path by navigating all renames between fromRef and toRef.
+async function latestPath(
+  fromPath: string,
+  fromRef: string,
+  toRef: string,
+  directory: vscode.Uri,
+): Promise<string> {
+  const args = [
+    "--ancestry-path",
+    "--diff-filter=R",
+    "--format=",
+    "--name-status",
+    `${fromRef}..${toRef}`,
+  ]
+
+  const output = await git("log", args, { directory })
+
+  const pathRenames = output.split("\n").map((line) => {
+    const [, from, to] = line.split("\t")
+    return { from, to }
+  })
+
+  pathRenames.reverse()
+
+  return findLatestPath(fromPath, pathRenames)
+}
+
+function findLatestPath(
+  currentPath: string,
+  renames: { from: string; to: string }[],
+): string {
+  const nextIndex = renames.findIndex(({ from }) => from === currentPath)
+
+  if (nextIndex === -1) {
+    return currentPath
+  } else {
+    const { to } = renames[nextIndex]
+    const newRenames = renames.slice(nextIndex + 1)
+
+    return findLatestPath(to, newRenames)
   }
 }
