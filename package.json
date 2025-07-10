@@ -435,7 +435,7 @@
         "gitterm.gitCommands.showRevision": {
           "type": "string",
           "default": "git show -m ${revision}",
-          "description": "Git command for showing a revision.\n\nIn terminals created with this command, the `GITTERM_REVISION` environment variable will be set."
+          "description": "Git command for showing a revision."
         },
         "gitterm.gitCommands.fileDiffAtRevision": {
           "type": "string",
