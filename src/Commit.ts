@@ -11,7 +11,7 @@ export async function Commit(
   directory: vscode.Uri,
 ): Promise<Commit | null> {
   try {
-    const args = [revision, "--short", revision]
+    const args = [`${revision}^{commit}`, "--short", `${revision}^{commit}`]
     const commits = await git("rev-parse", args, { directory })
     const [full, short] = commits.split("\n")
 
