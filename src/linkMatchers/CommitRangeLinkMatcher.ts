@@ -9,6 +9,7 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
   toCommit: Commit
 }> = {
   label: "Commit Range",
+  prompt: "Select a commit range action",
   icon: "git-compare",
 
   shouldProvide() {

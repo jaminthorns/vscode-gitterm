@@ -3,6 +3,7 @@ import {
   CommitLinkMatcher,
   CommitRangeLinkMatcher,
   FileLinkMatcher,
+  IssueLinkMatcher,
   LinkMatch,
   LocalBranchLinkMatcher,
   RemoteBranchLinkMatcher,
@@ -21,6 +22,7 @@ const matchers = {
   commit: CommitLinkMatcher,
   commitRange: CommitRangeLinkMatcher,
   file: FileLinkMatcher,
+  issue: IssueLinkMatcher,
   localBranch: LocalBranchLinkMatcher,
   remoteBranch: RemoteBranchLinkMatcher,
   tag: TagLinkMatcher,
@@ -59,7 +61,9 @@ export function terminalLinkProvider(
 
       const matchesByType = await Promise.all(
         Object.entries(matchers)
-          .filter(([, matcher]) => matcher.shouldProvide(terminalContext))
+          .filter(([, matcher]) =>
+            matcher.shouldProvide(terminalContext, repository),
+          )
           .map(async ([type, matcher]) => ({
             type: type as LinkMatcherType,
             matches: await matcher.findMatches(line, repository),
@@ -79,10 +83,10 @@ export function terminalLinkProvider(
 
     handleTerminalLink({ repository, terminalContext, matches }: TerminalLink) {
       const items = matches.map(({ type, context }) => {
-        const { label, icon, handleMatch } = matchers[type]
+        const { icon, prompt, handleMatch } = matchers[type]
 
         return {
-          label: `$(${icon}) ${label}`,
+          label: `$(${icon}) ${prompt}`,
           onSelected: () => handleMatch(context, terminalContext, repository),
         }
       })
@@ -91,7 +95,7 @@ export function terminalLinkProvider(
         items[0].onSelected()
       } else {
         showSelectableQuickPick({
-          placeholder: "Multiple objects with the same name, select a type",
+          placeholder: "Multiple objects with the same name, choose what to do",
           items,
         })
       }
@@ -121,9 +125,18 @@ export function matchesToLinks(
       return links
     }, [] as TerminalLinkWithMatches[])
     .map((link) => {
-      const labels = link.matches.map(({ type }) => matchers[type].label)
-      const choices = labels.map((l) => l.toLocaleLowerCase()).join("/")
-      const tooltip = `Pick a ${choices} action`
+      const theseMatchers = link.matches.map(({ type }) => matchers[type])
+
+      let tooltip
+
+      if (theseMatchers.length === 1) {
+        tooltip = theseMatchers[0].prompt
+      } else {
+        const labels = link.matches.map(({ type }) => matchers[type].label)
+        const choices = labels.map((l) => l.toLocaleLowerCase()).join("/")
+
+        tooltip = `Choose what to do with ${choices}`
+      }
 
       return { ...link, tooltip }
     })

@@ -6,6 +6,7 @@ import { LinkMatcher } from "./LinkMatcher"
 
 export const CommitLinkMatcher: LinkMatcher<{ commit: Commit }> = {
   label: "Commit",
+  prompt: "Select a commit action",
   icon: "git-commit",
 
   shouldProvide() {

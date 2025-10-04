@@ -10,6 +10,7 @@ export interface RemoteProvider {
   commitUrl(commit: Commit): vscode.Uri | null
   referenceUrl(reference: string): vscode.Uri | null
   fileAtCommitUrl(commit: Commit, filename: string): vscode.Uri | null
+  issueUrl(issueNumber: string): vscode.Uri | null
 }
 
 // TODO: Implement more providers.

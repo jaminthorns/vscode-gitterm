@@ -66,8 +66,8 @@ export async function run(
   options: CommandOptions = {},
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const stdoutData: Buffer[] = []
-    const stderrData: Buffer[] = []
+    const stdoutData: Uint8Array[] = []
+    const stderrData: Uint8Array[] = []
     const process = spawn(command, args, { cwd: options.directory?.fsPath })
 
     if (options.stdin !== undefined) {

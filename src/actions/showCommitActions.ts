@@ -12,7 +12,7 @@ import {
 } from "../util"
 import { commitRemotes, openDiffInEditor, showItem } from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
-import { pickRemote } from "./pickRemote"
+import { remoteAction } from "./remoteAction"
 
 export async function showCommitActions(
   repository: Repository,
@@ -111,7 +111,7 @@ export async function showCommitActions(
     {
       placeholder: { label: "$(loading~spin) Loading remotes..." },
       pending: remotes.then((remotes) => {
-        return pickRemote(
+        return remoteAction(
           remotes,
           { label: "$(link-external) Open Commit on Remote" },
           (provider) => provider.commitUrl(commit),

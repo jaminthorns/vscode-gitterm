@@ -12,6 +12,7 @@ export function createReferenceLinkMatcher({
 }): LinkMatcher<{ reference: string }> {
   return {
     label: referenceInfo[type].label,
+    prompt: `Select a ${referenceInfo[type].label.toLocaleLowerCase()} action`,
     icon: referenceInfo[type].icon,
 
     shouldProvide() {

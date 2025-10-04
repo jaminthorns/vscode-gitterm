@@ -64,13 +64,6 @@ committer/author filtering in conjuction with other `git log` filters.
 This would be nice to have for parity with commit links, but it's not nearly as
 useful since VS Code already has stash listing functionality built-in.
 
-### Issue Links ❗
-
-Most remotes support something like GitHub's issues and usually have some syntax
-(like `#123`) that automatically creates links to those issues. It would be nice
-to support this on a per-remote basis. If multiple remotes match an issue link,
-show the remote picker.
-
 ## Link Detection Methods 📝
 
 - Parsing

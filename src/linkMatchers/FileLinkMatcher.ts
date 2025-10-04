@@ -4,6 +4,7 @@ import { LinkMatcher } from "./LinkMatcher"
 
 export const FileLinkMatcher: LinkMatcher<{ filename: string }> = {
   label: "File",
+  prompt: "Select a file action",
   icon: "file",
 
   shouldProvide(terminalContext) {

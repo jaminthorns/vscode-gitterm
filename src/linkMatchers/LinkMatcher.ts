@@ -11,9 +11,13 @@ type MaybePromise<T> = T | Promise<T>
 
 export interface LinkMatcher<MatchContext> {
   label: string
+  prompt: string
   icon: string
 
-  shouldProvide(terminalContext: Partial<TerminalContext>): boolean
+  shouldProvide(
+    terminalContext: Partial<TerminalContext>,
+    repository: Repository,
+  ): boolean
 
   findMatches(
     line: string,

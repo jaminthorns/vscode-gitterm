@@ -13,7 +13,7 @@ import {
   userGitCommand,
 } from "../util"
 import { relativeGitUri, showItem } from "./common"
-import { pickRemote } from "./pickRemote"
+import { remoteAction } from "./remoteAction"
 
 export function fileAtCommitItems(
   repository: Repository,
@@ -132,7 +132,7 @@ export function fileAtCommitItems(
     {
       placeholder: { label: "$(loading~spin) Loading remotes..." },
       pending: remotes.then((remotes) => {
-        return pickRemote(
+        return remoteAction(
           remotes,
           { label: "$(link-external) Open File on Remote" },
           (provider) => provider.fileAtCommitUrl(commit, filename),

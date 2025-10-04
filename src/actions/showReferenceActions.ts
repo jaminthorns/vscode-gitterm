@@ -5,7 +5,7 @@ import { ReferenceType, referenceInfo, referenceValid } from "../references"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
 import { filterAsync, git, runCommandInTerminal, userGitCommand } from "../util"
-import { pickRemote } from "./pickRemote"
+import { remoteAction } from "./remoteAction"
 
 export function showReferenceActions(
   repository: Repository,
@@ -27,7 +27,7 @@ export function showReferenceActions(
 
     const { remoteReference, remoteProviders } = info
 
-    return pickRemote(
+    return remoteAction(
       remoteProviders,
       { label: `$(link-external) Open ${remoteLabel} on Remote` },
       (provider) => provider.referenceUrl(remoteReference),
