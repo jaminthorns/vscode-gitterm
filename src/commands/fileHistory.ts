@@ -8,6 +8,7 @@ import {
   userGitCommand,
 } from "../util"
 import { suffixWithRevision } from "./common"
+import { validateFileTracked } from "./validateFile"
 
 export async function fileHistory(
   uri: vscode.Uri,
@@ -16,6 +17,11 @@ export async function fileHistory(
   const repository = repositories.getRepository(uri)
 
   if (repository === undefined) {
+    return
+  }
+
+  // Check if file is tracked by Git
+  if (!(await validateFileTracked(uri, repository))) {
     return
   }
 

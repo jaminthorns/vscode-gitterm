@@ -8,6 +8,7 @@ import {
   userGitCommand,
 } from "../util"
 import { blameMoveCopyDetectionFlags, suffixWithRevision } from "./common"
+import { validateFileTracked } from "./validateFile"
 
 export async function fileBlame(
   uri: vscode.Uri,
@@ -16,6 +17,11 @@ export async function fileBlame(
   const repository = repositories.getRepository(uri)
 
   if (repository === undefined) {
+    return
+  }
+
+  // Check if file is tracked by Git
+  if (!(await validateFileTracked(uri, repository))) {
     return
   }
 

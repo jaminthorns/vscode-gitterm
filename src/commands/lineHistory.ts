@@ -9,6 +9,7 @@ import {
   userGitCommand,
 } from "../util"
 import { displayRange, oldRanges, suffixWithRevision } from "./common"
+import { validateDocumentTracked } from "./validateFile"
 
 export async function lineHistory(
   document: vscode.TextDocument,
@@ -18,6 +19,11 @@ export async function lineHistory(
   const repository = repositories.getRepository(document.uri)
 
   if (repository === undefined) {
+    return
+  }
+
+  // Check if file is tracked by Git
+  if (!(await validateDocumentTracked(document, repository))) {
     return
   }
 

@@ -11,6 +11,7 @@ import { folderHistory } from "./folderHistory"
 import { lineBlame } from "./lineBlame"
 import { lineHistory } from "./lineHistory"
 import { stringSearch } from "./stringSearch"
+import { viewFileFromRef } from "./viewFileFromRef"
 
 interface LineNumberHandlerArgs {
   uri: vscode.Uri
@@ -204,4 +205,13 @@ export function debugStoresCommand(repositories: RepositoryStore) {
       })
     })
   })
+}
+
+export function viewFileFromRefCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerTextEditorCommand(
+    "gitterm.viewFileFromRef",
+    ({ document }: vscode.TextEditor) => {
+      viewFileFromRef(document.uri, repositories)
+    },
+  )
 }

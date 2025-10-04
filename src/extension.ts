@@ -13,6 +13,7 @@ import {
   selectionHistoryCommand,
   selectionSearchCommand,
   showCommitActionsCommand,
+  viewFileFromRefCommand,
 } from "./commands"
 import { fileAtCommitLineProvider } from "./definitionProviders/fileAtCommitLineProvider"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
@@ -45,6 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
     openFileFromCommitCommand(repositories),
     selectionSearchCommand(repositories),
     debugStoresCommand(repositories),
+    viewFileFromRefCommand(repositories),
 
     // Terminal link provider
     terminalLinkProvider(repositories, terminalFolders),

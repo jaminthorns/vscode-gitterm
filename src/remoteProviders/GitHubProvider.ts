@@ -40,5 +40,9 @@ export function GitHubProvider(remote: Remote): RemoteProvider {
     fileAtCommitUrl(commit, filename) {
       return url(`/blob/${commit.full}/${filename}`)
     },
+
+    issueUrl(issueNumber) {
+      return url(`/issues/${issueNumber}`)
+    },
   }
 }

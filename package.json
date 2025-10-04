@@ -77,6 +77,10 @@
         "command": "gitterm.openFileFromCommit",
         "title": "GitTerm: Open File",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "gitterm.viewFileFromRef",
+        "title": "GitTerm: View File from Another Reference"
       }
     ],
     "menus": {
@@ -128,6 +132,10 @@
         {
           "command": "gitterm.selectionSearch",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+        },
+        {
+          "command": "gitterm.viewFileFromRef",
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         }
       ],
       "explorer/context": [
@@ -169,6 +177,11 @@
           "command": "gitterm.fileBlame",
           "group": "10_gitterm_file@1",
           "when": "resourceScheme =~ /^file$|^git$/"
+        },
+        {
+          "command": "gitterm.viewFileFromRef",
+          "group": "10_gitterm_file@2",
+          "when": "resourceScheme =~ /^file$|^git$/ && isInDiffEditor"
         }
       ],
       "editor/context": [
@@ -196,6 +209,16 @@
           "command": "gitterm.activeFileBlame",
           "group": "11_gitterm_file@1",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        },
+        {
+          "command": "gitterm.viewFileFromRef",
+          "group": "11_gitterm_file@2",
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        },
+        {
+          "command": "gitterm.viewFileFromRef",
+          "group": "12_gitterm_diff@0",
+          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && isInDiffEditor"
         }
       ],
       "editor/lineNumber/context": [
@@ -236,6 +259,11 @@
         "command": "gitterm.selectionSearch",
         "key": "alt+s",
         "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+      },
+      {
+        "command": "gitterm.viewFileFromRef",
+        "key": "alt+shift+r",
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       }
     ],
     "configuration": {

@@ -14,6 +14,7 @@ import {
   oldRanges,
   suffixWithRevision,
 } from "./common"
+import { validateDocumentTracked } from "./validateFile"
 
 export async function lineBlame(
   document: vscode.TextDocument,
@@ -23,6 +24,11 @@ export async function lineBlame(
   const repository = repositories.getRepository(document.uri)
 
   if (repository === undefined) {
+    return
+  }
+
+  // Check if file is tracked by Git
+  if (!(await validateDocumentTracked(document, repository))) {
     return
   }
 

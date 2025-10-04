@@ -14,6 +14,7 @@ type ReferenceTrie = Trie<null>
 
 export interface ReferenceStore extends vscode.Disposable {
   findMatches: ReferenceTrie["findMatches"]
+  entries: ReferenceTrie["entries"]
   writeToFile(): void
 }
 
@@ -48,6 +49,10 @@ export function createReferenceStore({
   return {
     findMatches(...args) {
       return references.findMatches(...args)
+    },
+
+    entries(...args) {
+      return references.entries(...args)
     },
 
     writeToFile() {
