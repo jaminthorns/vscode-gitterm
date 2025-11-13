@@ -72,11 +72,6 @@
         "command": "gitterm.showCommitActions",
         "title": "GitTerm: Show Commit Actions",
         "icon": "$(git-commit)"
-      },
-      {
-        "command": "gitterm.openFileFromCommit",
-        "title": "GitTerm: Open File",
-        "icon": "$(go-to-file)"
       }
     ],
     "menus": {
@@ -103,10 +98,6 @@
         },
         {
           "command": "gitterm.showCommitActions",
-          "when": "false"
-        },
-        {
-          "command": "gitterm.openFileFromCommit",
           "when": "false"
         },
         {
@@ -152,11 +143,6 @@
           "command": "gitterm.showCommitActions",
           "group": "navigation@0",
           "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
-        },
-        {
-          "command": "gitterm.openFileFromCommit",
-          "group": "navigation@1",
-          "when": "resourceScheme == git && !isInDiffEditor"
         }
       ],
       "editor/title/context": [
