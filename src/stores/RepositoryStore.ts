@@ -1,3 +1,4 @@
+import { sep } from "path"
 import * as vscode from "vscode"
 import { Repository } from "../Repository"
 
@@ -21,7 +22,7 @@ export function RepositoryStore(): RepositoryStore {
     },
 
     getRepository(uri) {
-      const fileUri = vscode.Uri.file(uri.path) // Account for non-file URIs
+      const fileUri = vscode.Uri.file(normalize(uri.path)) // Account for non-file URIs
       const folder = vscode.workspace.getWorkspaceFolder(fileUri)
 
       return folder && repositories.get(folder.uri)
@@ -30,5 +31,15 @@ export function RepositoryStore(): RepositoryStore {
     allRepositories() {
       return Array.from(repositories.values())
     },
+  }
+}
+
+function normalize(path: string) {
+  switch (sep) {
+    case "/":
+      return path.replaceAll("\\", "/")
+
+    case "\\":
+      return path.replaceAll("/", "\\")
   }
 }
