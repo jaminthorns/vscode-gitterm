@@ -4,6 +4,7 @@ import { Commit } from "../Commit"
 import { LineRange } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import { uriRevision } from "../util"
+import { fileAtReference } from "./fileAtReference"
 import { fileBlame } from "./fileBlame"
 import { fileHistory } from "./fileHistory"
 import { folderHistory } from "./folderHistory"
@@ -39,6 +40,15 @@ export function fileBlameCommand(repositories: RepositoryStore) {
     "gitterm.fileBlame",
     (uri: vscode.Uri) => {
       fileBlame(uri, repositories)
+    },
+  )
+}
+
+export function fileAtReferenceCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerCommand(
+    "gitterm.fileAtReference",
+    (uri: vscode.Uri) => {
+      fileAtReference(uri, repositories)
     },
   )
 }
@@ -81,6 +91,15 @@ export function activeFileBlameCommand(repositories: RepositoryStore) {
     "gitterm.activeFileBlame",
     ({ document }: vscode.TextEditor) => {
       fileBlame(document.uri, repositories)
+    },
+  )
+}
+
+export function activeFileAtReferenceCommand(repositories: RepositoryStore) {
+  return vscode.commands.registerTextEditorCommand(
+    "gitterm.activeFileAtReference",
+    ({ document }: vscode.TextEditor) => {
+      fileAtReference(document.uri, repositories)
     },
   )
 }

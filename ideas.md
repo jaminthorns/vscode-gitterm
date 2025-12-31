@@ -161,17 +161,6 @@ relevant actions.
 I'd like for this to be a ❗, but it's currently only a proposed API, available
 by enabling `contribMultiDiffEditorMenus`.
 
-# View File from Another Reference ❗
-
-When working on a file in some feature branch, I often want to view the file as
-it is in `main` or some other branch to compare side-by-side. This is easy to do
-with `git show <REF>:<FILE>`.
-
-There should be a command (with a default keybinding) that lets you select a
-reference (branch/tag/commit) to view the active file at.
-
-This should also be available as a context menu command when viewing diffs.
-
 # Use `Pseudoterminal` for running commands 🤔
 
 Using a `Pseudoterminal` could provide a cleaner experience when running

@@ -1,8 +1,10 @@
 import * as vscode from "vscode"
 import {
+  activeFileAtReferenceCommand,
   activeFileBlameCommand,
   activeFileHistoryCommand,
   debugStoresCommand,
+  fileAtReferenceCommand,
   fileBlameCommand,
   fileHistoryCommand,
   folderHistoryCommand,
@@ -34,10 +36,12 @@ export async function activate(context: vscode.ExtensionContext) {
     folderHistoryCommand(repositories),
     fileHistoryCommand(repositories),
     fileBlameCommand(repositories),
+    fileAtReferenceCommand(repositories),
     lineHistoryCommand(repositories),
     lineBlameCommand(repositories),
     activeFileHistoryCommand(repositories),
     activeFileBlameCommand(repositories),
+    activeFileAtReferenceCommand(repositories),
     selectionHistoryCommand(repositories),
     selectionBlameCommand(repositories),
     showCommitActionsCommand(repositories),
