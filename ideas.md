@@ -179,10 +179,3 @@ commands. The user wouldn't be able to reuse the terminal by exiting to the
 shell, which could be benefit or a drawback depending on the situation. A
 benefit would be that Git commands could be specified in a shell-agnostic way.
 This might make more sense architecturally and alleviate string-escaping issues.
-
-# Notification when attempting operations on non-tracked file ❗
-
-I tried to see the file history on a file that wasn't in the repo that I had
-opened. When I pressed the hotkeys, nothing happened, but it would have been
-more informative if a notification was shown. I'm not sure what should happen if
-a file is from another repo.

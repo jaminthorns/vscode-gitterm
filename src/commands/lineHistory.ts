@@ -4,6 +4,7 @@ import { LineRange, LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
 import {
   commitFilenames,
+  getValidatedRepository,
   runCommandInTerminal,
   uriRevision,
   userGitCommand,
@@ -15,7 +16,11 @@ export async function lineHistory(
   ranges: LineRange[],
   repositories: RepositoryStore,
 ) {
-  const repository = repositories.getRepository(document.uri)
+  const repository = await getValidatedRepository(
+    document.uri,
+    repositories,
+    "File",
+  )
 
   if (repository === undefined) {
     return

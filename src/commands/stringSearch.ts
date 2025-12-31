@@ -2,7 +2,12 @@ import { tmpdir } from "os"
 import { join } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
-import { runCommandInTerminal, uriRevision, userGitCommand } from "../util"
+import {
+  getValidatedRepository,
+  runCommandInTerminal,
+  uriRevision,
+  userGitCommand,
+} from "../util"
 import { suffixWithRevision } from "./common"
 
 export async function stringSearch(
@@ -10,7 +15,11 @@ export async function stringSearch(
   selections: readonly vscode.Selection[],
   repositories: RepositoryStore,
 ) {
-  const repository = repositories.getRepository(document.uri)
+  const repository = await getValidatedRepository(
+    document.uri,
+    repositories,
+    "File",
+  )
 
   if (repository === undefined) {
     return

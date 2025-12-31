@@ -2,6 +2,8 @@ import { spawn } from "child_process"
 import { basename } from "path"
 import { createInterface } from "readline"
 import * as vscode from "vscode"
+import { Repository } from "./Repository"
+import { RepositoryStore } from "./stores"
 import { CommitFilenames, TerminalContext } from "./TerminalContext"
 import { UserGitCommand } from "./UserGitCommand"
 
@@ -235,5 +237,30 @@ export function uriRevision(uri: vscode.Uri): string {
     return basename(uri.path).split("..")[1]
   } else {
     throw Error(`Cannot get revision from URI: ${uri}`)
+  }
+}
+
+export async function getValidatedRepository(
+  uri: vscode.Uri,
+  repositories: RepositoryStore,
+  noun: string,
+): Promise<Repository | undefined> {
+  const repository = repositories.getRepository(uri)
+  const filename = vscode.workspace.asRelativePath(uri, false)
+
+  if (repository === undefined) {
+    vscode.window.showErrorMessage(`${noun} not in repository: ${filename}`)
+    return
+  }
+
+  try {
+    await git("ls-files", ["--error-unmatch", filename], {
+      directory: repository.directory,
+    })
+
+    return repository
+  } catch (error) {
+    vscode.window.showErrorMessage(`${noun} not tracked: ${filename}`)
+    return
   }
 }

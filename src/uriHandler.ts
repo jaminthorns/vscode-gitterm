@@ -2,6 +2,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
 import { RepositoryStore } from "./stores"
+import { getValidatedRepository } from "./util"
 
 export function uriHandler(repositories: RepositoryStore): vscode.Disposable {
   return vscode.window.registerUriHandler({
@@ -19,7 +20,11 @@ export function uriHandler(repositories: RepositoryStore): vscode.Disposable {
       const [, ref, path, line = ""] = match
 
       const fileUri = vscode.Uri.file(path)
-      const repository = repositories.getRepository(fileUri)
+      const repository = await getValidatedRepository(
+        fileUri,
+        repositories,
+        "File",
+      )
 
       if (repository === undefined) {
         return

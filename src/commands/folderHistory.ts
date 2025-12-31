@@ -1,10 +1,17 @@
 import { basename } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
-import { runCommandInTerminal, userGitCommand } from "../util"
+import {
+  getValidatedRepository,
+  runCommandInTerminal,
+  userGitCommand,
+} from "../util"
 
-export function folderHistory(uri: vscode.Uri, repositories: RepositoryStore) {
-  const repository = repositories.getRepository(uri)
+export async function folderHistory(
+  uri: vscode.Uri,
+  repositories: RepositoryStore,
+) {
+  const repository = await getValidatedRepository(uri, repositories, "Folder")
 
   if (repository === undefined) {
     return

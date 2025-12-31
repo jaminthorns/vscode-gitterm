@@ -3,6 +3,7 @@ import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
 import {
   commitFilenames,
+  getValidatedRepository,
   runCommandInTerminal,
   uriRevision,
   userGitCommand,
@@ -13,7 +14,7 @@ export async function fileHistory(
   uri: vscode.Uri,
   repositories: RepositoryStore,
 ) {
-  const repository = repositories.getRepository(uri)
+  const repository = await getValidatedRepository(uri, repositories, "File")
 
   if (repository === undefined) {
     return
