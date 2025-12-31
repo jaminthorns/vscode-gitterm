@@ -1,4 +1,6 @@
-# GitTerm
+# GitSquatch
+
+The missing link between the Git CLI and Visual Studio Code.
 
 ## Features
 
