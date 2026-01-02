@@ -431,6 +431,21 @@
           "default": "sameCommit",
           "description": "In blame commands, detect moved/copied lines from other files."
         },
+        "gitterm.selectionSearch.modifyEnv": {
+          "enum": [
+            null,
+            "LESS",
+            "GITTERM_SEARCH"
+          ],
+          "enumDescriptions": [
+            "Don't modify an environment variable.",
+            "Append flags to the LESS environment variable to enable jumping to instances of the search string within less (Git's default pager).",
+            "Set the GITTERM_SEARCH environment variable to the search string."
+          ],
+          "type": "string",
+          "default": "LESS",
+          "markdownDescription": "How to modify the terminal environment when searching for a string.\n\nThe configured environment variable will only be modified when:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
+        },
         "gitterm.gitCommands.folderHistory": {
           "type": "string",
           "default": "git log --stat ${revision} -- '${folder}'",
@@ -489,7 +504,7 @@
         "gitterm.gitCommands.stringSearch": {
           "type": "string",
           "default": "git log --patch ${revision} ${searches}",
-          "markdownDescription": "Git command for searching for a string across commits.\n\nIn terminals created with this command, the `GITTERM_SEARCH` environment variable will be set under the following conditions:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
+          "description": "Git command for searching for a string across commits."
         }
       }
     }

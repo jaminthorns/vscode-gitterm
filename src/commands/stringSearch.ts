@@ -46,15 +46,30 @@ export async function stringSearch(
   const firstSelection = document.getText(selections[0])
   const setSearchEnv = selections.length === 1 && !firstSelection.includes("\n")
 
+  let env
+
+  if (setSearchEnv) {
+    const modifyEnv = vscode.workspace
+      .getConfiguration("gitterm.selectionSearch")
+      .get("modifyEnv") as null | "LESS" | "GITTERM_SEARCH"
+
+    if (modifyEnv === "LESS") {
+      const { LESS } = process.env
+      env = { LESS: `${LESS} --jump-target=.5 --pattern=${firstSelection}` }
+    } else if (modifyEnv === "GITTERM_SEARCH") {
+      env = { GITTERM_SEARCH: firstSelection }
+    }
+  }
+
   runCommandInTerminal({
     name: await suffixWithRevision("String Search", revision, directory),
     icon: "search",
     cwd: directory,
+    env,
     command: userGitCommand({
       key: "stringSearch",
       variables: { revision, searches },
     }),
-    env: setSearchEnv ? { GITTERM_SEARCH: firstSelection } : undefined,
     onClose: () => files.forEach((file) => vscode.workspace.fs.delete(file)),
   })
 }
