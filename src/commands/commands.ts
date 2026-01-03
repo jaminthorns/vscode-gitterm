@@ -19,7 +19,7 @@ interface LineNumberHandlerArgs {
 
 export function folderHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.folderHistory",
+    "gitsquatch.folderHistory",
     (uri: vscode.Uri) => {
       folderHistory(uri, repositories)
     },
@@ -28,7 +28,7 @@ export function folderHistoryCommand(repositories: RepositoryStore) {
 
 export function fileHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.fileHistory",
+    "gitsquatch.fileHistory",
     (uri: vscode.Uri) => {
       fileHistory(uri, repositories)
     },
@@ -37,7 +37,7 @@ export function fileHistoryCommand(repositories: RepositoryStore) {
 
 export function fileBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.fileBlame",
+    "gitsquatch.fileBlame",
     (uri: vscode.Uri) => {
       fileBlame(uri, repositories)
     },
@@ -46,7 +46,7 @@ export function fileBlameCommand(repositories: RepositoryStore) {
 
 export function fileAtReferenceCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.fileAtReference",
+    "gitsquatch.fileAtReference",
     (uri: vscode.Uri) => {
       fileAtReference(uri, repositories)
     },
@@ -55,7 +55,7 @@ export function fileAtReferenceCommand(repositories: RepositoryStore) {
 
 export function lineHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.lineHistory",
+    "gitsquatch.lineHistory",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
       const document = await vscode.workspace.openTextDocument(uri)
       const range = { start: lineNumber, end: lineNumber }
@@ -67,7 +67,7 @@ export function lineHistoryCommand(repositories: RepositoryStore) {
 
 export function lineBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.lineBlame",
+    "gitsquatch.lineBlame",
     async ({ uri, lineNumber }: LineNumberHandlerArgs) => {
       const document = await vscode.workspace.openTextDocument(uri)
       const range = { start: lineNumber, end: lineNumber }
@@ -79,7 +79,7 @@ export function lineBlameCommand(repositories: RepositoryStore) {
 
 export function activeFileHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.activeFileHistory",
+    "gitsquatch.activeFileHistory",
     ({ document }: vscode.TextEditor) => {
       fileHistory(document.uri, repositories)
     },
@@ -88,7 +88,7 @@ export function activeFileHistoryCommand(repositories: RepositoryStore) {
 
 export function activeFileBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.activeFileBlame",
+    "gitsquatch.activeFileBlame",
     ({ document }: vscode.TextEditor) => {
       fileBlame(document.uri, repositories)
     },
@@ -97,7 +97,7 @@ export function activeFileBlameCommand(repositories: RepositoryStore) {
 
 export function activeFileAtReferenceCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.activeFileAtReference",
+    "gitsquatch.activeFileAtReference",
     ({ document }: vscode.TextEditor) => {
       fileAtReference(document.uri, repositories)
     },
@@ -106,7 +106,7 @@ export function activeFileAtReferenceCommand(repositories: RepositoryStore) {
 
 export function selectionHistoryCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.selectionHistory",
+    "gitsquatch.selectionHistory",
     ({ document, selections }: vscode.TextEditor) => {
       const ranges = selections.map(selectionToRange)
 
@@ -117,7 +117,7 @@ export function selectionHistoryCommand(repositories: RepositoryStore) {
 
 export function selectionBlameCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.selectionBlame",
+    "gitsquatch.selectionBlame",
     ({ document, selections }: vscode.TextEditor) => {
       const ranges = selections.map(selectionToRange)
 
@@ -128,7 +128,7 @@ export function selectionBlameCommand(repositories: RepositoryStore) {
 
 export function selectionSearchCommand(repositories: RepositoryStore) {
   return vscode.commands.registerTextEditorCommand(
-    "gitterm.selectionSearch",
+    "gitsquatch.selectionSearch",
     ({ document, selections }: vscode.TextEditor) => {
       stringSearch(document, selections, repositories)
     },
@@ -141,7 +141,7 @@ function selectionToRange({ start, end }: vscode.Selection): LineRange {
 
 export function showCommitActionsCommand(repositories: RepositoryStore) {
   return vscode.commands.registerCommand(
-    "gitterm.showCommitActions",
+    "gitsquatch.showCommitActions",
     async (uri: vscode.Uri) => {
       const repository = repositories.getRepository(uri)
 
@@ -172,7 +172,7 @@ interface StoreItem extends vscode.QuickPickItem {
 }
 
 export function debugStoresCommand(repositories: RepositoryStore) {
-  return vscode.commands.registerCommand("gitterm.debugStores", async () => {
+  return vscode.commands.registerCommand("gitsquatch.debugStores", async () => {
     const selected = await vscode.window.showQuickPick<StoreItem>(
       [
         { value: "filenames", label: "Filenames" },

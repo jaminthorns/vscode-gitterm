@@ -30,7 +30,7 @@ export async function stringSearch(
   const time = new Date().getTime()
 
   const files = selections.map((selection, index) => {
-    const filename = `gitterm_search_${time}_${index}`
+    const filename = `gitsquatch_search_${time}_${index}`
     const path = join(tmpdir(), filename)
     const uri = vscode.Uri.file(path)
     const text = document.getText(selection)
@@ -50,14 +50,14 @@ export async function stringSearch(
 
   if (setSearchEnv) {
     const modifyEnv = vscode.workspace
-      .getConfiguration("gitterm.selectionSearch")
-      .get("modifyEnv") as null | "LESS" | "GITTERM_SEARCH"
+      .getConfiguration("gitsquatch.selectionSearch")
+      .get("modifyEnv") as null | "LESS" | "GITSQUATCH_SEARCH"
 
     if (modifyEnv === "LESS") {
       const { LESS } = process.env
       env = { LESS: `${LESS} --jump-target=.5 --pattern=${firstSelection}` }
-    } else if (modifyEnv === "GITTERM_SEARCH") {
-      env = { GITTERM_SEARCH: firstSelection }
+    } else if (modifyEnv === "GITSQUATCH_SEARCH") {
+      env = { GITSQUATCH_SEARCH: firstSelection }
     }
   }
 

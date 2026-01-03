@@ -17,7 +17,7 @@ export function createReferenceLinkMatcher({
 
     shouldProvide() {
       const provideReferenceLinks = vscode.workspace
-        .getConfiguration("gitterm.terminalLinks")
+        .getConfiguration("gitsquatch.terminalLinks")
         .get("provideReferenceLinks") as "always" | "never"
 
       switch (provideReferenceLinks) {

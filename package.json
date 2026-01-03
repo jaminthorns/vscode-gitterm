@@ -1,12 +1,12 @@
 {
-  "name": "gitterm",
-  "displayName": "GitTerm",
+  "name": "gitsquatch",
+  "displayName": "GitSquatch",
   "description": "Rich integration between Git CLI and VS Code",
   "publisher": "jaminthorns",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jaminthorns/vscode-gitterm.git"
+    "url": "https://github.com/jaminthorns/vscode-gitsquatch.git"
   },
   "author": {
     "name": "Jamin Thornsberry"
@@ -25,245 +25,245 @@
   "contributes": {
     "commands": [
       {
-        "command": "gitterm.folderHistory",
-        "title": "GitTerm: Folder History"
+        "command": "gitsquatch.folderHistory",
+        "title": "GitSquatch: Folder History"
       },
       {
-        "command": "gitterm.fileHistory",
-        "title": "GitTerm: File History"
+        "command": "gitsquatch.fileHistory",
+        "title": "GitSquatch: File History"
       },
       {
-        "command": "gitterm.fileBlame",
-        "title": "GitTerm: File Blame"
+        "command": "gitsquatch.fileBlame",
+        "title": "GitSquatch: File Blame"
       },
       {
-        "command": "gitterm.fileAtReference",
-        "title": "GitTerm: Open File at Reference"
+        "command": "gitsquatch.fileAtReference",
+        "title": "GitSquatch: Open File at Reference"
       },
       {
-        "command": "gitterm.lineHistory",
-        "title": "GitTerm: Line History"
+        "command": "gitsquatch.lineHistory",
+        "title": "GitSquatch: Line History"
       },
       {
-        "command": "gitterm.lineBlame",
-        "title": "GitTerm: Line Blame"
+        "command": "gitsquatch.lineBlame",
+        "title": "GitSquatch: Line Blame"
       },
       {
-        "command": "gitterm.activeFileHistory",
-        "title": "GitTerm: File History"
+        "command": "gitsquatch.activeFileHistory",
+        "title": "GitSquatch: File History"
       },
       {
-        "command": "gitterm.activeFileBlame",
-        "title": "GitTerm: File Blame"
+        "command": "gitsquatch.activeFileBlame",
+        "title": "GitSquatch: File Blame"
       },
       {
-        "command": "gitterm.activeFileAtReference",
-        "title": "GitTerm: Open File at Reference"
+        "command": "gitsquatch.activeFileAtReference",
+        "title": "GitSquatch: Open File at Reference"
       },
       {
-        "command": "gitterm.selectionHistory",
-        "title": "GitTerm: Selection History"
+        "command": "gitsquatch.selectionHistory",
+        "title": "GitSquatch: Selection History"
       },
       {
-        "command": "gitterm.selectionBlame",
-        "title": "GitTerm: Selection Blame"
+        "command": "gitsquatch.selectionBlame",
+        "title": "GitSquatch: Selection Blame"
       },
       {
-        "command": "gitterm.selectionSearch",
-        "title": "GitTerm: Selection Search (Pickaxe)"
+        "command": "gitsquatch.selectionSearch",
+        "title": "GitSquatch: Selection Search (Pickaxe)"
       },
       {
-        "command": "gitterm.debugStores",
-        "title": "GitTerm: Debug Stores"
+        "command": "gitsquatch.debugStores",
+        "title": "GitSquatch: Debug Stores"
       },
       {
-        "command": "gitterm.showCommitActions",
-        "title": "GitTerm: Show Commit Actions",
+        "command": "gitsquatch.showCommitActions",
+        "title": "GitSquatch: Show Commit Actions",
         "icon": "$(git-commit)"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "gitterm.folderHistory",
+          "command": "gitsquatch.folderHistory",
           "when": "false"
         },
         {
-          "command": "gitterm.fileHistory",
+          "command": "gitsquatch.fileHistory",
           "when": "false"
         },
         {
-          "command": "gitterm.fileBlame",
+          "command": "gitsquatch.fileBlame",
           "when": "false"
         },
         {
-          "command": "gitterm.fileAtReference",
+          "command": "gitsquatch.fileAtReference",
           "when": "false"
         },
         {
-          "command": "gitterm.lineHistory",
+          "command": "gitsquatch.lineHistory",
           "when": "false"
         },
         {
-          "command": "gitterm.lineBlame",
+          "command": "gitsquatch.lineBlame",
           "when": "false"
         },
         {
-          "command": "gitterm.showCommitActions",
+          "command": "gitsquatch.showCommitActions",
           "when": "false"
         },
         {
-          "command": "gitterm.activeFileHistory",
+          "command": "gitsquatch.activeFileHistory",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.activeFileBlame",
+          "command": "gitsquatch.activeFileBlame",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.activeFileAtReference",
+          "command": "gitsquatch.activeFileAtReference",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.selectionHistory",
+          "command": "gitsquatch.selectionHistory",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.selectionBlame",
+          "command": "gitsquatch.selectionBlame",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.selectionSearch",
+          "command": "gitsquatch.selectionSearch",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
         }
       ],
       "explorer/context": [
         {
-          "command": "gitterm.folderHistory",
-          "group": "40_gitterm_folder@0",
+          "command": "gitsquatch.folderHistory",
+          "group": "40_gitsquatch_folder@0",
           "when": "explorerResourceIsFolder"
         },
         {
-          "command": "gitterm.fileHistory",
-          "group": "40_gitterm_file@0",
+          "command": "gitsquatch.fileHistory",
+          "group": "40_gitsquatch_file@0",
           "when": "!explorerResourceIsFolder"
         },
         {
-          "command": "gitterm.fileBlame",
-          "group": "40_gitterm_file@1",
+          "command": "gitsquatch.fileBlame",
+          "group": "40_gitsquatch_file@1",
           "when": "!explorerResourceIsFolder"
         },
         {
-          "command": "gitterm.fileAtReference",
-          "group": "40_gitterm_file@1",
+          "command": "gitsquatch.fileAtReference",
+          "group": "40_gitsquatch_file@1",
           "when": "!explorerResourceIsFolder"
         }
       ],
       "editor/title": [
         {
-          "command": "gitterm.showCommitActions",
+          "command": "gitsquatch.showCommitActions",
           "group": "navigation@0",
           "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
         }
       ],
       "editor/title/context": [
         {
-          "command": "gitterm.fileHistory",
-          "group": "10_gitterm_file@0",
+          "command": "gitsquatch.fileHistory",
+          "group": "10_gitsquatch_file@0",
           "when": "resourceScheme =~ /^file$|^git$/"
         },
         {
-          "command": "gitterm.fileBlame",
-          "group": "10_gitterm_file@1",
+          "command": "gitsquatch.fileBlame",
+          "group": "10_gitsquatch_file@1",
           "when": "resourceScheme =~ /^file$|^git$/"
         },
         {
-          "command": "gitterm.fileAtReference",
-          "group": "10_gitterm_file@1",
+          "command": "gitsquatch.fileAtReference",
+          "group": "10_gitsquatch_file@1",
           "when": "resourceScheme =~ /^file$|^git$/"
         }
       ],
       "editor/context": [
         {
-          "command": "gitterm.selectionHistory",
-          "group": "10_gitterm_selection@0",
+          "command": "gitsquatch.selectionHistory",
+          "group": "10_gitsquatch_selection@0",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.selectionBlame",
-          "group": "10_gitterm_selection@1",
+          "command": "gitsquatch.selectionBlame",
+          "group": "10_gitsquatch_selection@1",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.selectionSearch",
-          "group": "10_gitterm_selection@2",
+          "command": "gitsquatch.selectionSearch",
+          "group": "10_gitsquatch_selection@2",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
         },
         {
-          "command": "gitterm.activeFileHistory",
-          "group": "11_gitterm_file@0",
+          "command": "gitsquatch.activeFileHistory",
+          "group": "11_gitsquatch_file@0",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.activeFileBlame",
-          "group": "11_gitterm_file@1",
+          "command": "gitsquatch.activeFileBlame",
+          "group": "11_gitsquatch_file@1",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.activeFileAtReference",
-          "group": "11_gitterm_file@1",
+          "command": "gitsquatch.activeFileAtReference",
+          "group": "11_gitsquatch_file@1",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         }
       ],
       "editor/lineNumber/context": [
         {
-          "command": "gitterm.lineHistory",
-          "group": "00_gitterm_line@0",
+          "command": "gitsquatch.lineHistory",
+          "group": "00_gitsquatch_line@0",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         },
         {
-          "command": "gitterm.lineBlame",
-          "group": "00_gitterm_line@1",
+          "command": "gitsquatch.lineBlame",
+          "group": "00_gitsquatch_line@1",
           "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "gitterm.activeFileHistory",
+        "command": "gitsquatch.activeFileHistory",
         "key": "alt+shift+h",
         "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       },
       {
-        "command": "gitterm.activeFileBlame",
+        "command": "gitsquatch.activeFileBlame",
         "key": "alt+shift+b",
         "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       },
       {
-        "command": "gitterm.activeFileAtReference",
+        "command": "gitsquatch.activeFileAtReference",
         "key": "alt+shift+r",
         "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       },
       {
-        "command": "gitterm.selectionHistory",
+        "command": "gitsquatch.selectionHistory",
         "key": "alt+h",
         "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       },
       {
-        "command": "gitterm.selectionBlame",
+        "command": "gitsquatch.selectionBlame",
         "key": "alt+b",
         "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
       },
       {
-        "command": "gitterm.selectionSearch",
+        "command": "gitsquatch.selectionSearch",
         "key": "alt+s",
         "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
       }
     ],
     "configuration": {
-      "title": "GitTerm",
+      "title": "GitSquatch",
       "properties": {
-        "gitterm.terminalLinks.provideCommitLinks": {
+        "gitsquatch.terminalLinks.provideCommitLinks": {
           "type": "string",
           "enum": [
             "always",
@@ -280,7 +280,7 @@
           "default": "always",
           "description": "Whether to provide commit links in the terminal."
         },
-        "gitterm.terminalLinks.provideCommitRangeLinks": {
+        "gitsquatch.terminalLinks.provideCommitRangeLinks": {
           "type": "string",
           "enum": [
             "always",
@@ -297,7 +297,7 @@
           "default": "always",
           "description": "Whether to provide commit range links in the terminal."
         },
-        "gitterm.terminalLinks.provideReferenceLinks": {
+        "gitsquatch.terminalLinks.provideReferenceLinks": {
           "type": "string",
           "enum": [
             "always",
@@ -314,7 +314,7 @@
           "default": "always",
           "description": "Whether to provide reference links in the terminal."
         },
-        "gitterm.terminalLinks.provideFileLinks": {
+        "gitsquatch.terminalLinks.provideFileLinks": {
           "type": "string",
           "enum": [
             "always",
@@ -334,7 +334,7 @@
           "default": "always",
           "description": "Whether to provide file links in the terminal by default."
         },
-        "gitterm.terminalLinks.provideIssueLinks": {
+        "gitsquatch.terminalLinks.provideIssueLinks": {
           "type": "string",
           "enum": [
             "always",
@@ -351,7 +351,7 @@
           "default": "always",
           "description": "Whether to provide issue links in the terminal."
         },
-        "gitterm.showDefault.revision": {
+        "gitsquatch.showDefault.revision": {
           "type": "string",
           "enum": [
             "editor",
@@ -364,7 +364,7 @@
           "default": "editor",
           "description": "How to show a revision by default."
         },
-        "gitterm.showDefault.revisionRangeDiff": {
+        "gitsquatch.showDefault.revisionRangeDiff": {
           "type": "string",
           "enum": [
             "editor",
@@ -377,7 +377,7 @@
           "default": "editor",
           "description": "How to show a revision range diff by default."
         },
-        "gitterm.showDefault.fileDiffAtRevision": {
+        "gitsquatch.showDefault.fileDiffAtRevision": {
           "type": "string",
           "enum": [
             "editor",
@@ -390,7 +390,7 @@
           "default": "editor",
           "description": "How to show a diff for a file at a revision by default."
         },
-        "gitterm.showDefault.fileAtRevision": {
+        "gitsquatch.showDefault.fileAtRevision": {
           "type": "string",
           "enum": [
             "editor",
@@ -403,7 +403,7 @@
           "default": "editor",
           "description": "How to show a file at a revision."
         },
-        "gitterm.blame.sameFileMoveCopyDetection": {
+        "gitsquatch.blame.sameFileMoveCopyDetection": {
           "enum": [
             "off",
             "on"
@@ -415,7 +415,7 @@
           "default": "on",
           "description": "In blame commands, detect moved/copied lines within a file."
         },
-        "gitterm.blame.otherFilesMoveCopyDetection": {
+        "gitsquatch.blame.otherFilesMoveCopyDetection": {
           "enum": [
             "off",
             "sameCommit",
@@ -431,77 +431,77 @@
           "default": "sameCommit",
           "description": "In blame commands, detect moved/copied lines from other files."
         },
-        "gitterm.selectionSearch.modifyEnv": {
+        "gitsquatch.selectionSearch.modifyEnv": {
           "enum": [
             null,
             "LESS",
-            "GITTERM_SEARCH"
+            "GITSQUATCH_SEARCH"
           ],
           "enumDescriptions": [
             "Don't modify an environment variable.",
             "Append flags to the LESS environment variable to enable jumping to instances of the search string within less (Git's default pager).",
-            "Set the GITTERM_SEARCH environment variable to the search string."
+            "Set the GITSQUATCH_SEARCH environment variable to the search string."
           ],
           "type": "string",
           "default": "LESS",
           "markdownDescription": "How to modify the terminal environment when searching for a string.\n\nThe configured environment variable will only be modified when:\n\n- There is only 1 search string.\n\n- The search string contains no newlines."
         },
-        "gitterm.gitCommands.folderHistory": {
+        "gitsquatch.gitCommands.folderHistory": {
           "type": "string",
           "default": "git log --stat ${revision} -- '${folder}'",
           "description": "Git command for showing folder history."
         },
-        "gitterm.gitCommands.fileHistory": {
+        "gitsquatch.gitCommands.fileHistory": {
           "type": "string",
           "default": "git log --follow --patch ${reverseFlags} ${revision} -- '${filename}'",
           "description": "Git command for showing file history."
         },
-        "gitterm.gitCommands.fileBlame": {
+        "gitsquatch.gitCommands.fileBlame": {
           "type": "string",
           "default": "git blame ${moveCopyDetectionFlags} ${revision} -- '${filename}'",
           "description": "Git command for showing file blame."
         },
-        "gitterm.gitCommands.lineHistory": {
+        "gitsquatch.gitCommands.lineHistory": {
           "type": "string",
           "default": "git log ${revision} ${fileLineRanges}",
           "description": "Git command for showing history for ranges of lines in a file."
         },
-        "gitterm.gitCommands.lineBlame": {
+        "gitsquatch.gitCommands.lineBlame": {
           "type": "string",
           "default": "git blame ${moveCopyDetectionFlags} ${revision} ${lineRanges} -- '${filename}'",
           "description": "Git command for showing blame for ranges of lines in a file."
         },
-        "gitterm.gitCommands.revisionHistory": {
+        "gitsquatch.gitCommands.revisionHistory": {
           "type": "string",
           "default": "git log ${reverseFlags} ${revision}",
           "description": "Git command for showing history from a revision."
         },
-        "gitterm.gitCommands.revisionRangeHistory": {
+        "gitsquatch.gitCommands.revisionRangeHistory": {
           "type": "string",
           "default": "git log ${revisionRange}",
           "description": "Git command for showing history for a revision range."
         },
-        "gitterm.gitCommands.revisionDiff": {
+        "gitsquatch.gitCommands.revisionDiff": {
           "type": "string",
           "default": "git diff ${fromRevision} ${toRevision}",
           "description": "Git command for showing a diff between 2 revisions."
         },
-        "gitterm.gitCommands.showRevision": {
+        "gitsquatch.gitCommands.showRevision": {
           "type": "string",
           "default": "git show -m ${revision}",
           "description": "Git command for showing a revision."
         },
-        "gitterm.gitCommands.fileDiffAtRevision": {
+        "gitsquatch.gitCommands.fileDiffAtRevision": {
           "type": "string",
           "default": "git show -m ${revision} -- '${filename}'",
           "description": "Git command for showing a diff for a file at a revision."
         },
-        "gitterm.gitCommands.openFileAtRevision": {
+        "gitsquatch.gitCommands.openFileAtRevision": {
           "type": "string",
           "default": "git show ${revision}:'${filename}'",
           "description": "Git command for showing a file at a revision."
         },
-        "gitterm.gitCommands.stringSearch": {
+        "gitsquatch.gitCommands.stringSearch": {
           "type": "string",
           "default": "git log --patch ${revision} ${searches}",
           "description": "Git command for searching for a string across commits."

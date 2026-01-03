@@ -151,7 +151,7 @@ export function runCommandInTerminal({
 
 export function userGitCommand(command: UserGitCommand): string {
   const commandStr = vscode.workspace
-    .getConfiguration("gitterm.gitCommands")
+    .getConfiguration("gitsquatch.gitCommands")
     .get(command.key) as string
 
   const matches = Array.from(commandStr.matchAll(/( *)\${(\w+)}( *)/g))

@@ -9,7 +9,7 @@ export const FileLinkMatcher: LinkMatcher<{ filename: string }> = {
 
   shouldProvide(terminalContext) {
     const provideFileLinks = vscode.workspace
-      .getConfiguration("gitterm.terminalLinks")
+      .getConfiguration("gitsquatch.terminalLinks")
       .get("provideFileLinks") as "always" | "never" | "withRevisionContext"
 
     switch (provideFileLinks) {

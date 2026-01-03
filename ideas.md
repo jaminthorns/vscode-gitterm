@@ -37,7 +37,7 @@ Legend:
 
 For GitHub at least, this is covered by the "Copy GitHub Link" commands. It
 could be nice to have, but does it really fall under the responsibility of
-GitTerm?
+GitSquatch?
 
 ### Person Links 🤔
 
@@ -95,8 +95,9 @@ useful since VS Code already has stash listing functionality built-in.
 ## Shell Integration 🤔
 
 Wrap the `git` command in the user's shell using a function. This wrapper would
-send the arguments of the executed command to GitTerm, which would allow GitTerm
-to contextualize a terminal so that better link actions can be provided.
+send the arguments of the executed command to GitSquatch, which would allow
+GitSquatch to contextualize a terminal so that better link actions can be
+provided.
 
 This has some considerations:
 
@@ -106,10 +107,10 @@ This has some considerations:
   If a shell function, then we'd need to make a separate script for each shell.
   If a binary, then we'd to ship a cross-platform binary.
 
-- How does the function communicate with GitTerm?
+- How does the function communicate with GitSquatch?
 
   A web server is all that I can think of. The part that runs in the shell only
-  needs to send information to GitTerm, so something like `curl` can be used.
+  needs to send information to GitSquatch, so something like `curl` can be used.
 
 ## Workspace Detection within Terminal 📝
 

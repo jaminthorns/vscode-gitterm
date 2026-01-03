@@ -17,7 +17,7 @@ export const IssueLinkMatcher: LinkMatcher<{ issueNumber: string }> = {
     }
 
     const provideIssueLinks = vscode.workspace
-      .getConfiguration("gitterm.terminalLinks")
+      .getConfiguration("gitsquatch.terminalLinks")
       .get("provideIssueLinks") as "always" | "never"
 
     switch (provideIssueLinks) {

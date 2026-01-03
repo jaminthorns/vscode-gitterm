@@ -14,7 +14,7 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
 
   shouldProvide() {
     const provideCommitLinks = vscode.workspace
-      .getConfiguration("gitterm.terminalLinks")
+      .getConfiguration("gitsquatch.terminalLinks")
       .get("provideCommitRangeLinks") as "always" | "never"
 
     switch (provideCommitLinks) {

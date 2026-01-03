@@ -11,7 +11,7 @@ export const CommitLinkMatcher: LinkMatcher<{ commit: Commit }> = {
 
   shouldProvide() {
     const provideCommitLinks = vscode.workspace
-      .getConfiguration("gitterm.terminalLinks")
+      .getConfiguration("gitsquatch.terminalLinks")
       .get("provideCommitLinks") as "always" | "never"
 
     switch (provideCommitLinks) {

@@ -52,11 +52,11 @@ export function displayRange({ start, end }: LineRange): string {
 
 export function blameMoveCopyDetectionFlags(): string[] {
   const sameFile = vscode.workspace
-    .getConfiguration("gitterm.blame")
+    .getConfiguration("gitsquatch.blame")
     .get("sameFileMoveCopyDetection") as "on" | "off"
 
   const otherFiles = vscode.workspace
-    .getConfiguration("gitterm.blame")
+    .getConfiguration("gitsquatch.blame")
     .get("otherFilesMoveCopyDetection") as
     | "off"
     | "sameCommit"

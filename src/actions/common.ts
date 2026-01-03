@@ -65,7 +65,7 @@ export function showItem({
   showOptions: Record<ShowOption, ShowOptions>
 }) {
   const showDefault = vscode.workspace
-    .getConfiguration("gitterm.showDefault")
+    .getConfiguration("gitsquatch.showDefault")
     .get(configKey) as ShowOption
   const showSecondary = showDefault === "editor" ? "terminal" : "editor"
   const showDefaultOptions = showOptions[showDefault]
