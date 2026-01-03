@@ -1,7 +1,7 @@
 {
   "name": "gitsquatch",
   "displayName": "GitSquatch",
-  "description": "Rich integration between Git CLI and VS Code",
+  "description": "The missing link between Git and VS Code",
   "publisher": "jaminthorns",
   "icon": "assets/icon.png",
   "repository": {
