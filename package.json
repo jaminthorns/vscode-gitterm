@@ -3,7 +3,7 @@
   "displayName": "GitSquatch",
   "description": "The missing link between Git and VS Code",
   "publisher": "jaminthorns",
-  "icon": "assets/icon.png",
+  "icon": "assets/icons/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/jaminthorns/vscode-gitsquatch.git"

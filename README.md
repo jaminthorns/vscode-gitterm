@@ -33,39 +33,55 @@ gaps where needed, maybe you should try GitSquatch.
 
 ## Features
 
-### Commands
+### View change history for a folder
 
-- Folder history
-  - Right click folder in explorer
-  - Scroll through terminal
+<div style="display: inline-flex; flex-wrap: wrap; flex-direction: column; align-items: center;">
+  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/folder_history.gif?raw=true" width="500">
+  <em>Folder History</em>
+</div>
 
-- File history
-  - Press/show keyboard shortcut
-  - Scroll through terminal
+### View change history and blame for a whole file
 
-- Selection history (takes added/deleted lines into account)
-  - Select a function
-  - Press/show keyboard shortcut
-  - Scroll through terminal
+<div style="display: inline-flex; flex-wrap: wrap; gap: 16px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_history.gif?raw=true" width="500">
+    <em>File History</em>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_blame.gif?raw=true" width="500">
+    <em>File Blame</em>
+  </div>
+</div>
 
-- File blame
-  - Press/show keyboard shortcut
-  - Scroll through terminal
+### View change history and blame for the current selection
 
-- Selection blame (takes added/deleted lines into account)
-  - Select some code to blame
-  - Press/show keyboard shortcut
-  - Scroll through terminal
+<div style="display: inline-flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_history.gif?raw=true" width="500">
+    <em>Selection History</em>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_blame.gif?raw=true" width="500">
+    <em>Selection Blame</em>
+  </div>
+</div>
 
-- Open file at reference
-  - Press/show keyboard shortcut
-  - Search for a reference
-  - Open file at reference
+💡 Multiple selections are supported, and modified lines are taken into account
+so that the expected line ranges are used.
 
-- Selection search
-  - Select some constant
-  - Press/show keyboard shortcut
-  - Jump through matches
+### Open a file at a specific reference
+
+<div style="display: inline-flex; flex-direction: column; align-items: center;">
+  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/open_file_at_reference.gif?raw=true" width="500">
+  <em>Open File at Reference</em>
+</div>
+
+### Search the history of a specific string (also known as ["pickaxe search"](https://git-scm.com/book/en/v2/Git-Tools-Searching#_git_log_searching))
+
+<div style="display: inline-flex; flex-direction: column; align-items: center;">
+  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_search.gif?raw=true" width="500">
+  <em>Selection Search</em>
+</div>
 
 ### Terminal Links
 
