@@ -1,8 +1,14 @@
 # GitSquatch
 
-> The missing link between Git and Visual Studio Code.
+> The missing link between Git and VS Code
+
+An extension that tries to bridge the gap between using the Git CLI and editing
+in Visual Studio Code.
 
 ## Features
+
+GitSquatch's functionality mainly consists of editor commands (with default
+keyboard shortcuts) and providing terminal links to enhance Git CLI output.
 
 ### Folder History
 
@@ -132,7 +138,8 @@ navigate to a specific file revision.
 
 GitSquatch offers the ability to open commits, references, issues, and more in
 your browser. This functionality requires a "remote provider" to be implemented.
-Providers are implemented for the following remotes:
+
+The following remote providers are implemented:
 
 - [GitHub](src/remoteProviders/GitHubProvider.ts)
 
