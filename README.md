@@ -33,53 +33,76 @@ gaps where needed, maybe you should try GitSquatch.
 
 ## Features
 
-### View change history for a folder
+### Folder History
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/folder_history.gif?raw=true" width="500">
-  <figcaption>Folder History</figcaption>
-</figure>
+Right-click a folder from the Explorer view to view change history for a folder.
 
-### View change history and blame for a whole file
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/folder_history.gif?raw=true"
+width="500">
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_history.gif?raw=true" width="500">
-  <figcaption>File History</figcaption>
-</figure>
+### File History/Blame
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_blame.gif?raw=true" width="500">
-  <figcaption>File Blame</figcaption>
-</figure>
+View change history for a file.
 
-### View change history and blame for the current selection
+*Default Shortcut:* `Shift + Alt + H`
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_history.gif?raw=true" width="500">
-  <figcaption>Selection History</figcaption>
-</figure>
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_history.gif?raw=true"
+width="500">
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_blame.gif?raw=true" width="500">
-  <figcaption>Selection Blame</figcaption>
-</figure>
+View blame information for a file.
+
+*Default Shortcut:* `Shift + Alt + B`
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_blame.gif?raw=true"
+width="500">
+
+### Open File at Reference
+
+Quickly open the active file at a specific reference.
+
+*Default Shortcut:* `Shift + Alt + R`
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/open_file_at_reference.gif?raw=true"
+width="500">
+
+💡 When viewing a file at a revision, go-to clicking (`Ctrl/Cmd + Click`) will
+navigate to corresponding line in the working file.
+
+### Selection History/Blame
+
+View change history for the current selection.
+
+*Default Shortcut:* `Alt + H`
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_history.gif?raw=true"
+width="500">
+
+View blame information for the current selection.
+
+*Default Shortcut:* `Alt + B`
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_blame.gif?raw=true"
+width="500">
 
 💡 Multiple selections are supported, and modified lines are taken into account
 so that the expected line ranges are used.
 
-### Open a file at a specific reference
+### Selection Search (Pickaxe)
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/open_file_at_reference.gif?raw=true" width="500">
-  <figcaption>Open File at Reference</figcaption>
-</figure>
+Search the history of the currently selected string (also known as ["pickaxe
+search"](https://git-scm.com/book/en/v2/Git-Tools-Searching#_git_log_searching)).
 
-### Search the history of a specific string (also known as ["pickaxe search"](https://git-scm.com/book/en/v2/Git-Tools-Searching#_git_log_searching))
+*Default Shortcut:* `Alt + S`
 
-<figure>
-  <img src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_search.gif?raw=true" width="500">
-  <figcaption>Selection Search</figcaption>
-</figure>
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_search.gif?raw=true"
+width="500">
 
 ### Terminal Links
 
@@ -98,11 +121,6 @@ Links in terminals opened from commands take contextual info into account.
 Use to configure terminal applications to output [OSC
 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) links to
 navigate directly to file at a revision.
-
-### File at Revision Line Navigation
-
-When viewing a file at a revision, go-to clicking will navigate to corresponding
-line in working file.
 
 ### Remote Integration
 
