@@ -1,35 +1,6 @@
 # GitSquatch
 
-The missing link between Git and Visual Studio Code.
-
-## Philosophy
-
-I used to be an avid user of
-[GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens),
-but over time I found it bloated and started preferring the Git CLI for
-repository operations. VS Code has also added plenty of Git functionality as
-it's matured, so the need for a something like GitLens has diminished in my
-opinion.
-
-I figured I could build out the few features I needed into my own extension, so
-that's how this project started. As I added more functionality, I figured this
-might be something that others could use.
-
-Because of this history, GitSquatch has a very focused scope. The only
-functionality provided is read-only, nothing that will modify your Git
-repository. I favor using the Git CLI, and VS Code has plenty of that
-functionality built out already.
-
-Where VS Code's Git features fall a bit short is in the "history investigation"
-area, although this is improving with things like [blame
-annotations](https://code.visualstudio.com/docs/sourcecontrol/overview#:~:text=Git%20blame%20annotations),
-[the commit
-graph](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_graph-view-for-commit-history),
-and [the timeline
-view](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_timeline-view-for-file-history).
-
-So, if you prefer using the Git CLI and want a minimal extension to bridge some
-gaps where needed, maybe you should try GitSquatch.
+> The missing link between Git and Visual Studio Code.
 
 ## Features
 
@@ -45,7 +16,7 @@ width="500">
 
 View change history for a file.
 
-*Default Shortcut:* `Shift + Alt + H`
+_Default Shortcut:_ `Shift + Alt + H`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_history.gif?raw=true"
@@ -53,7 +24,7 @@ width="500">
 
 View blame information for a file.
 
-*Default Shortcut:* `Shift + Alt + B`
+_Default Shortcut:_ `Shift + Alt + B`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_blame.gif?raw=true"
@@ -63,20 +34,20 @@ width="500">
 
 Quickly open the active file at a specific reference.
 
-*Default Shortcut:* `Shift + Alt + R`
+_Default Shortcut:_ `Shift + Alt + R`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/open_file_at_reference.gif?raw=true"
 width="500">
 
 💡 When viewing a file at a revision, go-to clicking (`Ctrl/Cmd + Click`) will
-navigate to corresponding line in the working file.
+navigate to the corresponding line in the working file.
 
 ### Selection History/Blame
 
 View change history for the current selection.
 
-*Default Shortcut:* `Alt + H`
+_Default Shortcut:_ `Alt + H`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_history.gif?raw=true"
@@ -84,7 +55,7 @@ width="500">
 
 View blame information for the current selection.
 
-*Default Shortcut:* `Alt + B`
+_Default Shortcut:_ `Alt + B`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_blame.gif?raw=true"
@@ -98,32 +69,103 @@ so that the expected line ranges are used.
 Search the history of the currently selected string (also known as ["pickaxe
 search"](https://git-scm.com/book/en/v2/Git-Tools-Searching#_git_log_searching)).
 
-*Default Shortcut:* `Alt + S`
+_Default Shortcut:_ `Alt + S`
 
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_search.gif?raw=true"
 width="500">
 
-### Terminal Links
+### Commit Links
 
-- Commits
-- Commit ranges
-- Files (links for all files in repository, not just in working tree)
-- Local Branches
-- Remote Branches
-- Tags
-- Issues
+Click a commit ID to open in an editor, copy the ID, open on remote, and more.
 
-Links in terminals opened from commands take contextual info into account.
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/commit_link.gif?raw=true"
+width="500">
 
-### URI Handling
+### Commit Range Links
 
-Use to configure terminal applications to output [OSC
+Click a commit range when pulling to see what's changed.
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/commit_range_link.gif?raw=true"
+width="500">
+
+### File Links
+
+Enhanced file links for all files in a repository, not just in the working tree.
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_link.gif?raw=true"
+width="500">
+
+### Branch/Tag Links
+
+Quick actions for local branches, remote branches, and tags.
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/reference_link.gif?raw=true"
+width="500">
+
+### Issue Links
+
+Open issues in your browser directly from a commit message.
+
+<img
+src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/issue_link.gif?raw=true"
+width="500">
+
+### File-at-Revision URI
+
+GitSquatch registers a URI scheme to handle opening a file at a given revision
+(the `:<LINE>` portion is optional):
+
+```
+vscode://jaminthorns.gitsquatch/<COMMIT>:<PATH>:<LINE>
+```
+
+This can be used to configure terminal applications to output [OSC
 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) links to
-navigate directly to file at a revision.
+navigate to a specific file revision.
 
 ### Remote Integration
 
-Open commits, references, and issues on supported remotes:
+GitSquatch offers the ability to open commits, references, issues, and more in
+your browser. This functionality requires a "remote provider" to be implemented.
+Providers are implemented for the following remotes:
 
 - [GitHub](src/remoteProviders/GitHubProvider.ts)
+
+## History
+
+I used to be an avid user of
+[GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens).
+It's a wonderful extension, but over time I found it bloated and started
+preferring the Git CLI for most things. VS Code offers plenty of Git
+functionality out-of-the-box, but there's a specific lack in the "history
+investigation" area (though there are features like [blame
+annotations](https://code.visualstudio.com/docs/sourcecontrol/overview#:~:text=Git%20blame%20annotations),
+[the commit
+graph](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_graph-view-for-commit-history),
+and [the timeline
+view](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_timeline-view-for-file-history)).
+
+GitSquatch mainly exists for 2 reasons:
+
+1. I wanted a way to execute certain Git commands directly from an editor.
+   Something like [viewing the history of a line range in a
+   file](https://git-scm.com/docs/git-log#Documentation/git-log.txt--Lstartendfile)
+   should be as simple as selecting a region and pressing a keyboard shortcut.
+
+2. The ability of VS Code extensions to provide terminal links means that I
+   could turn Git's CLI output into more of an interactive interface while
+   maintaining all the flexibility of CLI usage.
+
+This explains the bulk of this extension's functionality (editor commands and
+terminal links). I've added a few other quality-of-life features that makes this
+the only Git-related VS Code extension that I use.
+
+GitSquatch is an extension built specifically around my needs, and therefore it
+has a very focused scope. It's definitely not trying to be everything for
+everyone, but I figure if another person enjoys using it, then it's worth
+sharing and improving.
