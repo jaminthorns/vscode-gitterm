@@ -18,7 +18,7 @@ Right-click a folder from the Explorer view to view change history for a folder.
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/folder_history.gif?raw=true"
 width="500">
 
-### File History/Blame
+### File History
 
 View change history for a file.
 
@@ -27,6 +27,8 @@ _Default Shortcut:_ `Shift + Alt + H`
 <img
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/file_history.gif?raw=true"
 width="500">
+
+### File Blame
 
 View blame information for a file.
 
@@ -49,7 +51,7 @@ width="500">
 💡 When viewing a file at a revision, go-to clicking (`Ctrl/Cmd + Click`) will
 navigate to the corresponding line in the working file.
 
-### Selection History/Blame
+### Selection History
 
 View change history for the current selection.
 
@@ -59,6 +61,8 @@ _Default Shortcut:_ `Alt + H`
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_history.gif?raw=true"
 width="500">
 
+### Selection Blame
+
 View blame information for the current selection.
 
 _Default Shortcut:_ `Alt + B`
@@ -67,8 +71,9 @@ _Default Shortcut:_ `Alt + B`
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/selection_blame.gif?raw=true"
 width="500">
 
-💡 Multiple selections are supported, and modified lines are taken into account
-so that the expected line ranges are used.
+💡 For both selection history and selection blame, multiple selections are
+supported, and modified lines are taken into account so that the expected line
+ranges are used.
 
 ### Selection Search (Pickaxe)
 
