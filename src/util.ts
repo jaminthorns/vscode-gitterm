@@ -226,6 +226,7 @@ export function reverseHistoryArgs(revision: string): {
   }
 }
 
+// TODO: This needs to be refactored to provide the revision and a relative path
 export function uriRevision(uri: vscode.Uri): string {
   if (uri.scheme === "file") {
     return "HEAD"
