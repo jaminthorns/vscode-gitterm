@@ -2,13 +2,18 @@
 
 > The missing link between Git and VS Code
 
-An extension that tries to bridge the gap between using the Git CLI and editing
+An extension that aims to bridge the gap between using the Git CLI and editing
 in Visual Studio Code.
 
 ## Features
 
-GitSquatch's functionality mainly consists of editor commands (with default
-keyboard shortcuts) and providing terminal links to enhance Git CLI output.
+GitSquatch's functionality consists mainly of Git history-related editor
+commands and providing terminal links to enhance Git CLI output with interactive
+actions.
+
+Try viewing line history from a file diff or clicking a commit ID in the
+terminal. The way features integrate together let you blaze a trail through your
+repository's history.
 
 ### Folder History
 
@@ -48,8 +53,8 @@ _Default Shortcut:_ `Shift + Alt + R`
 src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/open_file_at_reference.gif?raw=true"
 width="500">
 
-💡 When viewing a file at a revision, go-to clicking (`Ctrl/Cmd + Click`) will
-navigate to the corresponding line in the working file.
+💡 When viewing a file at a revision, go-to clicking (`Ctrl/Cmd + Click`) any
+line will navigate to the corresponding line in the working file.
 
 ### Selection History
 
@@ -72,7 +77,7 @@ src="https://github.com/jaminthorns/vscode-gitterm/blob/squatch/assets/demos/sel
 width="500">
 
 💡 For both selection history and selection blame, multiple selections are
-supported, and modified lines are taken into account so that the expected line
+supported. Modified lines are also taken into account so that the expected line
 ranges are used.
 
 ### Selection Search (Pickaxe)
@@ -141,10 +146,10 @@ navigate to a specific file revision.
 
 ### Remote Integration
 
-GitSquatch offers the ability to open commits, references, issues, and more in
-your browser. This functionality requires a "remote provider" to be implemented.
+GitSquatch can open commits, references, issues, and more in your browser. This
+functionality requires a "remote provider" to be implemented.
 
-The following remote providers are implemented:
+Providers are implemented for the following remotes:
 
 - [GitHub](src/remoteProviders/GitHubProvider.ts)
 
@@ -153,31 +158,26 @@ The following remote providers are implemented:
 I used to be an avid user of
 [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens).
 It's a wonderful extension, but over time I found it bloated and started
-preferring the Git CLI for most things. VS Code offers plenty of Git
-functionality out-of-the-box, but there's a specific lack in the "history
-investigation" area (though there are features like [blame
-annotations](https://code.visualstudio.com/docs/sourcecontrol/overview#:~:text=Git%20blame%20annotations),
-[the commit
-graph](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_graph-view-for-commit-history),
-and [the timeline
-view](https://code.visualstudio.com/docs/sourcecontrol/staging-commits#_timeline-view-for-file-history)).
+preferring the Git CLI for most operations. VS Code offers plenty of Git
+functionality out-of-the-box, but some commands I'd rather use the CLI for, and
+other simply aren't available.
 
 GitSquatch mainly exists for 2 reasons:
 
-1. I wanted a way to execute certain Git commands directly from an editor.
+1. I wanted a way to execute certain Git CLI commands directly from an editor.
    Something like [viewing the history of a line range in a
    file](https://git-scm.com/docs/git-log#Documentation/git-log.txt--Lstartendfile)
    should be as simple as selecting a region and pressing a keyboard shortcut.
 
-2. The ability of VS Code extensions to provide terminal links means that I
+2. The ability for VS Code extensions to provide terminal links means that I
    could turn Git's CLI output into more of an interactive interface while
-   maintaining all the flexibility of CLI usage.
+   maintaining the flexibility of CLI usage.
 
 This explains the bulk of this extension's functionality (editor commands and
 terminal links). I've added a few other quality-of-life features that makes this
-the only Git-related VS Code extension that I use.
+the only Git-related VS Code extension that I need.
 
-GitSquatch is an extension built specifically around my needs, and therefore it
-has a very focused scope. It's definitely not trying to be everything for
+GitSquatch is an extension built specifically around my preferences, and
+therefore it has a very focused scope. It's not trying to be everything for
 everyone, but I figure if another person enjoys using it, then it's worth
 sharing and improving.
