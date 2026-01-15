@@ -241,6 +241,13 @@ export function uriRevision(uri: vscode.Uri): string {
   }
 }
 
+export function uriRevisionPath(uri: vscode.Uri): {
+  revision: string
+  path: string
+} {
+  return { revision: "", path: "" }
+}
+
 export async function getValidatedRepository(
   uri: vscode.Uri,
   repositories: RepositoryStore,
