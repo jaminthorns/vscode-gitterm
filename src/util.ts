@@ -230,7 +230,10 @@ export function reverseHistoryArgs(revision: string): {
 export function uriRevision(uri: vscode.Uri): string {
   if (uri.scheme === "file") {
     return "HEAD"
-  } else if (uri.scheme === "git" || uri.scheme === "git-commit") {
+  } else if (
+    uri.scheme === "git" ||
+    uri.scheme === "git-commit" // This is gone!
+  ) {
     return JSON.parse(uri.query).ref
   } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
     return JSON.parse(uri.query).historyItemId
@@ -241,11 +244,36 @@ export function uriRevision(uri: vscode.Uri): string {
   }
 }
 
+// We actually probably don't need this
 export function uriRevisionPath(uri: vscode.Uri): {
   revision: string
   path: string
 } {
-  return { revision: "", path: "" }
+  if (uri.scheme === "file") {
+    return {
+      revision: "HEAD",
+      path: vscode.workspace.asRelativePath(uri, false),
+    }
+  } else if (uri.scheme === "git" || uri.scheme === "git-commit") {
+    const { ref, path } = JSON.parse(uri.query)
+
+    return {
+      revision: ref,
+      path: vscode.workspace.asRelativePath(path, false),
+    }
+  } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
+    return {
+      revision: JSON.parse(uri.query).historyItemId,
+      path: "",
+    }
+  } else if (uri.scheme === "scm-history-item" && uri.query === "") {
+    return {
+      revision: basename(uri.path).split("..")[1],
+      path: "",
+    }
+  } else {
+    throw Error(`Cannot get revision from URI: ${uri}`)
+  }
 }
 
 export async function getValidatedRepository(
