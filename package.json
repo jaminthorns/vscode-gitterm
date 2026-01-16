@@ -114,27 +114,27 @@
         },
         {
           "command": "gitterm.activeFileHistory",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.activeFileBlame",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.activeFileAtReference",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.selectionHistory",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.selectionBlame",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.selectionSearch",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/ && editorHasSelection"
         }
       ],
       "explorer/context": [
@@ -163,68 +163,68 @@
         {
           "command": "gitterm.showCommitActions",
           "group": "navigation@0",
-          "when": "resourceScheme =~ /^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^git$|^review$|^git-commit|^scm-history-item$/"
         }
       ],
       "editor/title/context": [
         {
           "command": "gitterm.fileHistory",
           "group": "10_gitterm_file@0",
-          "when": "resourceScheme =~ /^file$|^git$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$/"
         },
         {
           "command": "gitterm.fileBlame",
           "group": "10_gitterm_file@1",
-          "when": "resourceScheme =~ /^file$|^git$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$/"
         },
         {
           "command": "gitterm.fileAtReference",
           "group": "10_gitterm_file@1",
-          "when": "resourceScheme =~ /^file$|^git$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$/"
         }
       ],
       "editor/context": [
         {
           "command": "gitterm.selectionHistory",
           "group": "10_gitterm_selection@0",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.selectionBlame",
           "group": "10_gitterm_selection@1",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.selectionSearch",
           "group": "10_gitterm_selection@2",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/ && editorHasSelection"
         },
         {
           "command": "gitterm.activeFileHistory",
           "group": "11_gitterm_file@0",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.activeFileBlame",
           "group": "11_gitterm_file@1",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.activeFileAtReference",
           "group": "11_gitterm_file@1",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         }
       ],
       "editor/lineNumber/context": [
         {
           "command": "gitterm.lineHistory",
           "group": "00_gitterm_line@0",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         },
         {
           "command": "gitterm.lineBlame",
           "group": "00_gitterm_line@1",
-          "when": "resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+          "when": "resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
         }
       ]
     },
@@ -232,32 +232,32 @@
       {
         "command": "gitterm.activeFileHistory",
         "key": "alt+shift+h",
-        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
       },
       {
         "command": "gitterm.activeFileBlame",
         "key": "alt+shift+b",
-        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
       },
       {
         "command": "gitterm.activeFileAtReference",
         "key": "alt+shift+r",
-        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        "when": "editorFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
       },
       {
         "command": "gitterm.selectionHistory",
         "key": "alt+h",
-        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
       },
       {
         "command": "gitterm.selectionBlame",
         "key": "alt+b",
-        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/"
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/"
       },
       {
         "command": "gitterm.selectionSearch",
         "key": "alt+s",
-        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^git-commit|^scm-history-item$/ && editorHasSelection"
+        "when": "editorTextFocus && resourceScheme =~ /^file$|^git$|^review$|^git-commit|^scm-history-item$|^scm-multi-diff-source$|^multi-diff-editor$/ && editorHasSelection"
       }
     ],
     "configuration": {

@@ -63,6 +63,27 @@ suite("uriRevisionPath for different schemes", () => {
     equal(revision, commitId)
     equal(path, "")
   })
+
+  test("review scheme (from GitHub Pull Requests)", () => {
+    const commitId = "7dd94a2af298a9c1f7e038ef38b57ad5dab8e190"
+
+    const uri = vscode.Uri.from({
+      scheme: "review",
+      path: `/commit~7dd94a2a/${workspacePath("test_file.txt")}`,
+      query: JSON.stringify({
+        path: workspacePath("test_file.txt"),
+        commit: commitId,
+        base: true,
+        isOutdated: true,
+        rootPath: workspacePath(""),
+      }),
+    })
+
+    const { revision, path } = uriRevisionPath(uri)
+
+    equal(revision, commitId)
+    equal(path, "test_file.txt")
+  })
 })
 
 function workspacePath(relativePath: string) {

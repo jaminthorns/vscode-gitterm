@@ -239,6 +239,8 @@ export function uriRevision(uri: vscode.Uri): string {
     return JSON.parse(uri.query).historyItemId
   } else if (uri.scheme === "scm-history-item" && uri.query === "") {
     return basename(uri.path).split("..")[1]
+  } else if (uri.scheme === "review") {
+    return JSON.parse(uri.query).commit
   } else {
     throw Error(`Cannot get revision from URI: ${uri}`)
   }
@@ -258,7 +260,7 @@ export function uriRevisionPath(uri: vscode.Uri): {
     const { ref, path } = JSON.parse(uri.query)
 
     return {
-      revision: ref,
+      revision: ref === "~" ? "HEAD" : ref,
       path: vscode.workspace.asRelativePath(path, false),
     }
   } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
@@ -270,6 +272,13 @@ export function uriRevisionPath(uri: vscode.Uri): {
     return {
       revision: basename(uri.path).split("..")[1],
       path: "",
+    }
+  } else if (uri.scheme === "review") {
+    const { commit, path } = JSON.parse(uri.query)
+
+    return {
+      revision: commit,
+      path: vscode.workspace.asRelativePath(path, false),
     }
   } else {
     throw Error(`Cannot get revision from URI: ${uri}`)
