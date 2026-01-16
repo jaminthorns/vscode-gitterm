@@ -226,15 +226,15 @@ export function reverseHistoryArgs(revision: string): {
   }
 }
 
-// TODO: This needs to be refactored to provide the revision and a relative path
 export function uriRevision(uri: vscode.Uri): string {
   if (uri.scheme === "file") {
     return "HEAD"
   } else if (
     uri.scheme === "git" ||
-    uri.scheme === "git-commit" // This is gone!
+    uri.scheme === "git-commit" // This scheme is no longer used by VS Code, just this extension
   ) {
-    return JSON.parse(uri.query).ref
+    const revision = JSON.parse(uri.query).ref
+    return revision === "~" ? "HEAD" : revision
   } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
     return JSON.parse(uri.query).historyItemId
   } else if (uri.scheme === "scm-history-item" && uri.query === "") {
