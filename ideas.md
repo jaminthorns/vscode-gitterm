@@ -168,3 +168,11 @@ commands. The user wouldn't be able to reuse the terminal by exiting to the
 shell, which could be benefit or a drawback depending on the situation. A
 benefit would be that Git commands could be specified in a shell-agnostic way.
 This might make more sense architecturally and alleviate string-escaping issues.
+
+# Consolidate file/folder history and support multiple selections ❗
+
+It would be nice if you could select multiple explorer items and get their
+history. This would require consolidating the File History and Folder History
+commands, probably into something called "Path History". By default, they have
+different use cases (File History shows patches, Folder History shows stats),
+but in my own setup, I made them the same, so it probably doesn't matter.
