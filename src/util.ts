@@ -241,22 +241,28 @@ export function uriRevision(uri: vscode.Uri): string {
     return basename(uri.path).split("..")[1]
   } else if (uri.scheme === "review") {
     return JSON.parse(uri.query).commit
+  } else if (uri.scheme === "pr") {
+    const { baseCommit, headCommit, isBase } = JSON.parse(uri.query)
+    return isBase ? baseCommit : headCommit
   } else {
     throw Error(`Cannot get revision from URI: ${uri}`)
   }
 }
 
-// We actually probably don't need this
+// Some URIs (like the review scheme) have a garbled path, which means we can't
+// ever trust an incoming URI to properly represent its file system path.
 export function uriRevisionPath(uri: vscode.Uri): {
   revision: string
   path: string
 } {
   if (uri.scheme === "file") {
+    // Workspace file URI
     return {
       revision: "HEAD",
       path: vscode.workspace.asRelativePath(uri, false),
     }
   } else if (uri.scheme === "git" || uri.scheme === "git-commit") {
+    // Used for document and diff editor URIs across VS Code
     const { ref, path } = JSON.parse(uri.query)
 
     return {
@@ -264,21 +270,34 @@ export function uriRevisionPath(uri: vscode.Uri): {
       path: vscode.workspace.asRelativePath(path, false),
     }
   } else if (uri.scheme === "scm-history-item" && uri.query !== "") {
+    // Used for multi-diff editor URIs opened from source control graph
     return {
       revision: JSON.parse(uri.query).historyItemId,
       path: "",
     }
   } else if (uri.scheme === "scm-history-item" && uri.query === "") {
+    // Used for multi-diff editor URIs opened from timeline view
     return {
       revision: basename(uri.path).split("..")[1],
       path: "",
     }
   } else if (uri.scheme === "review") {
+    // Used for document, diff editor, and multi-diff editor URIs in
+    // GitHub.vscode-pull-request-github when PR branch checked out
     const { commit, path } = JSON.parse(uri.query)
 
     return {
       revision: commit,
       path: vscode.workspace.asRelativePath(path, false),
+    }
+  } else if (uri.scheme === "pr") {
+    // Used for document, diff editor, and multi-diff editor URIs in
+    // GitHub.vscode-pull-request-github when PR branch not checked out
+    const { baseCommit, headCommit, isBase, fileName } = JSON.parse(uri.query)
+
+    return {
+      revision: isBase ? baseCommit : headCommit,
+      path: fileName,
     }
   } else {
     throw Error(`Cannot get revision from URI: ${uri}`)
