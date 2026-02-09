@@ -176,3 +176,10 @@ history. This would require consolidating the File History and Folder History
 commands, probably into something called "Path History". By default, they have
 different use cases (File History shows patches, Folder History shows stats),
 but in my own setup, I made them the same, so it probably doesn't matter.
+
+# Open commit message in editor 🤔
+
+Long commit messages aren't able to be viewed in a dedicated place (only in
+blame and timeline/graph item hovers). It would be nice if the alternative
+option for copying a commit message could be to open it in an editor. Maybe make
+viewing it in an editor the default with copying it as the alternative option?
