@@ -241,6 +241,7 @@ export function uriRevision(uri: vscode.Uri): string {
   }
 }
 
+
 export async function getValidatedRepository(
   uri: vscode.Uri,
   repositories: RepositoryStore,
@@ -255,6 +256,9 @@ export async function getValidatedRepository(
   }
 
   try {
+    // TODO: This needs to evaluate whether a file exists at a specific
+    // revision, not just HEAD (like for vieweing file/line history of a deleted
+    // file in a revision)
     await git("ls-files", ["--error-unmatch", filename], {
       directory: repository.directory,
     })
